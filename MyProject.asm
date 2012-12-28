@@ -123,6 +123,24 @@ L_end_Motor_B_BWD:
 	RETURN
 ; end of _Motor_B_BWD
 
+_Backward:
+
+;motor.h,114 :: 		void Backward(char speed)
+;motor.h,116 :: 		Motor_Init();
+	CALL       _Motor_Init+0
+;motor.h,117 :: 		Change_Duty(speed);
+	MOVF       FARG_Backward_speed+0, 0
+	MOVWF      FARG_Change_Duty_speed+0
+	CALL       _Change_Duty+0
+;motor.h,118 :: 		Motor_A_BWD();
+	CALL       _Motor_A_BWD+0
+;motor.h,119 :: 		Motor_B_BWD();
+	CALL       _Motor_B_BWD+0
+;motor.h,120 :: 		}
+L_end_Backward:
+	RETURN
+; end of _Backward
+
 _S_Right:
 
 ;motor.h,124 :: 		void S_Right(char speed)
@@ -197,21 +215,21 @@ _Adc_Rd:
 	SUBLW      3
 	BTFSS      STATUS+0, 0
 	GOTO       L_Adc_Rd4
-L__Adc_Rd100:
+L__Adc_Rd60:
 ;adc.h,5 :: 		TRISA |= (1<<ch);
 	MOVF       FARG_Adc_Rd_ch+0, 0
 	MOVWF      R1+0
 	MOVLW      1
 	MOVWF      R0+0
 	MOVF       R1+0, 0
-L__Adc_Rd112:
+L__Adc_Rd74:
 	BTFSC      STATUS+0, 2
-	GOTO       L__Adc_Rd113
+	GOTO       L__Adc_Rd75
 	RLF        R0+0, 1
 	BCF        R0+0, 0
 	ADDLW      255
-	GOTO       L__Adc_Rd112
-L__Adc_Rd113:
+	GOTO       L__Adc_Rd74
+L__Adc_Rd75:
 	MOVF       R0+0, 0
 	IORWF      TRISA+0, 1
 	GOTO       L_Adc_Rd5
@@ -234,7 +252,7 @@ L_Adc_Rd6:
 	SUBLW      7
 	BTFSS      STATUS+0, 0
 	GOTO       L_Adc_Rd10
-L__Adc_Rd99:
+L__Adc_Rd59:
 ;adc.h,9 :: 		TRISE |= (1<<(ch-5));
 	MOVLW      5
 	SUBWF      FARG_Adc_Rd_ch+0, 0
@@ -244,14 +262,14 @@ L__Adc_Rd99:
 	MOVLW      1
 	MOVWF      R0+0
 	MOVF       R1+0, 0
-L__Adc_Rd114:
+L__Adc_Rd76:
 	BTFSC      STATUS+0, 2
-	GOTO       L__Adc_Rd115
+	GOTO       L__Adc_Rd77
 	RLF        R0+0, 1
 	BCF        R0+0, 0
 	ADDLW      255
-	GOTO       L__Adc_Rd114
-L__Adc_Rd115:
+	GOTO       L__Adc_Rd76
+L__Adc_Rd77:
 	MOVF       R0+0, 0
 	IORWF      TRISE+0, 1
 L_Adc_Rd10:
@@ -263,14 +281,14 @@ L_Adc_Rd5:
 	MOVLW      1
 	MOVWF      R0+0
 	MOVF       R1+0, 0
-L__Adc_Rd116:
+L__Adc_Rd78:
 	BTFSC      STATUS+0, 2
-	GOTO       L__Adc_Rd117
+	GOTO       L__Adc_Rd79
 	RLF        R0+0, 1
 	BCF        R0+0, 0
 	ADDLW      255
-	GOTO       L__Adc_Rd116
-L__Adc_Rd117:
+	GOTO       L__Adc_Rd78
+L__Adc_Rd79:
 	MOVF       R0+0, 0
 	IORWF      ANSEL+0, 1
 ;adc.h,11 :: 		ADCON0 = (0xC1 + (ch*4));     // Select ADC Channel
@@ -313,14 +331,14 @@ L_Adc_Rd13:
 	MOVF       ADRESL+0, 0
 	MOVWF      R0+0
 	MOVF       R1+0, 0
-L__Adc_Rd118:
+L__Adc_Rd80:
 	BTFSC      STATUS+0, 2
-	GOTO       L__Adc_Rd119
+	GOTO       L__Adc_Rd81
 	RRF        R0+0, 1
 	BCF        R0+0, 7
 	ADDLW      255
-	GOTO       L__Adc_Rd118
-L__Adc_Rd119:
+	GOTO       L__Adc_Rd80
+L__Adc_Rd81:
 	MOVLW      0
 	MOVWF      R0+1
 	MOVF       R2+0, 0
@@ -337,7 +355,7 @@ L_end_Adc_Rd:
 
 _isSafe:
 
-;safedriving.h,9 :: 		short isSafe()   // функция возвращает 1 если препятствий нет.
+;safedriving.h,9 :: 		short isSafe()   // функция возвращает расстояние до объекта в сантиметрах.
 ;safedriving.h,11 :: 		float Distance=100; // в эту переменную будем сохранять
 	MOVLW      0
 	MOVWF      isSafe_Distance_L0+0
@@ -364,10 +382,10 @@ _isSafe:
 	XORWF      R0+1, 0
 	SUBWF      R2+0, 0
 	BTFSS      STATUS+0, 2
-	GOTO       L__isSafe121
+	GOTO       L__isSafe83
 	MOVF       R0+0, 0
 	SUBLW      90
-L__isSafe121:
+L__isSafe83:
 	BTFSC      STATUS+0, 0
 	GOTO       L_isSafe14
 ;safedriving.h,16 :: 		Distance=(2914.0/(GP2+5))-1;  // переводим в сантиметры
@@ -415,15 +433,7 @@ L__isSafe121:
 	MOVWF      isSafe_Distance_L0+3
 ;safedriving.h,17 :: 		}
 L_isSafe14:
-;safedriving.h,18 :: 		if(fabs(Distance-100)<1)
-	MOVLW      0
-	MOVWF      R4+0
-	MOVLW      0
-	MOVWF      R4+1
-	MOVLW      72
-	MOVWF      R4+2
-	MOVLW      133
-	MOVWF      R4+3
+;safedriving.h,18 :: 		return Distance;
 	MOVF       isSafe_Distance_L0+0, 0
 	MOVWF      R0+0
 	MOVF       isSafe_Distance_L0+1, 0
@@ -432,105 +442,63 @@ L_isSafe14:
 	MOVWF      R0+2
 	MOVF       isSafe_Distance_L0+3, 0
 	MOVWF      R0+3
-	CALL       _Sub_32x32_FP+0
-	MOVF       R0+0, 0
-	MOVWF      FARG_fabs_d+0
-	MOVF       R0+1, 0
-	MOVWF      FARG_fabs_d+1
-	MOVF       R0+2, 0
-	MOVWF      FARG_fabs_d+2
-	MOVF       R0+3, 0
-	MOVWF      FARG_fabs_d+3
-	CALL       _fabs+0
-	MOVLW      0
-	MOVWF      R4+0
-	MOVLW      0
-	MOVWF      R4+1
-	MOVLW      0
-	MOVWF      R4+2
-	MOVLW      127
-	MOVWF      R4+3
-	CALL       _Compare_Double+0
-	MOVLW      1
-	BTFSC      STATUS+0, 0
-	MOVLW      0
-	MOVWF      R0+0
-	MOVF       R0+0, 0
-	BTFSC      STATUS+0, 2
-	GOTO       L_isSafe15
-;safedriving.h,19 :: 		return 1;
-	MOVLW      1
-	MOVWF      R0+0
-	GOTO       L_end_isSafe
-L_isSafe15:
-;safedriving.h,21 :: 		return 0;
-	CLRF       R0+0
-;safedriving.h,23 :: 		}
+	CALL       _Double2Int+0
+;safedriving.h,20 :: 		}
 L_end_isSafe:
 	RETURN
 ; end of _isSafe
 
-_SForward:
+_isMetall:
 
-;a.h,53 :: 		short SForward()
-;a.h,55 :: 		if(isSafe())
-	CALL       _isSafe+0
+;a.h,51 :: 		short isMetall()
+;a.h,54 :: 		m=Adc_Rd(1);
+	MOVLW      1
+	MOVWF      FARG_Adc_Rd_ch+0
+	CALL       _Adc_Rd+0
 	MOVF       R0+0, 0
-	BTFSC      STATUS+0, 2
-	GOTO       L_SForward17
-;a.h,57 :: 		Motor_Init();
-	CALL       _Motor_Init+0
-;a.h,58 :: 		Change_Duty(255);
-	MOVLW      255
-	MOVWF      FARG_Change_Duty_speed+0
-	CALL       _Change_Duty+0
-;a.h,59 :: 		Motor_A_FWD();
-	CALL       _Motor_A_FWD+0
-;a.h,60 :: 		Motor_B_FWD();
-	CALL       _Motor_B_FWD+0
-;a.h,61 :: 		delay_ms(1000);
-	MOVLW      11
-	MOVWF      R11+0
-	MOVLW      38
-	MOVWF      R12+0
-	MOVLW      93
-	MOVWF      R13+0
-L_SForward18:
-	DECFSZ     R13+0, 1
-	GOTO       L_SForward18
-	DECFSZ     R12+0, 1
-	GOTO       L_SForward18
-	DECFSZ     R11+0, 1
-	GOTO       L_SForward18
-	NOP
-	NOP
-;a.h,62 :: 		return 1;
+	MOVWF      isMetall_m_L0+0
+;a.h,55 :: 		if(m>0 && m<50)
+	MOVLW      128
+	XORLW      0
+	MOVWF      R2+0
+	MOVLW      128
+	XORWF      R0+0, 0
+	SUBWF      R2+0, 0
+	BTFSC      STATUS+0, 0
+	GOTO       L_isMetall17
+	MOVLW      128
+	XORWF      isMetall_m_L0+0, 0
+	MOVWF      R0+0
+	MOVLW      128
+	XORLW      50
+	SUBWF      R0+0, 0
+	BTFSC      STATUS+0, 0
+	GOTO       L_isMetall17
+L__isMetall61:
+;a.h,56 :: 		return 1;
 	MOVLW      1
 	MOVWF      R0+0
-	GOTO       L_end_SForward
-;a.h,63 :: 		}
-L_SForward17:
-;a.h,66 :: 		Map_update();
-	CALL       _Map_update+0
-;a.h,67 :: 		return 0;
+	GOTO       L_end_isMetall
+L_isMetall17:
+;a.h,58 :: 		return 0;
 	CLRF       R0+0
-;a.h,69 :: 		}
-L_end_SForward:
+;a.h,59 :: 		}
+L_end_isMetall:
 	RETURN
-; end of _SForward
+; end of _isMetall
 
 _comp:
 
-;a.h,71 :: 		short comp(short d1,short d2)
-;a.h,73 :: 		if(d1==d2) return 0;
+;a.h,61 :: 		short comp(short d1,short d2)
+;a.h,63 :: 		if(d1==d2) return 0; // операнды равны
 	MOVF       FARG_comp_d1+0, 0
 	XORWF      FARG_comp_d2+0, 0
 	BTFSS      STATUS+0, 2
-	GOTO       L_comp20
+	GOTO       L_comp19
 	CLRF       R0+0
 	GOTO       L_end_comp
-L_comp20:
-;a.h,74 :: 		if(d1>d2) return 1;
+L_comp19:
+;a.h,64 :: 		if(d1>d2) return 1; // первый больше второго
 	MOVLW      128
 	XORWF      FARG_comp_d2+0, 0
 	MOVWF      R0+0
@@ -538,23 +506,23 @@ L_comp20:
 	XORWF      FARG_comp_d1+0, 0
 	SUBWF      R0+0, 0
 	BTFSC      STATUS+0, 0
-	GOTO       L_comp21
+	GOTO       L_comp20
 	MOVLW      1
 	MOVWF      R0+0
 	GOTO       L_end_comp
-L_comp21:
-;a.h,75 :: 		else return -1;
+L_comp20:
+;a.h,65 :: 		else return -1; // первый меньше второго
 	MOVLW      255
 	MOVWF      R0+0
-;a.h,76 :: 		}
+;a.h,66 :: 		}
 L_end_comp:
 	RETURN
 ; end of _comp
 
 _SMove:
 
-;a.h,78 :: 		short SMove(short nx,short ny)
-;a.h,84 :: 		ax=comp(cX,nx);  // сравниваем текущие координаты с заданными
+;a.h,69 :: 		short SMove(short nx,short ny)
+;a.h,75 :: 		ax=comp(cX,nx);  // сравниваем текущие координаты с заданными
 	MOVF       _cX+0, 0
 	MOVWF      FARG_comp_d1+0
 	MOVF       FARG_SMove_nx+0, 0
@@ -562,162 +530,269 @@ _SMove:
 	CALL       _comp+0
 	MOVF       R0+0, 0
 	MOVWF      SMove_ax_L0+0
-;a.h,86 :: 		ry==comp(cY,ny);
+;a.h,77 :: 		ry==comp(cY,ny);
 	MOVF       _cY+0, 0
 	MOVWF      FARG_comp_d1+0
 	MOVF       FARG_SMove_ny+0, 0
 	MOVWF      FARG_comp_d2+0
 	CALL       _comp+0
-;a.h,87 :: 		if(ax==-1)      // в зависимости от результатов - определяем нужное направление
+;a.h,78 :: 		if(ax==-1)      // в зависимости от результатов - определяем нужное направление
 	MOVF       SMove_ax_L0+0, 0
 	XORLW      255
 	BTFSS      STATUS+0, 2
-	GOTO       L_SMove23
-;a.h,88 :: 		nd=3+ry;
+	GOTO       L_SMove22
+;a.h,79 :: 		nd=3+ry;
 	MOVF       SMove_ry_L0+0, 0
 	ADDLW      3
 	MOVWF      SMove_nd_L0+0
-L_SMove23:
-;a.h,89 :: 		if(ax==0)
+L_SMove22:
+;a.h,80 :: 		if(ax==0)
 	MOVF       SMove_ax_L0+0, 0
 	XORLW      0
 	BTFSS      STATUS+0, 2
+	GOTO       L_SMove23
+;a.h,81 :: 		switch(ry)
 	GOTO       L_SMove24
-;a.h,90 :: 		switch(ry)
-	GOTO       L_SMove25
-;a.h,92 :: 		case -1:
-L_SMove27:
-;a.h,93 :: 		nd=1;
+;a.h,83 :: 		case -1:
+L_SMove26:
+;a.h,84 :: 		nd=1;
 	MOVLW      1
 	MOVWF      SMove_nd_L0+0
-;a.h,94 :: 		break;
-	GOTO       L_SMove26
-;a.h,95 :: 		case 0:
-L_SMove28:
-;a.h,96 :: 		nd=cdirection;
+;a.h,85 :: 		break;
+	GOTO       L_SMove25
+;a.h,86 :: 		case 0:
+L_SMove27:
+;a.h,87 :: 		nd=cdirection;
 	MOVF       _cdirection+0, 0
 	MOVWF      SMove_nd_L0+0
-;a.h,98 :: 		break;
-	GOTO       L_SMove26
-;a.h,99 :: 		case 1:
-L_SMove29:
-;a.h,100 :: 		nd=5;
+;a.h,89 :: 		break;
+	GOTO       L_SMove25
+;a.h,90 :: 		case 1:
+L_SMove28:
+;a.h,91 :: 		nd=5;
 	MOVLW      5
 	MOVWF      SMove_nd_L0+0
-;a.h,101 :: 		break;
-	GOTO       L_SMove26
-;a.h,103 :: 		}
-L_SMove25:
+;a.h,92 :: 		break;
+	GOTO       L_SMove25
+;a.h,94 :: 		}
+L_SMove24:
 	MOVF       SMove_ry_L0+0, 0
 	XORLW      255
 	BTFSC      STATUS+0, 2
-	GOTO       L_SMove27
+	GOTO       L_SMove26
 	MOVF       SMove_ry_L0+0, 0
 	XORLW      0
 	BTFSC      STATUS+0, 2
-	GOTO       L_SMove28
+	GOTO       L_SMove27
 	MOVF       SMove_ry_L0+0, 0
 	XORLW      1
 	BTFSC      STATUS+0, 2
-	GOTO       L_SMove29
-L_SMove26:
-L_SMove24:
-;a.h,104 :: 		if(ax==1)
+	GOTO       L_SMove28
+L_SMove25:
+L_SMove23:
+;a.h,95 :: 		if(ax==1)
 	MOVF       SMove_ax_L0+0, 0
 	XORLW      1
 	BTFSS      STATUS+0, 2
-	GOTO       L_SMove30
-;a.h,105 :: 		nd=7-ry;
+	GOTO       L_SMove29
+;a.h,96 :: 		nd=7-ry;
 	MOVF       SMove_ry_L0+0, 0
 	SUBLW      7
 	MOVWF      SMove_nd_L0+0
-L_SMove30:
-;a.h,106 :: 		SRotare(cdirection,nd); // поворачиваемся
+L_SMove29:
+;a.h,97 :: 		SRotare(cdirection,nd); // поворачиваемся
 	MOVF       _cdirection+0, 0
 	MOVWF      FARG_SRotare_d+0
 	MOVF       SMove_nd_L0+0, 0
 	MOVWF      FARG_SRotare_nd+0
 	CALL       _SRotare+0
-;a.h,109 :: 		if(isSafe()) // проверяем наличие препятсвий
+;a.h,100 :: 		if(isSafe()==100) // проверяем наличие препятсвий
 	CALL       _isSafe+0
 	MOVF       R0+0, 0
-	BTFSC      STATUS+0, 2
-	GOTO       L_SMove31
-;a.h,111 :: 		Motor_Init();  // настраиваем моторы
+	XORLW      100
+	BTFSS      STATUS+0, 2
+	GOTO       L_SMove30
+;a.h,102 :: 		Motor_Init();  // настраиваем моторы
 	CALL       _Motor_Init+0
-;a.h,112 :: 		Change_Duty(255); // задаем скорость
+;a.h,103 :: 		Change_Duty(SPEED); // задаем скорость
 	MOVLW      255
 	MOVWF      FARG_Change_Duty_speed+0
 	CALL       _Change_Duty+0
-;a.h,113 :: 		Motor_A_FWD(); // запускаем моторы
+;a.h,104 :: 		Motor_A_FWD(); // запускаем моторы
 	CALL       _Motor_A_FWD+0
-;a.h,114 :: 		Motor_B_FWD();
+;a.h,105 :: 		Motor_B_FWD();
 	CALL       _Motor_B_FWD+0
-;a.h,115 :: 		delay_ms(1000); // ждем пока приедем ---------------------------------------------------------------------
+;a.h,106 :: 		delay_ms(DELAY_TIME_20); // ждем пока приедем
 	MOVLW      11
 	MOVWF      R11+0
 	MOVLW      38
 	MOVWF      R12+0
 	MOVLW      93
 	MOVWF      R13+0
-L_SMove32:
-	DECFSZ     R13+0, 1
-	GOTO       L_SMove32
-	DECFSZ     R12+0, 1
-	GOTO       L_SMove32
-	DECFSZ     R11+0, 1
-	GOTO       L_SMove32
-	NOP
-	NOP
-;a.h,116 :: 		success=1;      // движение выполнено.
-	MOVLW      1
-	MOVWF      SMove_success_L0+0
-;a.h,117 :: 		}
-	GOTO       L_SMove33
 L_SMove31:
-;a.h,120 :: 		Map_update(); // обновляем карту (ставим туда стену)
-	CALL       _Map_update+0
-;a.h,121 :: 		success=0;    // движения не было
-	CLRF       SMove_success_L0+0
-;a.h,122 :: 		}
-L_SMove33:
-;a.h,124 :: 		return success; // сообщаем об успехе/неудаче
-	MOVF       SMove_success_L0+0, 0
+	DECFSZ     R13+0, 1
+	GOTO       L_SMove31
+	DECFSZ     R12+0, 1
+	GOTO       L_SMove31
+	DECFSZ     R11+0, 1
+	GOTO       L_SMove31
+	NOP
+	NOP
+;a.h,107 :: 		return 1;      // движение выполнено.
+	MOVLW      1
 	MOVWF      R0+0
-;a.h,125 :: 		}
+	GOTO       L_end_SMove
+;a.h,108 :: 		}
+L_SMove30:
+;a.h,111 :: 		d=isSafe();
+	CALL       _isSafe+0
+	MOVF       R0+0, 0
+	MOVWF      SMove_d_L0+0
+;a.h,112 :: 		Motor_Init();  // настраиваем моторы
+	CALL       _Motor_Init+0
+;a.h,113 :: 		Change_Duty(SPEED); // задаем скорость
+	MOVLW      255
+	MOVWF      FARG_Change_Duty_speed+0
+	CALL       _Change_Duty+0
+;a.h,114 :: 		Motor_A_FWD(); // запускаем моторы
+	CALL       _Motor_A_FWD+0
+;a.h,115 :: 		Motor_B_FWD();
+	CALL       _Motor_B_FWD+0
+;a.h,116 :: 		for(i=0;i<d-DISTANCE_METALL;i++)
+	CLRF       SMove_i_L0+0
+L_SMove33:
+	MOVLW      5
+	SUBWF      SMove_d_L0+0, 0
+	MOVWF      R1+0
+	CLRF       R1+1
+	BTFSS      STATUS+0, 0
+	DECF       R1+1, 1
+	MOVLW      0
+	BTFSC      SMove_d_L0+0, 7
+	MOVLW      255
+	ADDWF      R1+1, 1
+	MOVLW      128
+	BTFSC      SMove_i_L0+0, 7
+	MOVLW      127
+	MOVWF      R0+0
+	MOVLW      128
+	XORWF      R1+1, 0
+	SUBWF      R0+0, 0
+	BTFSS      STATUS+0, 2
+	GOTO       L__SMove87
+	MOVF       R1+0, 0
+	SUBWF      SMove_i_L0+0, 0
+L__SMove87:
+	BTFSC      STATUS+0, 0
+	GOTO       L_SMove34
+;a.h,117 :: 		delay_ms(DELAY_TIME_1sm); // ждем пока приедем
+	MOVLW      6
+	MOVWF      R11+0
+	MOVLW      19
+	MOVWF      R12+0
+	MOVLW      173
+	MOVWF      R13+0
+L_SMove36:
+	DECFSZ     R13+0, 1
+	GOTO       L_SMove36
+	DECFSZ     R12+0, 1
+	GOTO       L_SMove36
+	DECFSZ     R11+0, 1
+	GOTO       L_SMove36
+	NOP
+	NOP
+;a.h,116 :: 		for(i=0;i<d-DISTANCE_METALL;i++)
+	INCF       SMove_i_L0+0, 1
+;a.h,117 :: 		delay_ms(DELAY_TIME_1sm); // ждем пока приедем
+	GOTO       L_SMove33
+L_SMove34:
+;a.h,118 :: 		Motor_Stop();
+	CALL       _Motor_Stop+0
+;a.h,120 :: 		if(isMetall()) // проверяем металл ли это
+	CALL       _isMetall+0
+	MOVF       R0+0, 0
+	BTFSC      STATUS+0, 2
+	GOTO       L_SMove37
+;a.h,123 :: 		}
+	GOTO       L_SMove38
+L_SMove37:
+;a.h,124 :: 		else{;}
+L_SMove38:
+;a.h,126 :: 		Motor_Init();
+	CALL       _Motor_Init+0
+;a.h,127 :: 		Change_Duty(SPEED);
+	MOVLW      255
+	MOVWF      FARG_Change_Duty_speed+0
+	CALL       _Change_Duty+0
+;a.h,128 :: 		Motor_A_BWD();
+	CALL       _Motor_A_BWD+0
+;a.h,129 :: 		Motor_B_BWD();
+	CALL       _Motor_B_BWD+0
+;a.h,130 :: 		for(i=0;i<d-DISTANCE_METALL;i++)
+	CLRF       SMove_i_L0+0
+L_SMove39:
+	MOVLW      5
+	SUBWF      SMove_d_L0+0, 0
+	MOVWF      R1+0
+	CLRF       R1+1
+	BTFSS      STATUS+0, 0
+	DECF       R1+1, 1
+	MOVLW      0
+	BTFSC      SMove_d_L0+0, 7
+	MOVLW      255
+	ADDWF      R1+1, 1
+	MOVLW      128
+	BTFSC      SMove_i_L0+0, 7
+	MOVLW      127
+	MOVWF      R0+0
+	MOVLW      128
+	XORWF      R1+1, 0
+	SUBWF      R0+0, 0
+	BTFSS      STATUS+0, 2
+	GOTO       L__SMove88
+	MOVF       R1+0, 0
+	SUBWF      SMove_i_L0+0, 0
+L__SMove88:
+	BTFSC      STATUS+0, 0
+	GOTO       L_SMove40
+;a.h,131 :: 		delay_ms(DELAY_TIME_1sm); // ждем пока приедем
+	MOVLW      6
+	MOVWF      R11+0
+	MOVLW      19
+	MOVWF      R12+0
+	MOVLW      173
+	MOVWF      R13+0
+L_SMove42:
+	DECFSZ     R13+0, 1
+	GOTO       L_SMove42
+	DECFSZ     R12+0, 1
+	GOTO       L_SMove42
+	DECFSZ     R11+0, 1
+	GOTO       L_SMove42
+	NOP
+	NOP
+;a.h,130 :: 		for(i=0;i<d-DISTANCE_METALL;i++)
+	INCF       SMove_i_L0+0, 1
+;a.h,131 :: 		delay_ms(DELAY_TIME_1sm); // ждем пока приедем
+	GOTO       L_SMove39
+L_SMove40:
+;a.h,134 :: 		return 0;    // движения не было
+	CLRF       R0+0
+;a.h,136 :: 		}
 L_end_SMove:
 	RETURN
 ; end of _SMove
 
-_Goal_Test:
-
-;a.h,127 :: 		short Goal_Test(void) // проверка достижения цели
-;a.h,130 :: 		if(findGoalCount==goalCount) return 1;
-	MOVF       _findGoalCount+0, 0
-	XORWF      _goalCount+0, 0
-	BTFSS      STATUS+0, 2
-	GOTO       L_Goal_Test34
-	MOVLW      1
-	MOVWF      R0+0
-	GOTO       L_end_Goal_Test
-L_Goal_Test34:
-;a.h,133 :: 		return 0;// заглушка пока что
-	CLRF       R0+0
-;a.h,134 :: 		}
-L_end_Goal_Test:
-	RETURN
-; end of _Goal_Test
-
 _SRotare:
 
-;a.h,140 :: 		void SRotare(enum direction d,enum direction nd)
-;a.h,143 :: 		r=(d-nd);
+;a.h,141 :: 		void SRotare(enum direction d,enum direction nd)
+;a.h,144 :: 		r=(d-nd);
 	MOVF       FARG_SRotare_nd+0, 0
 	SUBWF      FARG_SRotare_d+0, 0
 	MOVWF      R1+0
 	MOVF       R1+0, 0
 	MOVWF      SRotare_r_L0+0
-;a.h,144 :: 		if(r>4) r=8-r; // если угол поворота больше 180 - будем поворачитьвася в другую сторону
+;a.h,145 :: 		if(r>4) r=8-r; // если угол поворота больше 180 - будем поворачитьвася в другую сторону
 	MOVLW      128
 	XORLW      4
 	MOVWF      R0+0
@@ -725,12 +800,12 @@ _SRotare:
 	XORWF      R1+0, 0
 	SUBWF      R0+0, 0
 	BTFSC      STATUS+0, 0
-	GOTO       L_SRotare36
+	GOTO       L_SRotare43
 	MOVF       SRotare_r_L0+0, 0
 	SUBLW      8
 	MOVWF      SRotare_r_L0+0
-L_SRotare36:
-;a.h,145 :: 		if(r>=0)
+L_SRotare43:
+;a.h,146 :: 		if(r>=0)
 	MOVLW      128
 	XORWF      SRotare_r_L0+0, 0
 	MOVWF      R0+0
@@ -738,8 +813,8 @@ L_SRotare36:
 	XORLW      0
 	SUBWF      R0+0, 0
 	BTFSS      STATUS+0, 0
-	GOTO       L_SRotare37
-;a.h,146 :: 		S_Right(r*45); // поворачиваемся по наименьшему пути
+	GOTO       L_SRotare44
+;a.h,147 :: 		S_Right(r*45); // поворачиваемся по наименьшему пути
 	MOVF       SRotare_r_L0+0, 0
 	MOVWF      R0+0
 	MOVLW      45
@@ -748,9 +823,9 @@ L_SRotare36:
 	MOVF       R0+0, 0
 	MOVWF      FARG_S_Right_speed+0
 	CALL       _S_Right+0
-	GOTO       L_SRotare38
-L_SRotare37:
-;a.h,148 :: 		S_Left(-r*45);
+	GOTO       L_SRotare45
+L_SRotare44:
+;a.h,149 :: 		S_Left(-r*45);
 	MOVF       SRotare_r_L0+0, 0
 	SUBLW      0
 	MOVWF      R0+0
@@ -760,875 +835,76 @@ L_SRotare37:
 	MOVF       R0+0, 0
 	MOVWF      FARG_S_Left_speed+0
 	CALL       _S_Left+0
-L_SRotare38:
-;a.h,149 :: 		}
+L_SRotare45:
+;a.h,150 :: 		}
 L_end_SRotare:
 	RETURN
 ; end of _SRotare
 
-_Map_update:
-
-;a.h,153 :: 		void Map_update()
-;a.h,155 :: 		if(!isSafe()) // ставим стену в нужном направлении
-	CALL       _isSafe+0
-	MOVF       R0+0, 0
-	BTFSS      STATUS+0, 2
-	GOTO       L_Map_update39
-;a.h,157 :: 		switch(cdirection)
-	GOTO       L_Map_update40
-;a.h,159 :: 		case UP:
-L_Map_update42:
-;a.h,160 :: 		result[cX][cY+1]=100;
-	MOVF       _cX+0, 0
-	MOVWF      R0+0
-	RLF        R0+0, 1
-	BCF        R0+0, 0
-	MOVF       R0+0, 0
-	ADDLW      _result+0
-	MOVWF      R2+0
-	MOVF       _cY+0, 0
-	ADDLW      1
-	MOVWF      R0+0
-	CLRF       R0+1
-	BTFSC      STATUS+0, 0
-	INCF       R0+1, 1
-	MOVLW      0
-	BTFSC      _cY+0, 7
-	MOVLW      255
-	ADDWF      R0+1, 1
-	MOVF       R0+0, 0
-	ADDWF      R2+0, 0
-	MOVWF      FSR
-	MOVLW      100
-	MOVWF      INDF+0
-;a.h,161 :: 		break;
-	GOTO       L_Map_update41
-;a.h,162 :: 		case RUP:
-L_Map_update43:
-;a.h,163 :: 		result[cX+1][cY+1]=100;
-	MOVF       _cX+0, 0
-	ADDLW      1
-	MOVWF      R3+0
-	CLRF       R3+1
-	BTFSC      STATUS+0, 0
-	INCF       R3+1, 1
-	MOVLW      0
-	BTFSC      _cX+0, 7
-	MOVLW      255
-	ADDWF      R3+1, 1
-	MOVF       R3+0, 0
-	MOVWF      R0+0
-	MOVF       R3+1, 0
-	MOVWF      R0+1
-	RLF        R0+0, 1
-	RLF        R0+1, 1
-	BCF        R0+0, 0
-	MOVF       R0+0, 0
-	ADDLW      _result+0
-	MOVWF      R2+0
-	MOVF       _cY+0, 0
-	ADDLW      1
-	MOVWF      R0+0
-	CLRF       R0+1
-	BTFSC      STATUS+0, 0
-	INCF       R0+1, 1
-	MOVLW      0
-	BTFSC      _cY+0, 7
-	MOVLW      255
-	ADDWF      R0+1, 1
-	MOVF       R0+0, 0
-	ADDWF      R2+0, 0
-	MOVWF      FSR
-	MOVLW      100
-	MOVWF      INDF+0
-;a.h,164 :: 		break;
-	GOTO       L_Map_update41
-;a.h,165 :: 		case RIGHT:
-L_Map_update44:
-;a.h,166 :: 		result[cX+1][cY]=100;
-	MOVF       _cX+0, 0
-	ADDLW      1
-	MOVWF      R3+0
-	CLRF       R3+1
-	BTFSC      STATUS+0, 0
-	INCF       R3+1, 1
-	MOVLW      0
-	BTFSC      _cX+0, 7
-	MOVLW      255
-	ADDWF      R3+1, 1
-	MOVF       R3+0, 0
-	MOVWF      R0+0
-	MOVF       R3+1, 0
-	MOVWF      R0+1
-	RLF        R0+0, 1
-	RLF        R0+1, 1
-	BCF        R0+0, 0
-	MOVLW      _result+0
-	ADDWF      R0+0, 1
-	MOVF       _cY+0, 0
-	ADDWF      R0+0, 0
-	MOVWF      FSR
-	MOVLW      100
-	MOVWF      INDF+0
-;a.h,167 :: 		break;
-	GOTO       L_Map_update41
-;a.h,168 :: 		case RDOWN:
-L_Map_update45:
-;a.h,169 :: 		result[cX+1][cY-1]=100;
-	MOVF       _cX+0, 0
-	ADDLW      1
-	MOVWF      R3+0
-	CLRF       R3+1
-	BTFSC      STATUS+0, 0
-	INCF       R3+1, 1
-	MOVLW      0
-	BTFSC      _cX+0, 7
-	MOVLW      255
-	ADDWF      R3+1, 1
-	MOVF       R3+0, 0
-	MOVWF      R0+0
-	MOVF       R3+1, 0
-	MOVWF      R0+1
-	RLF        R0+0, 1
-	RLF        R0+1, 1
-	BCF        R0+0, 0
-	MOVF       R0+0, 0
-	ADDLW      _result+0
-	MOVWF      R2+0
-	MOVLW      1
-	SUBWF      _cY+0, 0
-	MOVWF      R0+0
-	CLRF       R0+1
-	BTFSS      STATUS+0, 0
-	DECF       R0+1, 1
-	MOVLW      0
-	BTFSC      _cY+0, 7
-	MOVLW      255
-	ADDWF      R0+1, 1
-	MOVF       R0+0, 0
-	ADDWF      R2+0, 0
-	MOVWF      FSR
-	MOVLW      100
-	MOVWF      INDF+0
-;a.h,170 :: 		break;
-	GOTO       L_Map_update41
-;a.h,171 :: 		case DOWN:
-L_Map_update46:
-;a.h,172 :: 		result[cX-1][cY]=100;
-	MOVLW      1
-	SUBWF      _cX+0, 0
-	MOVWF      R3+0
-	CLRF       R3+1
-	BTFSS      STATUS+0, 0
-	DECF       R3+1, 1
-	MOVLW      0
-	BTFSC      _cX+0, 7
-	MOVLW      255
-	ADDWF      R3+1, 1
-	MOVF       R3+0, 0
-	MOVWF      R0+0
-	MOVF       R3+1, 0
-	MOVWF      R0+1
-	RLF        R0+0, 1
-	RLF        R0+1, 1
-	BCF        R0+0, 0
-	MOVLW      _result+0
-	ADDWF      R0+0, 1
-	MOVF       _cY+0, 0
-	ADDWF      R0+0, 0
-	MOVWF      FSR
-	MOVLW      100
-	MOVWF      INDF+0
-;a.h,173 :: 		break;
-	GOTO       L_Map_update41
-;a.h,174 :: 		case LDOWN:
-L_Map_update47:
-;a.h,175 :: 		result[cX-1][cY-1]=100;
-	MOVLW      1
-	SUBWF      _cX+0, 0
-	MOVWF      R3+0
-	CLRF       R3+1
-	BTFSS      STATUS+0, 0
-	DECF       R3+1, 1
-	MOVLW      0
-	BTFSC      _cX+0, 7
-	MOVLW      255
-	ADDWF      R3+1, 1
-	MOVF       R3+0, 0
-	MOVWF      R0+0
-	MOVF       R3+1, 0
-	MOVWF      R0+1
-	RLF        R0+0, 1
-	RLF        R0+1, 1
-	BCF        R0+0, 0
-	MOVF       R0+0, 0
-	ADDLW      _result+0
-	MOVWF      R2+0
-	MOVLW      1
-	SUBWF      _cY+0, 0
-	MOVWF      R0+0
-	CLRF       R0+1
-	BTFSS      STATUS+0, 0
-	DECF       R0+1, 1
-	MOVLW      0
-	BTFSC      _cY+0, 7
-	MOVLW      255
-	ADDWF      R0+1, 1
-	MOVF       R0+0, 0
-	ADDWF      R2+0, 0
-	MOVWF      FSR
-	MOVLW      100
-	MOVWF      INDF+0
-;a.h,176 :: 		break;
-	GOTO       L_Map_update41
-;a.h,177 :: 		case LEFT:
-L_Map_update48:
-;a.h,178 :: 		result[cX-1][cY]=100;
-	MOVLW      1
-	SUBWF      _cX+0, 0
-	MOVWF      R3+0
-	CLRF       R3+1
-	BTFSS      STATUS+0, 0
-	DECF       R3+1, 1
-	MOVLW      0
-	BTFSC      _cX+0, 7
-	MOVLW      255
-	ADDWF      R3+1, 1
-	MOVF       R3+0, 0
-	MOVWF      R0+0
-	MOVF       R3+1, 0
-	MOVWF      R0+1
-	RLF        R0+0, 1
-	RLF        R0+1, 1
-	BCF        R0+0, 0
-	MOVLW      _result+0
-	ADDWF      R0+0, 1
-	MOVF       _cY+0, 0
-	ADDWF      R0+0, 0
-	MOVWF      FSR
-	MOVLW      100
-	MOVWF      INDF+0
-;a.h,179 :: 		break;
-	GOTO       L_Map_update41
-;a.h,180 :: 		case LUP:
-L_Map_update49:
-;a.h,181 :: 		result[cX-1][cY+1]=100;
-	MOVLW      1
-	SUBWF      _cX+0, 0
-	MOVWF      R3+0
-	CLRF       R3+1
-	BTFSS      STATUS+0, 0
-	DECF       R3+1, 1
-	MOVLW      0
-	BTFSC      _cX+0, 7
-	MOVLW      255
-	ADDWF      R3+1, 1
-	MOVF       R3+0, 0
-	MOVWF      R0+0
-	MOVF       R3+1, 0
-	MOVWF      R0+1
-	RLF        R0+0, 1
-	RLF        R0+1, 1
-	BCF        R0+0, 0
-	MOVF       R0+0, 0
-	ADDLW      _result+0
-	MOVWF      R2+0
-	MOVF       _cY+0, 0
-	ADDLW      1
-	MOVWF      R0+0
-	CLRF       R0+1
-	BTFSC      STATUS+0, 0
-	INCF       R0+1, 1
-	MOVLW      0
-	BTFSC      _cY+0, 7
-	MOVLW      255
-	ADDWF      R0+1, 1
-	MOVF       R0+0, 0
-	ADDWF      R2+0, 0
-	MOVWF      FSR
-	MOVLW      100
-	MOVWF      INDF+0
-;a.h,182 :: 		break;
-	GOTO       L_Map_update41
-;a.h,184 :: 		}
-L_Map_update40:
-	MOVF       _cdirection+0, 0
-	XORLW      1
-	BTFSC      STATUS+0, 2
-	GOTO       L_Map_update42
-	MOVF       _cdirection+0, 0
-	XORLW      2
-	BTFSC      STATUS+0, 2
-	GOTO       L_Map_update43
-	MOVF       _cdirection+0, 0
-	XORLW      3
-	BTFSC      STATUS+0, 2
-	GOTO       L_Map_update44
-	MOVF       _cdirection+0, 0
-	XORLW      4
-	BTFSC      STATUS+0, 2
-	GOTO       L_Map_update45
-	MOVF       _cdirection+0, 0
-	XORLW      5
-	BTFSC      STATUS+0, 2
-	GOTO       L_Map_update46
-	MOVF       _cdirection+0, 0
-	XORLW      6
-	BTFSC      STATUS+0, 2
-	GOTO       L_Map_update47
-	MOVF       _cdirection+0, 0
-	XORLW      7
-	BTFSC      STATUS+0, 2
-	GOTO       L_Map_update48
-	MOVF       _cdirection+0, 0
-	XORLW      8
-	BTFSC      STATUS+0, 2
-	GOTO       L_Map_update49
-L_Map_update41:
-;a.h,185 :: 		}
-L_Map_update39:
-;a.h,186 :: 		}
-L_end_Map_update:
-	RETURN
-; end of _Map_update
-
 _Cost:
 
-;a.h,188 :: 		int Cost(int cX,int cY)
-;a.h,191 :: 		BSF IRP,9
-	BSF        7, 9
-;a.h,193 :: 		return h_evr[cX][cY]+H[cX][cY]+result[cX][cY];
-	MOVF       FARG_Cost_cX+0, 0
-	MOVWF      R4+0
-	MOVF       FARG_Cost_cX+1, 0
-	MOVWF      R4+1
-	RLF        R4+0, 1
-	RLF        R4+1, 1
-	BCF        R4+0, 0
-	MOVF       R4+0, 0
-	ADDLW      _h_evr+0
-	MOVWF      R0+0
-	MOVF       FARG_Cost_cY+0, 0
-	ADDWF      R0+0, 0
-	MOVWF      FSR
-	MOVF       INDF+0, 0
-	MOVWF      R1+0
-	MOVF       R4+0, 0
-	ADDLW      _H+0
-	MOVWF      R0+0
-	MOVF       FARG_Cost_cY+0, 0
-	ADDWF      R0+0, 0
-	MOVWF      FSR
-	MOVF       INDF+0, 0
-	ADDWF      R1+0, 0
+;a.h,154 :: 		int Cost(int cX,int cY)
+;a.h,157 :: 		return 1+H[cX][cY];//+result[cX][cY];
+	MOVLW      3
 	MOVWF      R2+0
-	MOVLW      0
-	BTFSC      R1+0, 7
-	MOVLW      255
-	MOVWF      R2+1
+	MOVF       FARG_Cost_cX+0, 0
+	MOVWF      R0+0
+	MOVF       FARG_Cost_cX+1, 0
+	MOVWF      R0+1
+	MOVF       R2+0, 0
+L__Cost91:
+	BTFSC      STATUS+0, 2
+	GOTO       L__Cost92
+	RLF        R0+0, 1
+	RLF        R0+1, 1
+	BCF        R0+0, 0
+	ADDLW      255
+	GOTO       L__Cost91
+L__Cost92:
+	MOVLW      _H+0
+	ADDWF      R0+0, 1
+	MOVF       FARG_Cost_cY+0, 0
+	ADDWF      R0+0, 0
+	MOVWF      FSR
+	MOVF       INDF+0, 0
+	ADDLW      1
+	MOVWF      R0+0
+	CLRF       R0+1
 	BTFSC      STATUS+0, 0
-	INCF       R2+1, 1
+	INCF       R0+1, 1
 	MOVLW      0
 	BTFSC      INDF+0, 7
 	MOVLW      255
-	ADDWF      R2+1, 1
-	MOVF       R4+0, 0
-	ADDLW      _result+0
-	MOVWF      R0+0
-	MOVF       FARG_Cost_cY+0, 0
-	ADDWF      R0+0, 0
-	MOVWF      FSR
-	MOVF       INDF+0, 0
-	MOVWF      R0+0
-	MOVLW      0
-	BTFSC      R0+0, 7
-	MOVLW      255
-	MOVWF      R0+1
-	MOVF       R2+0, 0
-	ADDWF      R0+0, 1
-	MOVF       R2+1, 0
-	BTFSC      STATUS+0, 0
-	ADDLW      1
 	ADDWF      R0+1, 1
-;a.h,197 :: 		}
+;a.h,159 :: 		}
 L_end_Cost:
 	RETURN
 ; end of _Cost
 
-_mod:
-
-;a.h,199 :: 		int mod(int x)
-;a.h,201 :: 		if(x>=0) return x;
-	MOVLW      128
-	XORWF      FARG_mod_x+1, 0
-	MOVWF      R0+0
-	MOVLW      128
-	SUBWF      R0+0, 0
-	BTFSS      STATUS+0, 2
-	GOTO       L__mod130
-	MOVLW      0
-	SUBWF      FARG_mod_x+0, 0
-L__mod130:
-	BTFSS      STATUS+0, 0
-	GOTO       L_mod50
-	MOVF       FARG_mod_x+0, 0
-	MOVWF      R0+0
-	MOVF       FARG_mod_x+1, 0
-	MOVWF      R0+1
-	GOTO       L_end_mod
-L_mod50:
-;a.h,202 :: 		else return -x;
-	MOVF       FARG_mod_x+0, 0
-	SUBLW      0
-	MOVWF      R0+0
-	MOVF       FARG_mod_x+1, 0
-	BTFSS      STATUS+0, 0
-	ADDLW      1
-	CLRF       R0+1
-	SUBWF      R0+1, 1
-;a.h,203 :: 		}
-L_end_mod:
-	RETURN
-; end of _mod
-
-_Brain:
-
-;a.h,210 :: 		void Brain()
-;a.h,213 :: 		short N=0; // кол-во найденных целей
-	CLRF       Brain_N_L0+0
-	CLRF       Brain_temp_L0+0
-	CLRF       Brain_temp_L0+1
-;a.h,217 :: 		for(i=0;i<WorldSize;i++)
-	CLRF       Brain_i_L0+0
-	CLRF       Brain_i_L0+1
-L_Brain52:
-	MOVLW      128
-	XORWF      Brain_i_L0+1, 0
-	MOVWF      R0+0
-	MOVLW      128
-	SUBWF      R0+0, 0
-	BTFSS      STATUS+0, 2
-	GOTO       L__Brain132
-	MOVLW      2
-	SUBWF      Brain_i_L0+0, 0
-L__Brain132:
-	BTFSC      STATUS+0, 0
-	GOTO       L_Brain53
-;a.h,218 :: 		for(k=0;k<WorldSize;k++)
-	CLRF       Brain_k_L0+0
-	CLRF       Brain_k_L0+1
-L_Brain55:
-	MOVLW      128
-	XORWF      Brain_k_L0+1, 0
-	MOVWF      R0+0
-	MOVLW      128
-	SUBWF      R0+0, 0
-	BTFSS      STATUS+0, 2
-	GOTO       L__Brain133
-	MOVLW      2
-	SUBWF      Brain_k_L0+0, 0
-L__Brain133:
-	BTFSC      STATUS+0, 0
-	GOTO       L_Brain56
-;a.h,219 :: 		h_evr[i][k]=2*WorldSize+1;
-	MOVF       Brain_i_L0+0, 0
-	MOVWF      R0+0
-	MOVF       Brain_i_L0+1, 0
-	MOVWF      R0+1
-	RLF        R0+0, 1
-	RLF        R0+1, 1
-	BCF        R0+0, 0
-	MOVLW      _h_evr+0
-	ADDWF      R0+0, 1
-	MOVF       Brain_k_L0+0, 0
-	ADDWF      R0+0, 0
-	MOVWF      FSR
-	MOVLW      5
-	MOVWF      INDF+0
-;a.h,218 :: 		for(k=0;k<WorldSize;k++)
-	INCF       Brain_k_L0+0, 1
-	BTFSC      STATUS+0, 2
-	INCF       Brain_k_L0+1, 1
-;a.h,219 :: 		h_evr[i][k]=2*WorldSize+1;
-	GOTO       L_Brain55
-L_Brain56:
-;a.h,217 :: 		for(i=0;i<WorldSize;i++)
-	INCF       Brain_i_L0+0, 1
-	BTFSC      STATUS+0, 2
-	INCF       Brain_i_L0+1, 1
-;a.h,219 :: 		h_evr[i][k]=2*WorldSize+1;
-	GOTO       L_Brain52
-L_Brain53:
-;a.h,221 :: 		for(i=0;i<NumberOfGoals;i++)
-	CLRF       Brain_i_L0+0
-	CLRF       Brain_i_L0+1
-L_Brain58:
-	MOVLW      128
-	XORWF      Brain_i_L0+1, 0
-	MOVWF      R0+0
-	MOVLW      128
-	SUBWF      R0+0, 0
-	BTFSS      STATUS+0, 2
-	GOTO       L__Brain134
-	MOVLW      30
-	SUBWF      Brain_i_L0+0, 0
-L__Brain134:
-	BTFSC      STATUS+0, 0
-	GOTO       L_Brain59
-;a.h,223 :: 		for(j=0;j<WorldSize;j++) // x
-	CLRF       Brain_j_L0+0
-	CLRF       Brain_j_L0+1
-L_Brain61:
-	MOVLW      128
-	XORWF      Brain_j_L0+1, 0
-	MOVWF      R0+0
-	MOVLW      128
-	SUBWF      R0+0, 0
-	BTFSS      STATUS+0, 2
-	GOTO       L__Brain135
-	MOVLW      2
-	SUBWF      Brain_j_L0+0, 0
-L__Brain135:
-	BTFSC      STATUS+0, 0
-	GOTO       L_Brain62
-;a.h,224 :: 		for(k=0;k<WorldSize;k++) // y
-	CLRF       Brain_k_L0+0
-	CLRF       Brain_k_L0+1
-L_Brain64:
-	MOVLW      128
-	XORWF      Brain_k_L0+1, 0
-	MOVWF      R0+0
-	MOVLW      128
-	SUBWF      R0+0, 0
-	BTFSS      STATUS+0, 2
-	GOTO       L__Brain136
-	MOVLW      2
-	SUBWF      Brain_k_L0+0, 0
-L__Brain136:
-	BTFSC      STATUS+0, 0
-	GOTO       L_Brain65
-;a.h,226 :: 		r=mod(goal[i][0]-j)+mod(goal[i][1]-k);
-	MOVF       Brain_i_L0+0, 0
-	MOVWF      R0+0
-	MOVF       Brain_i_L0+1, 0
-	MOVWF      R0+1
-	RLF        R0+0, 1
-	RLF        R0+1, 1
-	BCF        R0+0, 0
-	MOVF       R0+0, 0
-	ADDLW      _goal+0
-	MOVWF      FSR
-	MOVF       INDF+0, 0
-	MOVWF      R0+0
-	MOVF       Brain_j_L0+0, 0
-	SUBWF      R0+0, 0
-	MOVWF      FARG_mod_x+0
-	MOVF       Brain_j_L0+1, 0
-	BTFSS      STATUS+0, 0
-	ADDLW      1
-	CLRF       FARG_mod_x+1
-	SUBWF      FARG_mod_x+1, 1
-	MOVLW      0
-	BTFSC      R0+0, 7
-	MOVLW      255
-	ADDWF      FARG_mod_x+1, 1
-	CALL       _mod+0
-	MOVF       R0+0, 0
-	MOVWF      FLOC__Brain+0
-	MOVF       R0+1, 0
-	MOVWF      FLOC__Brain+1
-	MOVF       Brain_i_L0+0, 0
-	MOVWF      R0+0
-	MOVF       Brain_i_L0+1, 0
-	MOVWF      R0+1
-	RLF        R0+0, 1
-	RLF        R0+1, 1
-	BCF        R0+0, 0
-	MOVLW      _goal+0
-	ADDWF      R0+0, 1
-	INCF       R0+0, 0
-	MOVWF      FSR
-	MOVF       INDF+0, 0
-	MOVWF      R0+0
-	MOVF       Brain_k_L0+0, 0
-	SUBWF      R0+0, 0
-	MOVWF      FARG_mod_x+0
-	MOVF       Brain_k_L0+1, 0
-	BTFSS      STATUS+0, 0
-	ADDLW      1
-	CLRF       FARG_mod_x+1
-	SUBWF      FARG_mod_x+1, 1
-	MOVLW      0
-	BTFSC      R0+0, 7
-	MOVLW      255
-	ADDWF      FARG_mod_x+1, 1
-	CALL       _mod+0
-	MOVF       R0+0, 0
-	ADDWF      FLOC__Brain+0, 0
-	MOVWF      R3+0
-	MOVF       FLOC__Brain+1, 0
-	BTFSC      STATUS+0, 0
-	ADDLW      1
-	ADDWF      R0+1, 0
-	MOVWF      R3+1
-	MOVF       R3+0, 0
-	MOVWF      Brain_r_L0+0
-	MOVF       R3+1, 0
-	MOVWF      Brain_r_L0+1
-;a.h,227 :: 		if(r<h_evr[j][k]) h_evr[j][k]=r;
-	MOVF       Brain_j_L0+0, 0
-	MOVWF      R0+0
-	MOVF       Brain_j_L0+1, 0
-	MOVWF      R0+1
-	RLF        R0+0, 1
-	RLF        R0+1, 1
-	BCF        R0+0, 0
-	MOVLW      _h_evr+0
-	ADDWF      R0+0, 1
-	MOVF       Brain_k_L0+0, 0
-	ADDWF      R0+0, 0
-	MOVWF      FSR
-	MOVF       INDF+0, 0
-	MOVWF      R1+0
-	MOVLW      128
-	XORWF      R3+1, 0
-	MOVWF      R0+0
-	MOVLW      128
-	BTFSC      R1+0, 7
-	MOVLW      127
-	SUBWF      R0+0, 0
-	BTFSS      STATUS+0, 2
-	GOTO       L__Brain137
-	MOVF       R1+0, 0
-	SUBWF      R3+0, 0
-L__Brain137:
-	BTFSC      STATUS+0, 0
-	GOTO       L_Brain67
-	MOVF       Brain_j_L0+0, 0
-	MOVWF      R0+0
-	MOVF       Brain_j_L0+1, 0
-	MOVWF      R0+1
-	RLF        R0+0, 1
-	RLF        R0+1, 1
-	BCF        R0+0, 0
-	MOVLW      _h_evr+0
-	ADDWF      R0+0, 1
-	MOVF       Brain_k_L0+0, 0
-	ADDWF      R0+0, 0
-	MOVWF      FSR
-	MOVF       Brain_r_L0+0, 0
-	MOVWF      INDF+0
-L_Brain67:
-;a.h,224 :: 		for(k=0;k<WorldSize;k++) // y
-	INCF       Brain_k_L0+0, 1
-	BTFSC      STATUS+0, 2
-	INCF       Brain_k_L0+1, 1
-;a.h,228 :: 		}
-	GOTO       L_Brain64
-L_Brain65:
-;a.h,223 :: 		for(j=0;j<WorldSize;j++) // x
-	INCF       Brain_j_L0+0, 1
-	BTFSC      STATUS+0, 2
-	INCF       Brain_j_L0+1, 1
-;a.h,228 :: 		}
-	GOTO       L_Brain61
-L_Brain62:
-;a.h,221 :: 		for(i=0;i<NumberOfGoals;i++)
-	INCF       Brain_i_L0+0, 1
-	BTFSC      STATUS+0, 2
-	INCF       Brain_i_L0+1, 1
-;a.h,229 :: 		}
-	GOTO       L_Brain58
-L_Brain59:
-;a.h,239 :: 		asm { BSF IRP,9}
-	BSF        7, 9
-;a.h,240 :: 		for(i=0;i<N;i++)
-	CLRF       Brain_i_L0+0
-	CLRF       Brain_i_L0+1
-L_Brain68:
-	MOVLW      128
-	XORWF      Brain_i_L0+1, 0
-	MOVWF      R0+0
-	MOVLW      128
-	BTFSC      Brain_N_L0+0, 7
-	MOVLW      127
-	SUBWF      R0+0, 0
-	BTFSS      STATUS+0, 2
-	GOTO       L__Brain138
-	MOVF       Brain_N_L0+0, 0
-	SUBWF      Brain_i_L0+0, 0
-L__Brain138:
-	BTFSC      STATUS+0, 0
-	GOTO       L_Brain69
-;a.h,241 :: 		for(k=0;k<m;k++)
-	CLRF       Brain_k_L0+0
-	CLRF       Brain_k_L0+1
-L_Brain71:
-	MOVLW      128
-	XORWF      Brain_k_L0+1, 0
-	MOVWF      R0+0
-	MOVLW      128
-	XORWF      Brain_m_L0+1, 0
-	SUBWF      R0+0, 0
-	BTFSS      STATUS+0, 2
-	GOTO       L__Brain139
-	MOVF       Brain_m_L0+0, 0
-	SUBWF      Brain_k_L0+0, 0
-L__Brain139:
-	BTFSC      STATUS+0, 0
-	GOTO       L_Brain72
-;a.h,242 :: 		for(j=0;j<s;j++)
-	CLRF       Brain_j_L0+0
-	CLRF       Brain_j_L0+1
-L_Brain74:
-	MOVLW      128
-	XORWF      Brain_j_L0+1, 0
-	MOVWF      R0+0
-	MOVLW      128
-	XORWF      Brain_s_L0+1, 0
-	SUBWF      R0+0, 0
-	BTFSS      STATUS+0, 2
-	GOTO       L__Brain140
-	MOVF       Brain_s_L0+0, 0
-	SUBWF      Brain_j_L0+0, 0
-L__Brain140:
-	BTFSC      STATUS+0, 0
-	GOTO       L_Brain75
-;a.h,244 :: 		temp=goal[i][0]-k+goal[i][1]-j;
-	MOVF       Brain_i_L0+0, 0
-	MOVWF      R4+0
-	MOVF       Brain_i_L0+1, 0
-	MOVWF      R4+1
-	RLF        R4+0, 1
-	RLF        R4+1, 1
-	BCF        R4+0, 0
-	MOVF       R4+0, 0
-	ADDLW      _goal+0
-	MOVWF      R1+0
-	MOVF       R1+0, 0
-	MOVWF      FSR
-	MOVF       INDF+0, 0
-	MOVWF      R0+0
-	MOVF       Brain_k_L0+0, 0
-	SUBWF      R0+0, 0
-	MOVWF      R2+0
-	MOVF       Brain_k_L0+1, 0
-	BTFSS      STATUS+0, 0
-	ADDLW      1
-	CLRF       R2+1
-	SUBWF      R2+1, 1
-	MOVLW      0
-	BTFSC      R0+0, 7
-	MOVLW      255
-	ADDWF      R2+1, 1
-	INCF       R1+0, 0
-	MOVWF      FSR
-	MOVF       INDF+0, 0
-	MOVWF      R0+0
-	MOVLW      0
-	BTFSC      R0+0, 7
-	MOVLW      255
-	MOVWF      R0+1
-	MOVF       R2+0, 0
-	ADDWF      R0+0, 1
-	MOVF       R2+1, 0
-	BTFSC      STATUS+0, 0
-	ADDLW      1
-	ADDWF      R0+1, 1
-	MOVF       Brain_j_L0+0, 0
-	SUBWF      R0+0, 0
-	MOVWF      R2+0
-	MOVF       Brain_j_L0+1, 0
-	BTFSS      STATUS+0, 0
-	ADDLW      1
-	SUBWF      R0+1, 0
-	MOVWF      R2+1
-	MOVF       R2+0, 0
-	MOVWF      Brain_temp_L0+0
-	MOVF       R2+1, 0
-	MOVWF      Brain_temp_L0+1
-;a.h,245 :: 		if(temp<h_evr[i][j])
-	MOVF       R4+0, 0
-	ADDLW      _h_evr+0
-	MOVWF      R0+0
-	MOVF       Brain_j_L0+0, 0
-	ADDWF      R0+0, 0
-	MOVWF      FSR
-	MOVF       INDF+0, 0
-	MOVWF      R1+0
-	MOVLW      128
-	XORWF      R2+1, 0
-	MOVWF      R0+0
-	MOVLW      128
-	BTFSC      R1+0, 7
-	MOVLW      127
-	SUBWF      R0+0, 0
-	BTFSS      STATUS+0, 2
-	GOTO       L__Brain141
-	MOVF       R1+0, 0
-	SUBWF      R2+0, 0
-L__Brain141:
-	BTFSC      STATUS+0, 0
-	GOTO       L_Brain77
-;a.h,246 :: 		h_evr[i][j]=temp; // упс надо придумать как и что , ибо это просто так работать не будет.
-	MOVF       Brain_i_L0+0, 0
-	MOVWF      R0+0
-	MOVF       Brain_i_L0+1, 0
-	MOVWF      R0+1
-	RLF        R0+0, 1
-	RLF        R0+1, 1
-	BCF        R0+0, 0
-	MOVLW      _h_evr+0
-	ADDWF      R0+0, 1
-	MOVF       Brain_j_L0+0, 0
-	ADDWF      R0+0, 0
-	MOVWF      FSR
-	MOVF       Brain_temp_L0+0, 0
-	MOVWF      INDF+0
-L_Brain77:
-;a.h,242 :: 		for(j=0;j<s;j++)
-	INCF       Brain_j_L0+0, 1
-	BTFSC      STATUS+0, 2
-	INCF       Brain_j_L0+1, 1
-;a.h,247 :: 		}
-	GOTO       L_Brain74
-L_Brain75:
-;a.h,241 :: 		for(k=0;k<m;k++)
-	INCF       Brain_k_L0+0, 1
-	BTFSC      STATUS+0, 2
-	INCF       Brain_k_L0+1, 1
-;a.h,247 :: 		}
-	GOTO       L_Brain71
-L_Brain72:
-;a.h,240 :: 		for(i=0;i<N;i++)
-	INCF       Brain_i_L0+0, 1
-	BTFSC      STATUS+0, 2
-	INCF       Brain_i_L0+1, 1
-;a.h,247 :: 		}
-	GOTO       L_Brain68
-L_Brain69:
-;a.h,249 :: 		BCF IRP,9
-	BCF        7, 9
-;a.h,251 :: 		}
-L_end_Brain:
-	RETURN
-; end of _Brain
-
 _A_search:
 
-;a.h,253 :: 		void A_search()
-;a.h,258 :: 		if(Goal_test()) return;// достигли цели - закончили работу.
-	CALL       _Goal_Test+0
-	MOVF       R0+0, 0
-	BTFSC      STATUS+0, 2
-	GOTO       L_A_search78
+;a.h,161 :: 		void A_search()
+;a.h,166 :: 		if(findGoalCount==goalCount) return;// проверили все состояние - достигли цели - закончили работу.
+	MOVF       _findGoalCount+0, 0
+	XORWF      _goalCount+0, 0
+	BTFSS      STATUS+0, 2
+	GOTO       L_A_search46
 	GOTO       L_end_A_search
-L_A_search78:
-;a.h,259 :: 		if(H[cX][cY]==0)     // если это новое состояние
+L_A_search46:
+;a.h,167 :: 		if(H[cX][cY]==0)     // если это новое состояние
+	MOVLW      3
+	MOVWF      R1+0
 	MOVF       _cX+0, 0
 	MOVWF      R0+0
+	MOVF       R1+0, 0
+L__A_search94:
+	BTFSC      STATUS+0, 2
+	GOTO       L__A_search95
 	RLF        R0+0, 1
 	BCF        R0+0, 0
+	ADDLW      255
+	GOTO       L__A_search94
+L__A_search95:
 	MOVLW      _H+0
 	ADDWF      R0+0, 1
 	MOVF       _cY+0, 0
@@ -1637,12 +913,21 @@ L_A_search78:
 	MOVF       INDF+0, 0
 	XORLW      0
 	BTFSS      STATUS+0, 2
-	GOTO       L_A_search79
-;a.h,261 :: 		H[cX][cY]+=h[cX][cY];
+	GOTO       L_A_search47
+;a.h,169 :: 		H[cX][cY]+=1;
+	MOVLW      3
+	MOVWF      R1+0
 	MOVF       _cX+0, 0
 	MOVWF      R0+0
+	MOVF       R1+0, 0
+L__A_search96:
+	BTFSC      STATUS+0, 2
+	GOTO       L__A_search97
 	RLF        R0+0, 1
 	BCF        R0+0, 0
+	ADDLW      255
+	GOTO       L__A_search96
+L__A_search97:
 	MOVLW      _H+0
 	ADDWF      R0+0, 1
 	MOVF       _cY+0, 0
@@ -1650,29 +935,15 @@ L_A_search78:
 	MOVWF      R1+0
 	MOVF       R1+0, 0
 	MOVWF      FSR
-	MOVF       INDF+0, 0
+	INCF       INDF+0, 0
 	MOVWF      R0+0
-	MOVF       R0+0, 0
-	ADDWF      R0+0, 1
 	MOVF       R1+0, 0
 	MOVWF      FSR
 	MOVF       R0+0, 0
 	MOVWF      INDF+0
-;a.h,262 :: 		}
-L_A_search79:
-;a.h,265 :: 		result[cX][cY]=1;// обновили карту
-	MOVF       _cX+0, 0
-	MOVWF      R0+0
-	RLF        R0+0, 1
-	BCF        R0+0, 0
-	MOVLW      _result+0
-	ADDWF      R0+0, 1
-	MOVF       _cY+0, 0
-	ADDWF      R0+0, 0
-	MOVWF      FSR
-	MOVLW      1
-	MOVWF      INDF+0
-;a.h,269 :: 		min=Cost(cX,cY+1);
+;a.h,170 :: 		}
+L_A_search47:
+;a.h,172 :: 		min=Cost(cX,cY+1);
 	MOVF       _cX+0, 0
 	MOVWF      FARG_Cost_cX+0
 	MOVLW      0
@@ -1694,65 +965,65 @@ L_A_search79:
 	MOVWF      A_search_min_L0+0
 	MOVF       R0+1, 0
 	MOVWF      A_search_min_L0+1
-;a.h,270 :: 		for(i=-1;i<=1;i++) // у нас в любом состоянии 8 возможных действий
+;a.h,173 :: 		for(i=-1;i<=1;i++) // у нас в любом состоянии 8 возможных действий
 	MOVLW      255
 	MOVWF      A_search_i_L0+0
 	MOVLW      255
 	MOVWF      A_search_i_L0+1
-L_A_search80:
+L_A_search48:
 	MOVLW      128
 	MOVWF      R0+0
 	MOVLW      128
 	XORWF      A_search_i_L0+1, 0
 	SUBWF      R0+0, 0
 	BTFSS      STATUS+0, 2
-	GOTO       L__A_search143
+	GOTO       L__A_search98
 	MOVF       A_search_i_L0+0, 0
 	SUBLW      1
-L__A_search143:
+L__A_search98:
 	BTFSS      STATUS+0, 0
-	GOTO       L_A_search81
-;a.h,271 :: 		for(j=-1;j<=1;j++)
+	GOTO       L_A_search49
+;a.h,174 :: 		for(j=-1;j<=1;j++)
 	MOVLW      255
 	MOVWF      A_search_j_L0+0
 	MOVLW      255
 	MOVWF      A_search_j_L0+1
-L_A_search83:
+L_A_search51:
 	MOVLW      128
 	MOVWF      R0+0
 	MOVLW      128
 	XORWF      A_search_j_L0+1, 0
 	SUBWF      R0+0, 0
 	BTFSS      STATUS+0, 2
-	GOTO       L__A_search144
+	GOTO       L__A_search99
 	MOVF       A_search_j_L0+0, 0
 	SUBLW      1
-L__A_search144:
+L__A_search99:
 	BTFSS      STATUS+0, 0
-	GOTO       L_A_search84
-;a.h,273 :: 		if(i==0 && j==0) continue;
+	GOTO       L_A_search52
+;a.h,176 :: 		if(i==0 && j==0) continue;
 	MOVLW      0
 	XORWF      A_search_i_L0+1, 0
 	BTFSS      STATUS+0, 2
-	GOTO       L__A_search145
+	GOTO       L__A_search100
 	MOVLW      0
 	XORWF      A_search_i_L0+0, 0
-L__A_search145:
+L__A_search100:
 	BTFSS      STATUS+0, 2
-	GOTO       L_A_search88
+	GOTO       L_A_search56
 	MOVLW      0
 	XORWF      A_search_j_L0+1, 0
 	BTFSS      STATUS+0, 2
-	GOTO       L__A_search146
+	GOTO       L__A_search101
 	MOVLW      0
 	XORWF      A_search_j_L0+0, 0
-L__A_search146:
-	BTFSS      STATUS+0, 2
-	GOTO       L_A_search88
 L__A_search101:
-	GOTO       L_A_search85
-L_A_search88:
-;a.h,274 :: 		temp=Cost(cX+i,cY+j);
+	BTFSS      STATUS+0, 2
+	GOTO       L_A_search56
+L__A_search62:
+	GOTO       L_A_search53
+L_A_search56:
+;a.h,177 :: 		temp=Cost(cX+i,cY+j);
 	MOVF       A_search_i_L0+0, 0
 	ADDWF      _cX+0, 0
 	MOVWF      FARG_Cost_cX+0
@@ -1778,7 +1049,7 @@ L_A_search88:
 	MOVWF      A_search_temp_L0+0
 	MOVF       R0+1, 0
 	MOVWF      A_search_temp_L0+1
-;a.h,275 :: 		if(temp<min)
+;a.h,178 :: 		if(temp<min) // имеющее минимальную стоимость
 	MOVLW      128
 	XORWF      R0+1, 0
 	MOVWF      R2+0
@@ -1786,42 +1057,42 @@ L_A_search88:
 	XORWF      A_search_min_L0+1, 0
 	SUBWF      R2+0, 0
 	BTFSS      STATUS+0, 2
-	GOTO       L__A_search147
+	GOTO       L__A_search102
 	MOVF       A_search_min_L0+0, 0
 	SUBWF      R0+0, 0
-L__A_search147:
+L__A_search102:
 	BTFSC      STATUS+0, 0
-	GOTO       L_A_search89
-;a.h,277 :: 		min=temp;
+	GOTO       L_A_search57
+;a.h,180 :: 		min=temp;
 	MOVF       A_search_temp_L0+0, 0
 	MOVWF      A_search_min_L0+0
 	MOVF       A_search_temp_L0+1, 0
 	MOVWF      A_search_min_L0+1
-;a.h,278 :: 		cxx=i;
+;a.h,181 :: 		cxx=i;
 	MOVF       A_search_i_L0+0, 0
 	MOVWF      A_search_cxx_L0+0
-;a.h,279 :: 		cyy=j;
+;a.h,182 :: 		cyy=j;
 	MOVF       A_search_j_L0+0, 0
 	MOVWF      A_search_cyy_L0+0
-;a.h,280 :: 		}
-L_A_search89:
-;a.h,281 :: 		}
-L_A_search85:
-;a.h,271 :: 		for(j=-1;j<=1;j++)
+;a.h,183 :: 		}
+L_A_search57:
+;a.h,184 :: 		}
+L_A_search53:
+;a.h,174 :: 		for(j=-1;j<=1;j++)
 	INCF       A_search_j_L0+0, 1
 	BTFSC      STATUS+0, 2
 	INCF       A_search_j_L0+1, 1
-;a.h,281 :: 		}
-	GOTO       L_A_search83
-L_A_search84:
-;a.h,270 :: 		for(i=-1;i<=1;i++) // у нас в любом состоянии 8 возможных действий
+;a.h,184 :: 		}
+	GOTO       L_A_search51
+L_A_search52:
+;a.h,173 :: 		for(i=-1;i<=1;i++) // у нас в любом состоянии 8 возможных действий
 	INCF       A_search_i_L0+0, 1
 	BTFSC      STATUS+0, 2
 	INCF       A_search_i_L0+1, 1
-;a.h,281 :: 		}
-	GOTO       L_A_search80
-L_A_search81:
-;a.h,282 :: 		if(SMove(cX+cxx,cY+cyy)) // перемещаемся в выбранное состояние
+;a.h,184 :: 		}
+	GOTO       L_A_search48
+L_A_search49:
+;a.h,185 :: 		if(SMove(cX+cxx,cY+cyy)) // перемещаемся в выбранное состояние
 	MOVF       A_search_cxx_L0+0, 0
 	ADDWF      _cX+0, 0
 	MOVWF      FARG_SMove_nx+0
@@ -1831,27 +1102,19 @@ L_A_search81:
 	CALL       _SMove+0
 	MOVF       R0+0, 0
 	BTFSC      STATUS+0, 2
-	GOTO       L_A_search90
-;a.h,284 :: 		cX+=cxx; // обновление текущих координат
+	GOTO       L_A_search58
+;a.h,187 :: 		cX+=cxx; // обновление текущих координат
 	MOVF       A_search_cxx_L0+0, 0
 	ADDWF      _cX+0, 1
-;a.h,285 :: 		cY+=cyy;
+;a.h,188 :: 		cY+=cyy;
 	MOVF       A_search_cyy_L0+0, 0
 	ADDWF      _cY+0, 1
-;a.h,286 :: 		}
-L_A_search90:
-;a.h,288 :: 		}
+;a.h,189 :: 		} // если перемещения не произошло, то робот вряд ли выберет тот же путь
+L_A_search58:
+;a.h,192 :: 		}
 L_end_A_search:
 	RETURN
 ; end of _A_search
-
-_SetGoals:
-
-;a.h,290 :: 		void SetGoals()
-;a.h,294 :: 		}
-L_end_SetGoals:
-	RETURN
-; end of _SetGoals
 
 _printing:
 
@@ -1879,114 +1142,12 @@ L_end_printing:
 	RETURN
 ; end of _printing
 
-_startup:
-
-;MyProject.c,29 :: 		void startup()
-;MyProject.c,156 :: 		}
-L_end_startup:
-	RETURN
-; end of _startup
-
 _main:
 
-;MyProject.c,189 :: 		void main()
-;MyProject.c,196 :: 		char output[50]="If You see this text robot is Okey:)";
-;MyProject.c,197 :: 		char delimiter[5]=" ";
-;MyProject.c,198 :: 		char some_byte = 0x0A;
-;MyProject.c,199 :: 		char i=0;
-	CLRF       main_i_L0+0
-;MyProject.c,200 :: 		ANSEL  = 0;                     // Configure AN pins as digital
-	CLRF       ANSEL+0
-;MyProject.c,201 :: 		ANSELH = 0;
-	CLRF       ANSELH+0
-;MyProject.c,203 :: 		UART1_Init(9600);               // Initialize UART module at 9600 bps
-	MOVLW      51
-	MOVWF      SPBRG+0
-	BSF        TXSTA+0, 2
-	CALL       _UART1_Init+0
-;MyProject.c,204 :: 		Delay_ms(100);                  // Wait for UART module to stabilize
-	MOVLW      2
-	MOVWF      R11+0
-	MOVLW      4
-	MOVWF      R12+0
-	MOVLW      186
-	MOVWF      R13+0
-L_main91:
-	DECFSZ     R13+0, 1
-	GOTO       L_main91
-	DECFSZ     R12+0, 1
-	GOTO       L_main91
-	DECFSZ     R11+0, 1
-	GOTO       L_main91
-	NOP
-;MyProject.c,206 :: 		UART1_Write_Text("Start");
-	MOVLW      ?lstr1_MyProject+0
-	MOVWF      FARG_UART1_Write_Text_uart_text+0
-	CALL       _UART1_Write_Text+0
-;MyProject.c,207 :: 		UART1_Write(10);
-	MOVLW      10
-	MOVWF      FARG_UART1_Write_data_+0
-	CALL       _UART1_Write+0
-;MyProject.c,208 :: 		UART1_Write(13);
-	MOVLW      13
-	MOVWF      FARG_UART1_Write_data_+0
-	CALL       _UART1_Write+0
-;MyProject.c,210 :: 		while (1)
-L_main92:
-;MyProject.c,214 :: 		while (UART1_Data_Ready())
-L_main94:
-	CALL       _UART1_Data_Ready+0
-	MOVF       R0+0, 0
-	BTFSC      STATUS+0, 2
-	GOTO       L_main95
-;MyProject.c,216 :: 		i='0';
-	MOVLW      48
-	MOVWF      main_i_L0+0
-;MyProject.c,218 :: 		i = UART1_Read();     // read the received data,
-	CALL       _UART1_Read+0
-	MOVF       R0+0, 0
-	MOVWF      main_i_L0+0
-;MyProject.c,238 :: 		if(UART1_Tx_Idle())
-	CALL       _UART1_Tx_Idle+0
-	MOVF       R0+0, 0
-	BTFSC      STATUS+0, 2
-	GOTO       L_main96
-;MyProject.c,240 :: 		UART1_Write(i);       // and send data via UART
-	MOVF       main_i_L0+0, 0
-	MOVWF      FARG_UART1_Write_data_+0
-	CALL       _UART1_Write+0
-;MyProject.c,241 :: 		}
-	GOTO       L_main97
-L_main96:
-;MyProject.c,243 :: 		printing("Error!");
-	MOVLW      ?lstr2_MyProject+0
-	MOVWF      FARG_printing_text+0
-	CALL       _printing+0
-L_main97:
-;MyProject.c,244 :: 		}
-	GOTO       L_main94
-L_main95:
-;MyProject.c,245 :: 		Delay_ms(500);
-	MOVLW      6
-	MOVWF      R11+0
-	MOVLW      19
-	MOVWF      R12+0
-	MOVLW      173
-	MOVWF      R13+0
-L_main98:
-	DECFSZ     R13+0, 1
-	GOTO       L_main98
-	DECFSZ     R12+0, 1
-	GOTO       L_main98
-	DECFSZ     R11+0, 1
-	GOTO       L_main98
-	NOP
-	NOP
-;MyProject.c,246 :: 		Motor_Stop();
-	CALL       _Motor_Stop+0
-;MyProject.c,247 :: 		}
-	GOTO       L_main92
-;MyProject.c,248 :: 		}
+;MyProject.c,28 :: 		void main()
+;MyProject.c,31 :: 		A_search();
+	CALL       _A_search+0
+;MyProject.c,32 :: 		}
 L_end_main:
 	GOTO       $+0
 ; end of _main

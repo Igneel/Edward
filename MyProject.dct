@@ -239,6 +239,7 @@ b4
 b5
 b6
 b7
+backward
 baudctl
 bcd2dec
 bcd2dec16
@@ -249,7 +250,6 @@ bclif_bit
 bf
 bf_bit
 boot16_delay_5ms
-brain
 brg0
 brg0_bit
 brg1
@@ -288,7 +288,6 @@ brgh
 brgh_bit
 button
 byte2double
-byteread
 bytetohex
 bytetostr
 c
@@ -464,6 +463,9 @@ delay_5ms
 delay_80us
 delay_8ms
 delay_cyc
+delay_time_1sm
+delay_time_20
+distance_metall
 div
 div_16x16_s
 div_16x16_s_l
@@ -503,7 +505,6 @@ eepgd_bit
 eeprom_read
 eeprom_write
 equals_double
-error
 exp
 expander_init
 expander_init_advanced
@@ -586,10 +587,8 @@ go_done_bit
 go_not_done
 go_not_done_bit
 goal
-goal_test
 goalcount
 h
-h_evr
 halfbits
 hts
 hts_bit
@@ -653,6 +652,7 @@ iscntrl
 isdigit
 isgraph
 islower
+ismetall
 ispunct
 issafe
 isspace
@@ -706,7 +706,6 @@ man_synchro
 manchester_0
 manchester_1
 manchester_out
-map_update
 max
 mc1out
 mc1out_bit
@@ -725,7 +724,6 @@ mm_largestfreememblock
 mm_nrfreeblocksused
 mm_possiblyfragmented
 mm_totalfreememsize
-mod
 modf
 motor_a_bwd
 motor_a_fwd
@@ -998,7 +996,6 @@ re3_bit
 read_write
 read_write_bit
 res032
-result
 rp0
 rp0_bit
 rp1
@@ -1100,9 +1097,7 @@ sendb_bit
 setfdz32
 setfov32
 setfun32
-setgoals
 setiov3224
-sforward
 shorttohex
 shorttostr
 sin
@@ -1128,6 +1123,7 @@ sound_init
 sound_play
 spbrg
 spbrgh
+speed
 spen
 spen_bit
 spi_ethernet_24j600_checksum
@@ -1332,7 +1328,6 @@ sspmsk
 sspov
 sspov_bit
 sspstat
-startup
 status
 stra
 stra_bit

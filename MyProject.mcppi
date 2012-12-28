@@ -24,12 +24,11 @@ Count=0
 Count=0
 ActiveImageIndex=-1
 [OPENED_FILES]
-Count=5
+Count=4
 File0=MyProject.c
 File1=motor.h
 File2=SafeDriving.h
 File3=a.h
-File4=MyProject.lst
 [EEPROM]
 Count=0
 [ACTIVE_COMMENTS_FILES]

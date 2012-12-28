@@ -1,22 +1,22 @@
 // поиск А* в реальном времени с обучением
 // Н - текущая наилучшая оценка стоимости достижения цели
 // из каждого состояния, которое уже было посещено 
-// h - эвристическая оценка (манхетенское расстояние до ближайшей цели)
-// result - карта среды, изначально пустая
 // WorldSize - размер мира, константа.
 
-// условные обозначения карты на данный момент
-// 1- ничего
-// 100 - стена
-// 0 - металлический объект
-    #include "motor.h"
+#include "motor.h"
 #include "SafeDriving.h"
 
-const short WorldSize=2;
+// константы задержки, при перемещении между состояниями и при проверке состояния.
+const short DELAY_TIME_20=1000;
+const short DELAY_TIME_1sm=500;
+const short DISTANCE_METALL=5; // расстояние в см, при котором мы касаемся объекта креплениями металлодеректора
+const short SPEED=255;
+
+const short WorldSize=8;
 // клеточки будут размером 20х20 см по длине робота.
 short H[WorldSize][WorldSize]={0};
-short h_evr[WorldSize][WorldSize]={0};
-short result[WorldSize][WorldSize]={0};
+//short h_evr[WorldSize][WorldSize]={0};
+//short result[WorldSize][WorldSize]={0};
 
 // массив содержащий координаты всех целей
 const short NumberOfGoals=30;
@@ -25,7 +25,7 @@ short goal[NumberOfGoals][2]={0};
 // количество найденных целей
 short findGoalCount=0;
 // общее количество целей
-short goalCount=0;
+short goalCount=WorldSize*WorldSize-1;
 
 // текущее положение робота определяют относительные координаты и вектор направления 
 // cX cY direction
@@ -37,36 +37,26 @@ enum direction cdirection=1;
 
 //------------------------------------------------------------------------------
 //---------------Прототипы функций----------------------------------------------
-void SRotare(enum direction d,enum direction nd); // поворот
- short SForward();            // безопасное движение вперед
+
+ void SRotare(enum direction d,enum direction nd); // поворот
+ short isMetall();               // возвращает 1 если предмет металлический
  short comp(short d1,short d2); // сравнение двух чисел
  short SMove(short nx,short ny); // перемещение
- short Goal_Test(void);     // проверка достижения цели
- void Map_update();       // обновление карты
  int Cost();              // определение стоимости
- void Brain();            // заполнение эвристики
  void A_search();         // алгоритм поиска A*
- void SetGoals();         // установка начальных целей, определение кол-ва целей
- int mod(int x);
+
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
- short SForward()
-   {
-   if(isSafe())
-   {
-   Motor_Init();
-    Change_Duty(255);
-    Motor_A_FWD();
-    Motor_B_FWD();
-    delay_ms(1000); // время задержки ещё нужно рассчитать.
-   return 1; // если движение было - возвращаем 1
-   }
-   else
-   {
-   Map_update(); // видимо впереди препятствие, обновляем карту
-   return 0; // движение не произошло - возвращаем 0
-   }
-   }
+
+short isMetall()
+{
+short m;
+m=Adc_Rd(1);
+if(m>0 && m<50)
+return 1;
+else
+return 0;
+}
 // функция для сравнения, возвращает три возможных значения +1,0,-1
 short comp(short d1,short d2)
 {
@@ -81,6 +71,7 @@ short SMove(short nx,short ny)
         enum direction nd; // новое направление
         short ax;
         short ry;
+        short i,d;
         ax=comp(cX,nx);  // сравниваем текущие координаты с заданными
 
         ry==comp(cY,ny);
@@ -106,31 +97,43 @@ short SMove(short nx,short ny)
         SRotare(cdirection,nd); // поворачиваемся
         // внимание - возможно придется встроить функций SForward в эту, ибо надо экономить место в стеке.
         // перемещение вперед
-        if(isSafe()) // проверяем наличие препятсвий
+        if(isSafe()==100) // проверяем наличие препятсвий
         {
          Motor_Init();  // настраиваем моторы
-         Change_Duty(255); // задаем скорость
+         Change_Duty(SPEED); // задаем скорость
          Motor_A_FWD(); // запускаем моторы
          Motor_B_FWD();
-         delay_ms(1000); // ждем пока приедем ---------------------------------------------------------------------
+         delay_ms(DELAY_TIME_20); // ждем пока приедем
          return 1;      // движение выполнено.
          }
-         else
+         else              // подъезжаем к препятствию
          {
-         Map_update(); // обновляем карту (ставим туда стену)
+         d=isSafe();
+              Motor_Init();  // настраиваем моторы
+              Change_Duty(SPEED); // задаем скорость
+              Motor_A_FWD(); // запускаем моторы
+              Motor_B_FWD();
+              for(i=0;i<d-DISTANCE_METALL;i++)
+                  delay_ms(DELAY_TIME_1sm); // ждем пока приедем
+              Motor_Stop();
+              
+         if(isMetall()) // проверяем металл ли это
+         {
+         ;//--------------------------------------------------------------------------------
+         }
+         else{;}
+         
+         Motor_Init();
+         Change_Duty(SPEED);
+         Motor_A_BWD();
+         Motor_B_BWD();
+         for(i=0;i<d-DISTANCE_METALL;i++)
+              delay_ms(DELAY_TIME_1sm); // ждем пока приедем
+         
+         
          return 0;    // движения не было
          }
 }
-
-short Goal_Test(void) // проверка достижения цели
-{
-
- if(findGoalCount==goalCount) return 1; // если количество найденных целей, соответствует количеству достигнутых - мы закончили.
- else
-        // if(!isSafe() && isMetall()) ....
-        return 0;// заглушка пока что
-}
-
 
 // вращение, использует текущее направление и новое
 // обновляет значение текущего разумеется
@@ -146,86 +149,13 @@ void SRotare(enum direction d,enum direction nd)
                 S_Left(-r*45);
 }
 
-
-// обновление карты, пока только стены умеет ставить.
-// возможно стоит поискать более простой способ, или отказаться от карты
-// и использовать только эвристику
-void Map_update()
-{
-        if(!isSafe()) // ставим стену в нужном направлении
-        {
-                switch(cdirection)
-                {
-                        case UP:
-                                result[cX][cY+1]=100;
-                        break;
-                        case RUP:
-                                result[cX+1][cY+1]=100;
-                        break;
-                        case RIGHT:
-                                result[cX+1][cY]=100;
-                        break;
-                        case RDOWN:
-                                result[cX+1][cY-1]=100;
-                        break;
-                        case DOWN:
-                                result[cX-1][cY]=100;
-                        break;
-                        case LDOWN:
-                                result[cX-1][cY-1]=100;
-                        break;
-                        case LEFT:
-                                result[cX-1][cY]=100;
-                        break;
-                        case LUP:
-                                result[cX-1][cY+1]=100;
-                        break;
-                        
-                }
-        }
-}
 // функция стоимости, универсальна, на данный момент
 // возможно стоит убрать и считать значение напрямую - экономим стек.
 int Cost(int cX,int cY)
 {       // стоимость пути возвращается с учетом наличия препятствий.
 
-        return h_evr[cX][cY]+H[cX][cY]+result[cX][cY];
+        return 1+H[cX][cY];//+result[cX][cY];
 
-}
-// функция взятия модуля от числа
- int mod(int x)
- {
- if(x>=0) return x;
- else return -x;
- }
-
-
-
-
-// функция заполнения эвристической оценки h
-// мне кажется она идеальна ^_^
-
-void Brain()
-{
-
-        short N=0; // кол-во найденных целей
-        int i,j,k;
-        int m,s,r;
-        int temp=0;
-        for(i=0;i<WorldSize;i++)
-                for(k=0;k<WorldSize;k++)
-                                h_evr[i][k]=2*WorldSize+1;
-        // на момент вызова функции цели должны быть определены
-        for(i=0;i<NumberOfGoals;i++)
-        {
-         for(j=0;j<WorldSize;j++) // x
-         for(k=0;k<WorldSize;k++) // y
-             {
-             r=mod(goal[i][0]-j)+mod(goal[i][1]-k);  // манхетенское расстояние
-             if(r<h_evr[j][k]) h_evr[j][k]=r; // если есть цель ближе - запишем расстояние до неё
-             }
-        }
-        
 }
 // непосредственно сам поиск
 void A_search()
@@ -233,15 +163,11 @@ void A_search()
         int i,j;
         short cxx,cyy; // сюда будет записываться прибавка к текущим координатам
         int min,temp;
-        if(Goal_test()) return;// достигли цели - закончили работу.
+        if(findGoalCount==goalCount) return;// проверили все состояние - достигли цели - закончили работу.
         if(H[cX][cY]==0)     // если это новое состояние
         {                    // надо его запомнить, и записать его стоимость
-        H[cX][cY]+=h[cX][cY];
+        H[cX][cY]+=1;
         }
-        // пока не выбрали куда идти дальше
-
-        result[cX][cY]=1;// обновили карту
-        
         // обновляем Н
         min=Cost(cX,cY+1);
         for(i=-1;i<=1;i++) // у нас в любом состоянии 8 возможных действий
@@ -261,12 +187,6 @@ void A_search()
         cX+=cxx; // обновление текущих координат
         cY+=cyy;
         } // если перемещения не произошло, то робот вряд ли выберет тот же путь
-	// так как его стоимость теперь увеличилась
+        // так как его стоимость теперь увеличилась
 
 }
-
- void SetGoals()
- {
-  // робот должен покрутиться, на каждом угле поворота искать металлические объекты, таким образом, находя их количество
-  // и примерные координаты
- }

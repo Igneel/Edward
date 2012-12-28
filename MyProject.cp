@@ -15,7 +15,7 @@ char motor_init_=0;
  void Motor_B_FWD();
  void Motor_A_BWD();
  void Motor_B_BWD();
-
+ void Backward(char speed);
  void S_Right(char speed);
  void S_Left(char speed);
  void Motor_Stop();
@@ -87,7 +87,17 @@ void Motor_B_BWD()
  PORTB.F1 =1;
  PORTB.F2 =0;
 }
-#line 124 "c:/edward/motor.h"
+#line 114 "c:/edward/motor.h"
+void Backward(char speed)
+{
+ Motor_Init();
+ Change_Duty(speed);
+ Motor_A_BWD();
+ Motor_B_BWD();
+}
+
+
+
 void S_Right(char speed)
 {
  Motor_Init();
@@ -153,18 +163,20 @@ short isSafe()
  {
  Distance=(2914.0/(GP2+5))-1;
  }
- if(fabs(Distance-100)<1)
- return 1;
- else
- return 0;
+ return Distance;
 
 }
-#line 15 "c:/edward/a.h"
-const short WorldSize=2;
+#line 10 "c:/edward/a.h"
+const short DELAY_TIME_20=1000;
+const short DELAY_TIME_1sm=500;
+const short DISTANCE_METALL=5;
+const short SPEED=255;
+
+const short WorldSize=8;
 
 short H[WorldSize][WorldSize]={0};
-short h_evr[WorldSize][WorldSize]={0};
-short result[WorldSize][WorldSize]={0};
+
+
 
 
 const short NumberOfGoals=30;
@@ -173,7 +185,7 @@ short goal[NumberOfGoals][2]={0};
 
 short findGoalCount=0;
 
-short goalCount=0;
+short goalCount=WorldSize*WorldSize-1;
 
 
 
@@ -185,36 +197,26 @@ enum direction cdirection=1;
 
 
 
-void SRotare(enum direction d,enum direction nd);
- short SForward();
+
+ void SRotare(enum direction d,enum direction nd);
+ short isMetall();
  short comp(short d1,short d2);
  short SMove(short nx,short ny);
- short Goal_Test(void);
- void Map_update();
  int Cost();
- void Brain();
  void A_search();
- void SetGoals();
- int mod(int x);
 
 
- short SForward()
- {
- if(isSafe())
- {
- Motor_Init();
- Change_Duty(255);
- Motor_A_FWD();
- Motor_B_FWD();
- delay_ms(1000);
- return 1;
- }
- else
- {
- Map_update();
- return 0;
- }
- }
+
+
+short isMetall()
+{
+short m;
+m=Adc_Rd(1);
+if(m>0 && m<50)
+return 1;
+else
+return 0;
+}
 
 short comp(short d1,short d2)
 {
@@ -223,12 +225,13 @@ short comp(short d1,short d2)
  else return -1;
 }
 
+
 short SMove(short nx,short ny)
 {
  enum direction nd;
- short success;
  short ax;
  short ry;
+ short i,d;
  ax=comp(cX,nx);
 
  ry==comp(cY,ny);
@@ -254,33 +257,43 @@ short SMove(short nx,short ny)
  SRotare(cdirection,nd);
 
 
- if(isSafe())
+ if(isSafe()==100)
  {
  Motor_Init();
- Change_Duty(255);
+ Change_Duty(SPEED);
  Motor_A_FWD();
  Motor_B_FWD();
- delay_ms(1000);
- success=1;
+ delay_ms(DELAY_TIME_20);
+ return 1;
  }
  else
  {
- Map_update();
- success=0;
+ d=isSafe();
+ Motor_Init();
+ Change_Duty(SPEED);
+ Motor_A_FWD();
+ Motor_B_FWD();
+ for(i=0;i<d-DISTANCE_METALL;i++)
+ delay_ms(DELAY_TIME_1sm);
+ Motor_Stop();
+
+ if(isMetall())
+ {
+ ;
  }
+ else{;}
 
- return success;
-}
+ Motor_Init();
+ Change_Duty(SPEED);
+ Motor_A_BWD();
+ Motor_B_BWD();
+ for(i=0;i<d-DISTANCE_METALL;i++)
+ delay_ms(DELAY_TIME_1sm);
 
-short Goal_Test(void)
-{
-
- if(findGoalCount==goalCount) return 1;
- else
 
  return 0;
+ }
 }
-
 
 
 
@@ -298,104 +311,11 @@ void SRotare(enum direction d,enum direction nd)
 
 
 
-void Map_update()
-{
- if(!isSafe())
- {
- switch(cdirection)
- {
- case UP:
- result[cX][cY+1]=100;
- break;
- case RUP:
- result[cX+1][cY+1]=100;
- break;
- case RIGHT:
- result[cX+1][cY]=100;
- break;
- case RDOWN:
- result[cX+1][cY-1]=100;
- break;
- case DOWN:
- result[cX-1][cY]=100;
- break;
- case LDOWN:
- result[cX-1][cY-1]=100;
- break;
- case LEFT:
- result[cX-1][cY]=100;
- break;
- case LUP:
- result[cX-1][cY+1]=100;
- break;
-
- }
- }
-}
-
 int Cost(int cX,int cY)
 {
-asm {
- BSF IRP,9
-}
- return h_evr[cX][cY]+H[cX][cY]+result[cX][cY];
- asm {
- BCF IRP,9
-}
-}
 
- int mod(int x)
- {
- if(x>=0) return x;
- else return -x;
- }
+ return 1+H[cX][cY];
 
-
-
-
-
-
-void Brain()
-{
-
- short N=0;
- int i,j,k;
- int m,s,r;
- int temp=0;
- for(i=0;i<WorldSize;i++)
- for(k=0;k<WorldSize;k++)
- h_evr[i][k]=2*WorldSize+1;
-
- for(i=0;i<NumberOfGoals;i++)
- {
- for(j=0;j<WorldSize;j++)
- for(k=0;k<WorldSize;k++)
- {
- r=mod(goal[i][0]-j)+mod(goal[i][1]-k);
- if(r<h_evr[j][k]) h_evr[j][k]=r;
- }
- }
-
-
-
-
-
-
-
-
-
- asm { BSF IRP,9}
- for(i=0;i<N;i++)
- for(k=0;k<m;k++)
- for(j=0;j<s;j++)
- {
- temp=goal[i][0]-k+goal[i][1]-j;
- if(temp<h_evr[i][j])
- h_evr[i][j]=temp;
- }
- asm {
- BCF IRP,9
-}
 }
 
 void A_search()
@@ -403,16 +323,11 @@ void A_search()
  int i,j;
  short cxx,cyy;
  int min,temp;
- if(Goal_test()) return;
+ if(findGoalCount==goalCount) return;
  if(H[cX][cY]==0)
  {
- H[cX][cY]+=h[cX][cY];
+ H[cX][cY]+=1;
  }
-
-
- result[cX][cY]=1;
-
-
 
  min=Cost(cX,cY+1);
  for(i=-1;i<=1;i++)
@@ -433,13 +348,8 @@ void A_search()
  cY+=cyy;
  }
 
+
 }
-
- void SetGoals()
- {
-
-
- }
 #line 4 "C:/Edward/MyProject.c"
 sbit LCD_RS at RD2_bit;
 sbit LCD_EN at RD3_bit;
@@ -464,52 +374,9 @@ sbit LCD_D4_Direction at TRISD4_bit;
 
 }
 
- char error=0, byteread=0;
 
-void startup()
-{
-#line 156 "C:/Edward/MyProject.c"
-}
-#line 189 "C:/Edward/MyProject.c"
 void main()
 {
-char error;
 
-
-
-
- char output[50]="If You see this text robot is Okey:)";
- char delimiter[5]=" ";
-char some_byte = 0x0A;
-char i=0;
-ANSEL = 0;
- ANSELH = 0;
-
- UART1_Init(9600);
- Delay_ms(100);
-
- UART1_Write_Text("Start");
- UART1_Write(10);
- UART1_Write(13);
-
- while (1)
- {
-
-
- while (UART1_Data_Ready())
- {
- i='0';
-
- i = UART1_Read();
-#line 238 "C:/Edward/MyProject.c"
- if(UART1_Tx_Idle())
- {
- UART1_Write(i);
- }
- else
- printing("Error!");
- }
- Delay_ms(500);
- Motor_Stop();
- }
- }
+A_search();
+}

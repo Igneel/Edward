@@ -12,7 +12,7 @@ char motor_init_=0;               // Status initial
   void Motor_B_FWD();
   void Motor_A_BWD();
   void Motor_B_BWD();
-  //void Backward(char speed);
+  void Backward(char speed);
   void S_Right(char speed);
   void S_Left(char speed);
   void Motor_Stop();
@@ -111,13 +111,13 @@ void Motor_B_BWD()
 /************************************/
 
 /********** Go Backward  ************/
-/*void Backward(char speed)
+void Backward(char speed)
 {
     Motor_Init();
     Change_Duty(speed);
     Motor_A_BWD();
     Motor_B_BWD();
-}*/
+}
 /************************************/
 
 /********** Spin Left   *************/
