@@ -1,10 +1,9 @@
 #ifndef MOTOR_H_
 #define MOTOR_H_
-//#include "motor2.h"
-//#include "SafeDriving.h"
 
-char motor_duty_= 127;            // Defalt PWM 50%
-char motor_init_=0;               // Status initial
+char motor_duty_= 127;            // мощность по умолчанию 50%
+char motor_init_=0;               // статус инициализации
+// прототипы функций:
 
   void Motor_Init();
   void Change_Duty(char speed);
@@ -17,53 +16,51 @@ char motor_init_=0;               // Status initial
   void S_Left(char speed);
   void Motor_Stop();
 
-//  *** Motor A *****
+//  *** Мотор A *****
 //   PD0 ====>  1A
 //   PD1 ====>  1B
 //   PC2 ====>  1E (PWM1)
 
-//  *** Motor B *****
+//  *** Мотор B *****
 //   PB1 ====>  2A
 //   PB2 ====>  2B
 //   PC1 ====>  2E (PWM2)
 
 //****************************************************
-//********** Initial Motor Function ******************
+//********** Инициализация мотора ******************
 //****************************************************
 void Motor_Init()
 {
-  if (motor_init_==0)            // First time ?
+  if (motor_init_==0)            // Первый раз?
   {
-    motor_init_=1;               // Status
-    ANSELH.F0=0;                 // RB1 ==> Digital IO
-    ANSELH.F2=0;                 // RB2 ==> Digital IO
-    TRISB.F1=0;                  // Motor B 2A
-    TRISB.F2=0;                  // Motor B 2B
-    TRISD.F0=0;                  // Motor A 1A
-    TRISD.F1=0;                  // MOtor A 1B
-    Pwm1_Init(5000);             // Initail PWM 1E
-    Pwm2_Init(5000);             // Initail PWM 2E
+    motor_init_=1;               // статус
+    ANSELH.F0=0;                 // RB1 ==> цифровой ввод/вывод
+    ANSELH.F2=0;                 // RB2 ==> цифровой ввод/вывод
+    TRISB.F1=0;                  // Мотор B 2A
+    TRISB.F2=0;                  // Мотор B 2B
+    TRISD.F0=0;                  // Мотор A 1A
+    TRISD.F1=0;                  // Мотор A 1B
+    Pwm1_Init(5000);             // Инициализация мощности 1E
+    Pwm2_Init(5000);             // Инициализация мощности 2E
   }
 }
 //****************************************************
 
 //****************************************************
-//********** Control Duty Cycle  *********************
+//********** Управление скоростью  *********************
 //****************************************************
 void Change_Duty(char speed)
  {
-  if (speed != motor_duty_)      // Check Same old speed
+  if (speed != motor_duty_)      // скорость не изменилась?
   {
-   motor_duty_=speed;            // Save for old speed
-     PWM1_Set_Duty(speed);      // Motor A
-     PWM2_Set_Duty(speed);      // Motor B
-   //Pwm1_Change_Duty(speed);      // Motor A
-   //Pwm2_Change_Duty(speed);      // Motor B
+   motor_duty_=speed;            // сохраняем старую скорость
+     PWM1_Set_Duty(speed);      // Мотор A
+     PWM2_Set_Duty(speed);      // Мотор B
    }
  }
 //****************************************************
 
-/********** Motor A Forward  ********/
+/********** Мотор A Вперед  ********/
 void Motor_A_FWD()
 {
   Pwm1_Start();
@@ -72,7 +69,7 @@ void Motor_A_FWD()
 }
 /************************************/
 
-/********** Motor B Forward  ********/
+/********** Мотор B Вперед  ********/
 void Motor_B_FWD()
 {
   Pwm2_Start();
@@ -81,7 +78,7 @@ void Motor_B_FWD()
 }
 /************************************/
 
-/********** Motor A Backward  *******/
+/********* *Мотор A Назад  *******/
 void Motor_A_BWD()
 {
   Pwm1_Start();
@@ -90,7 +87,7 @@ void Motor_A_BWD()
 }
 /************************************/
 
-/********** Motor B Backward  *******/
+/********** Мотор B Назад *******/
 void Motor_B_BWD()
 {
   Pwm2_Start();
@@ -99,28 +96,7 @@ void Motor_B_BWD()
 }
 /************************************/
 
-/********** Go Forward   ************/
-/*void Forward(char speed)
-{
-    Motor_Init();
-    Change_Duty(speed);
-    Motor_A_FWD();
-    Motor_B_FWD();
-
-}*/
-/************************************/
-
-/********** Go Backward  ************/
-void Backward(char speed)
-{
-    Motor_Init();
-    Change_Duty(speed);
-    Motor_A_BWD();
-    Motor_B_BWD();
-}
-/************************************/
-
-/********** Spin Left   *************/
+/********** Поворот налево   *************/
 void S_Right(char speed)
 {
     Motor_Init();
@@ -130,7 +106,7 @@ void S_Right(char speed)
 }
 /************************************/
 
-/********** Spin Right   ************/
+/********** Повотор направо   ************/
 void S_Left(char speed)
 {
     Motor_Init();
@@ -139,7 +115,7 @@ void S_Left(char speed)
     Motor_B_FWD();
 }
 
-/********** Stop Motor   ************/
+/********** Остановка мотора   ************/
 void Motor_Stop()
 {
    Change_Duty(0);
@@ -149,9 +125,7 @@ void Motor_Stop()
   Pwm2_Stop();
   PORTB.F1 =0;
   PORTB.F2 =0;
-   // Motor_A_Off();
-   // Motor_B_Off();
-    motor_init_=0;
+  motor_init_=0;
     
 }
 /************************************/

@@ -1,8 +1,9 @@
 main
 	__CC2DW
 		____DoICP
+	Brain
+		mod
 	A_search
-		Cost
 		SMove
 			comp
 			SRotare

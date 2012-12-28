@@ -4,10 +4,9 @@
 
 
 
-
-
 char motor_duty_= 127;
 char motor_init_=0;
+
 
  void Motor_Init();
  void Change_Duty(char speed);
@@ -19,7 +18,7 @@ char motor_init_=0;
  void S_Right(char speed);
  void S_Left(char speed);
  void Motor_Stop();
-#line 33 "c:/edward/motor.h"
+#line 32 "c:/edward/motor.h"
 void Motor_Init()
 {
  if (motor_init_==0)
@@ -47,8 +46,6 @@ void Change_Duty(char speed)
  motor_duty_=speed;
  PWM1_Set_Duty(speed);
  PWM2_Set_Duty(speed);
-
-
  }
  }
 
@@ -87,14 +84,6 @@ void Motor_B_BWD()
  PORTB.F1 =1;
  PORTB.F2 =0;
 }
-#line 114 "c:/edward/motor.h"
-void Backward(char speed)
-{
- Motor_Init();
- Change_Duty(speed);
- Motor_A_BWD();
- Motor_B_BWD();
-}
 
 
 
@@ -126,8 +115,6 @@ void Motor_Stop()
  Pwm2_Stop();
  PORTB.F1 =0;
  PORTB.F2 =0;
-
-
  motor_init_=0;
 
 }
@@ -175,17 +162,16 @@ const short SPEED=255;
 const short WorldSize=8;
 
 short H[WorldSize][WorldSize]={0};
+short h_evr[WorldSize][WorldSize]={0};
 
 
 
-
-const short NumberOfGoals=30;
-short goal[NumberOfGoals][2]={0};
-
+const short NumberOfGoals=WorldSize*WorldSize-1;
+const short MaxMetall=30;
+short Metals[MaxMetall][2]={0};
+short MetallObjects=0;
 
 short findGoalCount=0;
-
-short goalCount=WorldSize*WorldSize-1;
 
 
 
@@ -196,6 +182,9 @@ enum direction {UP=1,RUP=2,RIGHT=3,RDOWN=4,DOWN=5, LDOWN=6,LEFT=7,LUP=8};
 enum direction cdirection=1;
 
 
+short cxx,cyy;
+
+
 
 
  void SRotare(enum direction d,enum direction nd);
@@ -204,6 +193,7 @@ enum direction cdirection=1;
  short SMove(short nx,short ny);
  int Cost();
  void A_search();
+ void Brain();
 
 
 
@@ -263,7 +253,11 @@ short SMove(short nx,short ny)
  Change_Duty(SPEED);
  Motor_A_FWD();
  Motor_B_FWD();
+ if(cdirection%2==0)
+ delay_ms(DELAY_TIME_20*1414/1000);
+ else
  delay_ms(DELAY_TIME_20);
+ findGoalCount++;
  return 1;
  }
  else
@@ -276,12 +270,14 @@ short SMove(short nx,short ny)
  for(i=0;i<d-DISTANCE_METALL;i++)
  delay_ms(DELAY_TIME_1sm);
  Motor_Stop();
-
+ H[cX+cxx][cY+cyy]++;
+ findGoalCount++;
  if(isMetall())
  {
- ;
+ Metals[MetallObjects][0]=cX+cxx;
+ Metals[MetallObjects][1]=cY+cyy;
+ MetallObjects++;
  }
- else{;}
 
  Motor_Init();
  Change_Duty(SPEED);
@@ -289,7 +285,6 @@ short SMove(short nx,short ny)
  Motor_B_BWD();
  for(i=0;i<d-DISTANCE_METALL;i++)
  delay_ms(DELAY_TIME_1sm);
-
 
  return 0;
  }
@@ -311,30 +306,22 @@ void SRotare(enum direction d,enum direction nd)
 
 
 
-int Cost(int cX,int cY)
-{
-
- return 1+H[cX][cY];
-
-}
-
 void A_search()
 {
  int i,j;
- short cxx,cyy;
  int min,temp;
- if(findGoalCount==goalCount) return;
+ if(findGoalCount==NumberOfGoals) return;
  if(H[cX][cY]==0)
  {
  H[cX][cY]+=1;
  }
 
- min=Cost(cX,cY+1);
+ min=H[cX][cY+1]+h_evr[cX][cY+1];
  for(i=-1;i<=1;i++)
  for(j=-1;j<=1;j++)
  {
  if(i==0 && j==0) continue;
- temp=Cost(cX+i,cY+j);
+ temp=H[cX+i][cY+j]+h_evr[cX+i][cY+j];
  if(temp<min)
  {
  min=temp;
@@ -349,6 +336,33 @@ void A_search()
  }
 
 
+}
+
+
+ short mod(short x)
+ {
+ if(x>=0) return x;
+ else return -x;
+ }
+
+void Brain()
+{
+ short x,y,j,k;
+ short r;
+
+ for(x=0;x<WorldSize;x++)
+ {
+ for(y=0;y<WorldSize;y++)
+ {
+ if(H[x][y]!=0) continue;
+ for(j=0;j<WorldSize;j++)
+ for(k=0;k<WorldSize;k++)
+ {
+ r=mod(x-j)+mod(y-k);
+ if(r<h_evr[j][k]) h_evr[j][k]=r;
+ }
+ }
+ }
 }
 #line 4 "C:/Edward/MyProject.c"
 sbit LCD_RS at RD2_bit;
@@ -377,6 +391,16 @@ sbit LCD_D4_Direction at TRISD4_bit;
 
 void main()
 {
+short j,k;
+ for(j=0;j<WorldSize;j++)
+ for(k=0;k<WorldSize;k++)
+ {
+ h_evr[j][k]=2*WorldSize;
 
+ }
+while(findGoalCount<NumberOfGoals)
+{
+Brain();
 A_search();
+}
 }

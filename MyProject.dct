@@ -239,7 +239,6 @@ b4
 b5
 b6
 b7
-backward
 baudctl
 bcd2dec
 bcd2dec16
@@ -250,6 +249,7 @@ bclif_bit
 bf
 bf_bit
 boot16_delay_5ms
+brain
 brg0
 brg0_bit
 brg1
@@ -422,13 +422,14 @@ compare_double
 cos
 cose3
 cosh
-cost
 cren
 cren_bit
 csrc
 csrc_bit
 cx
+cxx
 cy
+cyy
 d
 d_a
 d_a_bit
@@ -586,9 +587,8 @@ go_done
 go_done_bit
 go_not_done
 go_not_done_bit
-goal
-goalcount
 h
+h_evr
 halfbits
 hts
 hts_bit
@@ -707,6 +707,7 @@ manchester_0
 manchester_1
 manchester_out
 max
+maxmetall
 mc1out
 mc1out_bit
 mc2out
@@ -716,6 +717,8 @@ memcmp
 memcpy
 memmove
 memset
+metallobjects
+metals
 min
 mm_error_
 mm_freememtable
@@ -724,6 +727,7 @@ mm_largestfreememblock
 mm_nrfreeblocksused
 mm_possiblyfragmented
 mm_totalfreememsize
+mod
 modf
 motor_a_bwd
 motor_a_fwd

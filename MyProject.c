@@ -27,6 +27,16 @@ sbit LCD_D4_Direction at TRISD4_bit;
 
 void main() 
 {
-//Brain();
+short j,k;
+     for(j=0;j<WorldSize;j++) // x
+         for(k=0;k<WorldSize;k++) // y
+             {
+             h_evr[j][k]=2*WorldSize; // задаем ненулевые значения эвристики.
+             // чтобы дальше сравнивать их с реальными расстояниями.
+             }
+while(findGoalCount<NumberOfGoals)
+{
+Brain();
 A_search();
+}
 }
