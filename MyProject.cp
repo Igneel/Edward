@@ -1,6 +1,6 @@
-#line 1 "C:/Edward/MyProject.c"
-#line 1 "c:/edward/a.h"
-#line 1 "c:/edward/motor.h"
+#line 1 "Y:/Edward/MyProject.c"
+#line 1 "y:/edward/a.h"
+#line 1 "y:/edward/motor.h"
 
 
 
@@ -18,7 +18,7 @@ char motor_init_=0;
  void S_Right(char speed);
  void S_Left(char speed);
  void Motor_Stop();
-#line 32 "c:/edward/motor.h"
+#line 32 "y:/edward/motor.h"
 void Motor_Init()
 {
  if (motor_init_==0)
@@ -118,8 +118,8 @@ void Motor_Stop()
  motor_init_=0;
 
 }
-#line 1 "c:/edward/safedriving.h"
-#line 1 "c:/edward/adc.h"
+#line 1 "y:/edward/safedriving.h"
+#line 1 "y:/edward/adc.h"
 int Adc_Rd(char ch)
 {
  int dat=0;
@@ -137,7 +137,7 @@ int Adc_Rd(char ch)
  dat = (ADRESH*4)+(ADRESL/64);
  return dat;
 }
-#line 6 "c:/edward/safedriving.h"
+#line 6 "y:/edward/safedriving.h"
 short isSafe() ;
 
 
@@ -153,7 +153,7 @@ short isSafe()
  return Distance;
 
 }
-#line 10 "c:/edward/a.h"
+#line 11 "y:/edward/a.h"
 const short DELAY_TIME_20=1000;
 const short DELAY_TIME_1sm=500;
 const short DISTANCE_METALL=5;
@@ -161,8 +161,8 @@ const short SPEED=255;
 
 const short WorldSize=8;
 
-short H[WorldSize][WorldSize]={0};
-short h_evr[WorldSize][WorldSize]={0};
+
+
 
 
 
@@ -183,7 +183,10 @@ enum direction cdirection=1;
 
 
 short cxx,cyy;
+char string[16];
+char delimiter[16];
 
+char strint[5]={0};
 
 
 
@@ -195,6 +198,53 @@ short cxx,cyy;
  void A_search();
  void Brain();
 
+
+
+ int getParam(const char * p,int x,int y);
+ int setParam(const char * p,int x,int y,int value);
+ void strConstCpy (const char *source, char *dest);
+
+
+
+void strConstCpy (const char *source, char *dest) {
+ while (*source) *dest++ = *source++;
+ *dest = 0;
+}
+void stradd(char *source, char *dest){
+while (*dest++);
+*dest--;
+while (*source) *dest++ = *source++;
+ *dest = 0;
+}
+
+int getParam(const char * p,int x,int y)
+{
+ char temp;
+ strConstCpy(p,string);
+ IntToStr (x,strint);
+ stradd(strint,string);
+ IntToStr (y,strint);
+ stradd(strint,string);
+ UART1_Write_Text(string);
+ while(1) if(UART1_Data_Ready())
+ {
+ temp=UART1_Read();
+ UART1_Write(temp);
+ return temp;
+ }
+}
+
+ int setParam(const char * p,int x,int y,int value)
+ {
+ strConstCpy(p,string);
+ IntToStr (x,strint);
+ stradd(strint,string);
+ IntToStr (y,strint);
+ stradd(strint,string);
+ IntToStr (value,strint);
+ stradd(strint,string);
+ UART1_Write_Text(string);
+ }
 
 
 
@@ -219,6 +269,7 @@ short comp(short d1,short d2)
 short SMove(short nx,short ny)
 {
  enum direction nd;
+ int temp;
  short ax;
  short ry;
  short i,d;
@@ -270,7 +321,8 @@ short SMove(short nx,short ny)
  for(i=0;i<d-DISTANCE_METALL;i++)
  delay_ms(DELAY_TIME_1sm);
  Motor_Stop();
- H[cX+cxx][cY+cyy]++;
+ temp=getParam("Hint",cX+cxx,cY+cyy);
+ setParam("Hint",cX+cxx,cY+cyy,temp++);
  findGoalCount++;
  if(isMetall())
  {
@@ -311,17 +363,19 @@ void A_search()
  int i,j;
  int min,temp;
  if(findGoalCount==NumberOfGoals) return;
- if(H[cX][cY]==0)
- {
- H[cX][cY]+=1;
- }
+ temp=getParam("Hint",cX,cY);
 
- min=H[cX][cY+1]+h_evr[cX][cY+1];
+
+ setParam("Hint",cX,cY,temp++);
+
+
+
+ min=getParam("Hint",cX,cY+1)+getParam("hevr",cX,cY+1);
  for(i=-1;i<=1;i++)
  for(j=-1;j<=1;j++)
  {
  if(i==0 && j==0) continue;
- temp=H[cX+i][cY+j]+h_evr[cX+i][cY+j];
+ temp=getParam("Hint",cX+i,cY+j)+getParam("hevr",cX+i,cY+j);
  if(temp<min)
  {
  min=temp;
@@ -354,17 +408,17 @@ void Brain()
  {
  for(y=0;y<WorldSize;y++)
  {
- if(H[x][y]!=0) continue;
+ if(getParam("Hint",x,y) !=0) continue;
  for(j=0;j<WorldSize;j++)
  for(k=0;k<WorldSize;k++)
  {
  r=mod(x-j)+mod(y-k);
- if(r<h_evr[j][k]) h_evr[j][k]=r;
+ if(r<getParam("hevr",j,k)) setParam("hevr",j,k,r);
  }
  }
  }
 }
-#line 4 "C:/Edward/MyProject.c"
+#line 4 "Y:/Edward/MyProject.c"
 sbit LCD_RS at RD2_bit;
 sbit LCD_EN at RD3_bit;
 sbit LCD_D7 at RD7_bit;
@@ -391,16 +445,12 @@ sbit LCD_D4_Direction at TRISD4_bit;
 
 void main()
 {
-short j,k;
- for(j=0;j<WorldSize;j++)
- for(k=0;k<WorldSize;k++)
- {
- h_evr[j][k]=2*WorldSize;
+char temp;
 
- }
-while(findGoalCount<NumberOfGoals)
-{
-Brain();
-A_search();
-}
+
+
+ UART1_Init(9600);
+ getParam("Hint",5,250);
+ setParam("hevr",899,623,3);
+#line 49 "Y:/Edward/MyProject.c"
 }

@@ -466,6 +466,7 @@ delay_8ms
 delay_cyc
 delay_time_1sm
 delay_time_20
+delimiter
 distance_metall
 div
 div_16x16_s
@@ -549,6 +550,7 @@ fvren_bit
 gcen
 gcen_bit
 get_fosc_khz
+getparam
 gie
 gie_bit
 glcd_box
@@ -587,8 +589,6 @@ go_done
 go_done_bit
 go_not_done
 go_not_done_bit
-h
-h_evr
 halfbits
 hts
 hts_bit
@@ -1102,6 +1102,7 @@ setfdz32
 setfov32
 setfun32
 setiov3224
+setparam
 shorttohex
 shorttostr
 sin
@@ -1335,6 +1336,7 @@ sspstat
 status
 stra
 stra_bit
+stradd
 strb
 strb_bit
 strc
@@ -1342,10 +1344,13 @@ strc_bit
 strcat
 strchr
 strcmp
+strconstcpy
 strcpy
 strcspn
 strd
 strd_bit
+string
+strint
 strlen
 strncat
 strncmp

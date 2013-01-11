@@ -27,7 +27,14 @@ sbit LCD_D4_Direction at TRISD4_bit;
 
 void main() 
 {
-short j,k;
+char temp;
+
+
+//short j,k;
+     UART1_Init(9600);
+     getParam("Hint",5,250);
+     setParam("hevr",899,623,3);
+     /*
      for(j=0;j<WorldSize;j++) // x
          for(k=0;k<WorldSize;k++) // y
              {
@@ -38,5 +45,5 @@ while(findGoalCount<NumberOfGoals)
 {
 Brain();
 A_search();
-}
+} */
 }

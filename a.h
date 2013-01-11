@@ -6,6 +6,7 @@
 #include "motor.h"
 #include "SafeDriving.h"
 
+
 // константы задержки, при перемещении между состояниями и при проверке состояния.
 const short DELAY_TIME_20=1000;
 const short DELAY_TIME_1sm=500;
@@ -14,8 +15,8 @@ const short SPEED=255;
 
 const short WorldSize=8;
 // клеточки будут размером 20х20 см по длине робота.
-short H[WorldSize][WorldSize]={0};
-short h_evr[WorldSize][WorldSize]={0};
+//short H[WorldSize][WorldSize]={0};
+//short h_evr[WorldSize][WorldSize]={0};
 //short result[WorldSize][WorldSize]={0};
 
 // массив содержащий координаты всех целей
@@ -36,7 +37,10 @@ enum direction cdirection=1;
 
 
 short cxx,cyy; // сюда будет записываться прибавка к текущим координатам
+char string[16];
+char delimiter[16];
 
+char strint[5]={0};
 //------------------------------------------------------------------------------
 //---------------Прототипы функций----------------------------------------------
 
@@ -47,10 +51,57 @@ short cxx,cyy; // сюда будет записываться прибавка к текущим координатам
  int Cost();              // определение стоимости
  void A_search();         // алгоритм поиска A*
  void Brain();             // эвристика
+ 
+ 
+ // для работы с блютузом:
+ int getParam(const char * p,int x,int y);
+ int setParam(const char * p,int x,int y,int value);
+ void strConstCpy (const char *source, char *dest);
+//------------------------------------------------------------------------------
+
+// Процедура копирования строки из ROM в RAM
+void strConstCpy (const char *source, char *dest) {
+ while (*source) *dest++ = *source++;
+ *dest = 0;
+}
+void stradd(char *source, char *dest){
+while (*dest++);
+*dest--;
+while (*source) *dest++ = *source++;
+ *dest = 0;
+}
+// "Hint" Для H и hevr для эвристики
+int getParam(const char * p,int x,int y)
+{
+ char temp;
+ strConstCpy(p,string);
+ IntToStr (x,strint);
+ stradd(strint,string);
+ IntToStr (y,strint);
+ stradd(strint,string);
+ UART1_Write_Text(string);
+ while(1) if(UART1_Data_Ready())
+ {
+ temp=UART1_Read();
+ UART1_Write(temp);
+ return temp;
+ }
+}
+
+ int setParam(const char * p,int x,int y,int value)
+ {
+ strConstCpy(p,string);
+ IntToStr (x,strint);
+ stradd(strint,string);
+ IntToStr (y,strint);
+ stradd(strint,string);
+ IntToStr (value,strint);
+ stradd(strint,string);
+ UART1_Write_Text(string);
+ }
 
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
-
 short isMetall()
 {
 short m;
@@ -72,6 +123,7 @@ short comp(short d1,short d2)
 short SMove(short nx,short ny)
 {
         enum direction nd; // новое направление
+        int temp;
         short ax;
         short ry;
         short i,d;
@@ -123,7 +175,8 @@ short SMove(short nx,short ny)
               for(i=0;i<d-DISTANCE_METALL;i++)
                   delay_ms(DELAY_TIME_1sm); // ждем пока приедем
               Motor_Stop();
-         H[cX+cxx][cY+cyy]++;   // обновляем состояние, раз там что-то есть, туда ехать не надо
+              temp=getParam("Hint",cX+cxx,cY+cyy);
+         setParam("Hint",cX+cxx,cY+cyy,temp++); //H[cX+cxx][cY+cyy]++;   // обновляем состояние, раз там что-то есть, туда ехать не надо
          findGoalCount++;
          if(isMetall()) // проверяем металл ли это
          {
@@ -164,17 +217,19 @@ void A_search()
         int i,j;
         int min,temp;
         if(findGoalCount==NumberOfGoals) return;// проверили все состояния - достигли цели - закончили работу.
-        if(H[cX][cY]==0)     // если это новое состояние
-        {                    // надо его запомнить, и записать его стоимость
-        H[cX][cY]+=1;
-        }
+        temp=getParam("Hint",cX,cY);
+        //if(temp==0)     // если это новое состояние
+        //{                    // надо его запомнить, и записать его стоимость
+        setParam("Hint",cX,cY,temp++);
+        //H[cX][cY]+=1;
+        //}
         // обновляем Н
-        min=H[cX][cY+1]+h_evr[cX][cY+1];
+        min=getParam("Hint",cX,cY+1)+getParam("hevr",cX,cY+1);//H[cX][cY+1]+h_evr[cX][cY+1];
         for(i=-1;i<=1;i++) // у нас в любом состоянии 8 возможных действий
-           for(j=-1;j<=1;j++)
+           for(j=-1;j<=1;j++)//----------------------------------------------------------------------------------------------------------------------!!!!!
               { // анализируем все возможные состояния и находим состояние
                   if(i==0 && j==0) continue;
-                  temp=H[cX+i][cY+j]+h_evr[cX+i][cY+j];
+                  temp=getParam("Hint",cX+i,cY+j)+getParam("hevr",cX+i,cY+j); //H[cX+i][cY+j]+h_evr[cX+i][cY+j];
                   if(temp<min) // имеющее минимальную стоимость
                   {            // а значит ближайшее к цели
                      min=temp;
@@ -207,12 +262,12 @@ void Brain()
         {
         for(y=0;y<WorldSize;y++)
         {
-        if(H[x][y]!=0) continue; // если значение не нулевое- значит мы там были и всё нашли.
+        if(getParam("Hint",x,y)/*H[x][y]*/!=0) continue; // если значение не нулевое- значит мы там были и всё нашли.
         for(j=0;j<WorldSize;j++) // x
          for(k=0;k<WorldSize;k++) // y
              {
              r=mod(x-j)+mod(y-k);  // манхетенское расстояние
-             if(r<h_evr[j][k]) h_evr[j][k]=r; // если есть цель ближе - запишем расстояние до неё
+             if(r<getParam("hevr",j,k)) setParam("hevr",j,k,r); //h_evr[j][k])  // h_evr[j][k]=r; // если есть цель ближе - запишем расстояние до неё
              }
         }
         }
