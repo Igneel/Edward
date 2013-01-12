@@ -300,7 +300,6 @@ short SMove(short nx,short ny)
 }
 
 // вращение, использует текущее направление и новое
-// обновляет значение текущего
 
 void SRotare(enum direction d,enum direction nd)
 {
