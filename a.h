@@ -8,12 +8,12 @@
 
 
 // константы задержки, при перемещении между состояниями и при проверке состояния.
-const short DELAY_TIME_20=1000;
-const short DELAY_TIME_1sm=500;
+const short DELAY_TIME_VR_10=64; // время поворота на 10 градусов
+const short DELAY_TIME_1sm=71;  // задержка на 1 см
 const short DISTANCE_METALL=5; // расстояние в см, при котором мы касаемся объекта креплениями металлодеректора
 const short SPEED=255;
 
-const short WorldSize=8;
+const short WorldSize=30;
 // клеточки будут размером 20х20 см по длине робота.
 //short H[WorldSize][WorldSize]={0};
 //short h_evr[WorldSize][WorldSize]={0};
@@ -29,11 +29,11 @@ short findGoalCount=0;
 
 // текущее положение робота определяют относительные координаты и вектор направления 
 // cX cY direction
-short cX=0;
-short cY=0;
+int cX=0;
+int cY=0;
 // насчет энума ещё подумать - в зависимости от датчиков
-enum direction {UP=1,RUP=2,RIGHT=3,RDOWN=4,DOWN=5, LDOWN=6,LEFT=7,LUP=8};
-enum direction cdirection=1;
+enum direction {UP=1,RUP=2,RIGHT=3,RDOWN=4,DOWN=5, LDOWN=6,LEFT=7,LUP=8,ZEROD=9};
+enum direction cdirection=1;  // начально направление - вверх
 
 
 short cxx,cyy; // сюда будет записываться прибавка к текущим координатам
@@ -51,11 +51,12 @@ char strint[5]={0};
  int Cost();              // определение стоимости
  void A_search();         // алгоритм поиска A*
  void Brain();             // эвристика
+ void Correct(void);     // коррекция движения
  
  
  // для работы с блютузом:
  int getParam(const char * p,int x,int y);
- int setParam(const char * p,int x,int y,int value);
+ void setParam(const char * p,int x,int y,int value);
  void strConstCpy (const char *source, char *dest);
 //------------------------------------------------------------------------------
 
@@ -70,7 +71,7 @@ while (*dest++);
 while (*source) *dest++ = *source++;
  *dest = 0;
 }
-// "Hint" Для H и hevr для эвристики
+// "Hint" Для H и "hevr" для эвристики
 int getParam(const char * p,int x,int y)
 {
  char temp;
@@ -88,7 +89,7 @@ int getParam(const char * p,int x,int y)
  }
 }
 
- int setParam(const char * p,int x,int y,int value)
+ void setParam(const char * p,int x,int y,int value)
  {
  strConstCpy(p,string);
  IntToStr (x,strint);
@@ -122,78 +123,180 @@ short comp(short d1,short d2)
 // направление - глобальная переменная
 short SMove(short nx,short ny)
 {
-        enum direction nd; // новое направление
-        int temp;
+        enum direction nd; // относительное направление движения
         short ax;
         short ry;
-        short i,d;
+        short isMove=0; // индикатор - было ли движение
         ax=comp(cX,nx);  // сравниваем текущие координаты с заданными
 
         ry==comp(cY,ny);
-        if(ax==-1)      // в зависимости от результатов - определяем нужное направление
-                nd=3+ry;
-        if(ax==0)
+        // в зависимости от результатов - определяем нужное направление
+        if(ax==-1)  // если нам нужно направо
+                nd=RIGHT+ry;
+        if(ax==0)    // смещаться по оси х не нужно
                 switch(ry)
                 {
-                        case -1:
-                                nd=1;
+                        case -1: //
+                                nd=UP;
                         break;
                         case 0:
-                        nd=cdirection;
-                        // мы уже находимся в нужном направлении
+                        nd=ZEROD;
+                        // мы уже находимся в нужном месте
                         break;
                         case 1:
-                                nd=5;
+                                nd=DOWN;
                         break;
 
                 }
-        if(ax==1)
-                nd=7-ry;
-        SRotare(cdirection,nd); // поворачиваемся
-        // внимание - возможно придется встроить функций SForward в эту, ибо надо экономить место в стеке.
-        // перемещение вперед
-        if(isSafe()==100) // проверяем наличие препятсвий
+        if(ax==1)   // если нам нужно налево
+                nd=LEFT-ry;
+        // мы определили новое направление, теперь нужно переместиться.
+        switch (nd)
         {
-         Motor_Init();  // настраиваем моторы
-         Change_Duty(SPEED); // задаем скорость
-         Motor_A_FWD(); // запускаем моторы
-         Motor_B_FWD();
-         if(cdirection%2==0)
-         delay_ms(DELAY_TIME_20*1414/1000); // ждем пока приедем
-         else
-         delay_ms(DELAY_TIME_20); // ждем пока приедем
-         findGoalCount++;
-         return 1;      // движение выполнено.
-         }
-         else              // подъезжаем к препятствию
+        case UP:
+        if(isSafeY()>2)
+        {
+        Motor_Init();  // настраиваем моторы
+        Change_Duty(SPEED); // задаем скорость
+        Motor_A_FWD(); // запускаем моторы
+        Motor_B_FWD();
+        delay_ms(2*DELAY_TIME_1sm); // ждем пока приедем
+        Motor_Stop();
+        Correct();
+        isMove=1;
+        }
+        break;
+        case RUP:
+        if(isSafeY()>2 && isSafeX()>2)
+        {
+        S_Right(255);
+        delay_ms(DELAY_TIME_VR_10*15/10);
+        Motor_Init();  // настраиваем моторы
+        Change_Duty(SPEED); // задаем скорость
+        Motor_A_FWD(); // запускаем моторы
+        Motor_B_FWD();
+        delay_ms(2*DELAY_TIME_1sm); // ждем пока приедем
+        Motor_Stop();
+        S_Left(255);
+        delay_ms(DELAY_TIME_VR_10*15/10);
+        Correct();
+        isMove=1;
+        }
+        break;
+        case RIGHT:
+        if(isSafeX()>2)
+        {
+        Motor_Init();  // настраиваем моторы
+        Change_Duty(SPEED); // задаем скорость
+        Motor_A_BWD(); // запускаем моторы
+        Motor_B_BWD();
+        delay_ms(2*DELAY_TIME_1sm); // ждем пока приедем
+        Motor_Stop();
+        S_Right(255);
+        delay_ms(DELAY_TIME_VR_10*15/10);
+        Motor_Init();  // настраиваем моторы
+        Change_Duty(SPEED); // задаем скорость
+        Motor_A_FWD(); // запускаем моторы
+        Motor_B_FWD();
+        delay_ms(2*DELAY_TIME_1sm); // ждем пока приедем
+        Motor_Stop();
+        S_Left(255);
+        delay_ms(DELAY_TIME_VR_10*15/10);
+        Correct();
+        isMove=1;
+        }
+        break;
+        case RDOWN:
+        if(isSafeX()>2)
+        {
+        S_Left(255);
+        delay_ms(DELAY_TIME_VR_10*15/10);
+        Motor_Init();  // настраиваем моторы
+        Change_Duty(SPEED); // задаем скорость
+        Motor_A_BWD(); // запускаем моторы
+        Motor_B_BWD();
+        delay_ms(2*DELAY_TIME_1sm); // ждем пока приедем
+        Motor_Stop();
+        S_Right(255);
+        delay_ms(DELAY_TIME_VR_10*15/10);
+        Correct();
+        isMove=1;
+        }
+        break;
+        case DOWN:
+        Motor_Init();  // настраиваем моторы
+        Change_Duty(SPEED); // задаем скорость
+        Motor_A_BWD(); // запускаем моторы
+        Motor_B_BWD();
+        delay_ms(2*DELAY_TIME_1sm); // ждем пока приедем
+        Motor_Stop();
+        Correct();
+        isMove=1;
+        break;
+        case LDOWN:
+        S_Right(255);
+        delay_ms(DELAY_TIME_VR_10*15/10);
+        Motor_Init();  // настраиваем моторы
+        Change_Duty(SPEED); // задаем скорость
+        Motor_A_BWD(); // запускаем моторы
+        Motor_B_BWD();
+        delay_ms(2*DELAY_TIME_1sm); // ждем пока приедем
+        Motor_Stop();
+        S_Left(255);
+        delay_ms(DELAY_TIME_VR_10*15/10);
+        Correct();
+        isMove=1;
+        break;
+        case LEFT:
+        Motor_Init();  // настраиваем моторы
+        Change_Duty(SPEED); // задаем скорость
+        Motor_A_BWD(); // запускаем моторы
+        Motor_B_BWD();
+        delay_ms(2*DELAY_TIME_1sm); // ждем пока приедем
+        Motor_Stop();
+        S_Left(255);
+        delay_ms(DELAY_TIME_VR_10*15/10);
+        Motor_Init();  // настраиваем моторы
+        Change_Duty(SPEED); // задаем скорость
+        Motor_A_FWD(); // запускаем моторы
+        Motor_B_FWD();
+        delay_ms(2*DELAY_TIME_1sm); // ждем пока приедем
+        Motor_Stop();
+        S_Right(255);
+        delay_ms(DELAY_TIME_VR_10*15/10);
+        Correct();
+        isMove=1;
+        break;
+        case LUP:
+        if(isSafeY()>2)
+        {
+        S_Left(255);
+        delay_ms(DELAY_TIME_VR_10*15/10);
+        Motor_Init();  // настраиваем моторы
+        Change_Duty(SPEED); // задаем скорость
+        Motor_A_FWD(); // запускаем моторы
+        Motor_B_FWD();
+        delay_ms(2*DELAY_TIME_1sm); // ждем пока приедем
+        Motor_Stop();
+        S_Right(255);
+        delay_ms(DELAY_TIME_VR_10*15/10);
+        Correct();
+        isMove=1;
+        }
+        break;
+        case ZEROD:
+        break;
+        }
+        
+        
+         if(isMetall()) // проверяем есть ли тут монетка
          {
-         d=isSafe();
-              Motor_Init();  // настраиваем моторы
-              Change_Duty(SPEED); // задаем скорость
-              Motor_A_FWD(); // запускаем моторы
-              Motor_B_FWD();
-              for(i=0;i<d-DISTANCE_METALL;i++)
-                  delay_ms(DELAY_TIME_1sm); // ждем пока приедем
-              Motor_Stop();
-              temp=getParam("Hint",cX+cxx,cY+cyy);
-         setParam("Hint",cX+cxx,cY+cyy,temp++); //H[cX+cxx][cY+cyy]++;   // обновляем состояние, раз там что-то есть, туда ехать не надо
-         findGoalCount++;
-         if(isMetall()) // проверяем металл ли это
-         {
-         Metals[MetallObjects][0]=cX+cxx; // записываем координаты
-         Metals[MetallObjects][1]=cY+cyy;
-         MetallObjects++;
+         // передаем сигнал о том что тут монетка
+         if(isMove)
+         setParam("Metall",nx,ny,1);
          }
-         // едем обратно
-         Motor_Init();
-         Change_Duty(SPEED);
-         Motor_A_BWD();
-         Motor_B_BWD();
-         for(i=0;i<d-DISTANCE_METALL;i++)
-              delay_ms(DELAY_TIME_1sm); // ждем пока приедем
-         
-         return 0;    // движения не было
-         }
+         return isMove;    // сообщаем было ли движение
+
 }
 
 // вращение, использует текущее направление и новое
@@ -205,10 +308,35 @@ void SRotare(enum direction d,enum direction nd)
         r=(d-nd);
         if(r>4) r=8-r; // если угол поворота больше 180 - будем поворачитьвася в другую сторону
         if(r>=0)
-                S_Right(r*45); // поворачиваемся по наименьшему пути
+        {
+                S_Right(255); // поворачиваемся по наименьшему пути
+                for(;r>0;r--)
+                Delay_ms(DELAY_TIME_VR_10*45/10);
+        }
         else
-                S_Left(-r*45);
+        {
+                S_Left(255);
+                for(;r<0;r++)
+                Delay_ms(DELAY_TIME_VR_10*45/10);
+        }
 }
+
+
+void Correct(void) // корректирует направление робота
+{
+short r,nr;
+r=isSafeY();                // проверить расстояние
+S_Left(DELAY_TIME_VR_10);  // повернуться
+nr=isSafeY();               // проверить расстояние
+if(r==nr)                   // сравнить их, если получаем правильное соотношение
+S_Right(DELAY_TIME_VR_10);  // то мы находимся в правильном положении
+if(r>nr)
+return;
+if(r<nr)
+S_Right(2*DELAY_TIME_VR_10);
+
+}
+
 
 
 // непосредственно сам поиск
@@ -217,13 +345,12 @@ void A_search()
         int i,j;
         int min,temp;
         if(findGoalCount==NumberOfGoals) return;// проверили все состояния - достигли цели - закончили работу.
-        temp=getParam("Hint",cX,cY);
-        //if(temp==0)     // если это новое состояние
-        //{                    // надо его запомнить, и записать его стоимость
-        setParam("Hint",cX,cY,temp++);
-        //H[cX][cY]+=1;
-        //}
-        // обновляем Н
+        if(getParam("jobisdone?",1,1)==13) return; // если база говорит что работа окончена - завершаем работу.
+        
+        temp=getParam("Hint",cX,cY); // получаем значение для текущего состояния
+
+        setParam("Hint",cX,cY,temp++); // увеличиваем его, т.к. мы уже здесь
+        // оцениваем перспективность доступных состояний
         min=getParam("Hint",cX,cY+1)+getParam("hevr",cX,cY+1);//H[cX][cY+1]+h_evr[cX][cY+1];
         for(i=-1;i<=1;i++) // у нас в любом состоянии 8 возможных действий
            for(j=-1;j<=1;j++)//----------------------------------------------------------------------------------------------------------------------!!!!!
@@ -237,11 +364,32 @@ void A_search()
                      cyy=j;
                   }
               }
+        switch(cdirection)
+        {
+        case UP:
+        break;
+        case DOWN:
+        cyy*=-1;
+        break;
+        case LEFT:
+        temp=cxx;
+        cxx=cyy;
+        cyy=-temp;
+        break;
+        case RIGHT:
+        temp=cxx;
+        cxx=-cyy;
+        cyy=temp;
+        break; 
+        }
+        
         if(SMove(cX+cxx,cY+cyy)) // перемещаемся в выбранное состояние
         {
+        
         cX+=cxx; // обновление текущих координат
         cY+=cyy;
-        } // если перемещения не произошло, то робот вряд ли выберет тот же путь
+        }
+         // если перемещения не произошло, то робот вряд ли выберет тот же путь
         // так как его стоимость теперь увеличилась
 
 }
@@ -252,7 +400,7 @@ void A_search()
  if(x>=0) return x;
  else return -x;
  }
-// функция заполнения эвристической оценки h
+// функция заполнения эвристической оценки h надо перенести на комп
 void Brain()
 {
         short x,y,j,k;

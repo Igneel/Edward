@@ -400,6 +400,8 @@ cf_write_byte
 cf_write_init
 cf_write_sector
 change_duty
+channelx
+channely
 character8x7
 chs0
 chs0_bit
@@ -419,6 +421,7 @@ cm2con1
 comfrem
 comp
 compare_double
+correct
 cos
 cose3
 cosh
@@ -465,7 +468,7 @@ delay_80us
 delay_8ms
 delay_cyc
 delay_time_1sm
-delay_time_20
+delay_time_vr_10
 delimiter
 distance_metall
 div
@@ -654,7 +657,8 @@ isgraph
 islower
 ismetall
 ispunct
-issafe
+issafex
+issafey
 isspace
 isupper
 isxdigit

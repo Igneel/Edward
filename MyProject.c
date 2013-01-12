@@ -24,26 +24,42 @@ sbit LCD_D4_Direction at TRISD4_bit;
  
 }
 
-
 void main() 
 {
-char temp;
-
-
-//short j,k;
+int x,y;
      UART1_Init(9600);
-     getParam("Hint",5,250);
-     setParam("hevr",899,623,3);
-     /*
-     for(j=0;j<WorldSize;j++) // x
-         for(k=0;k<WorldSize;k++) // y
-             {
-             h_evr[j][k]=2*WorldSize; // задаем ненулевые значения эвристики.
-             // чтобы дальше сравнивать их с реальными расстояниями.
-             }
-while(findGoalCount<NumberOfGoals)
+     while(getParam("start",1,1)!=13) // ждем сигнала старта
+     Delay_ms(100);
+     
+     cdirection=UP; // начальное направление - вверх
+     cX=WorldSize-isSafeX()/2-1;  // получаем текущие координаты
+     cY=WorldSize-isSafeY()/2-1;
+     
+     
+while(getParam("jobisdone?",1,1)!=13)
 {
-Brain();
+
+  enum direction nd;
+x=isSafeX();
+y=isSafeY();
+
+if(x==100 || y==100)
+{
+if(cX<=20 && cY<=10)
+ nd=DOWN;
+if(cX>20 && cY<=10)
+ nd=RIGHT;
+if(cY<=20 && cY>10 && cX<=20)
+ nd=LEFT;
+if(cY<=20 && cY>10 && cX>20)
+ nd=RIGHT;
+if(cY>20 && cX<=20)
+ nd=LEFT;
+if(cY>20 && cX>20)
+ nd=UP;
+ SRotare(cdirection,nd);
+ cdirection=nd;
+}
 A_search();
-} */
+}
 }

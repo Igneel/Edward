@@ -137,15 +137,34 @@ int Adc_Rd(char ch)
  dat = (ADRESH*4)+(ADRESL/64);
  return dat;
 }
-#line 6 "y:/edward/safedriving.h"
-short isSafe() ;
+#line 5 "y:/edward/safedriving.h"
+const unsigned char channelY=2;
+const unsigned char channelX=3;
 
 
-short isSafe()
+
+short isSafeY() ;
+short isSafeX() ;
+
+
+short isSafeY()
 {
  float Distance=100;
  int GP2=0;
- GP2=Adc_Rd(2);
+ GP2=Adc_Rd(channelY);
+ if (GP2>90)
+ {
+ Distance=(2914.0/(GP2+5))-1;
+ }
+ return Distance;
+
+}
+
+short isSafeX()
+{
+ float Distance=100;
+ int GP2=0;
+ GP2=Adc_Rd(channelX);
  if (GP2>90)
  {
  Distance=(2914.0/(GP2+5))-1;
@@ -154,12 +173,12 @@ short isSafe()
 
 }
 #line 11 "y:/edward/a.h"
-const short DELAY_TIME_20=1000;
-const short DELAY_TIME_1sm=500;
+const short DELAY_TIME_VR_10=64;
+const short DELAY_TIME_1sm=71;
 const short DISTANCE_METALL=5;
 const short SPEED=255;
 
-const short WorldSize=8;
+const short WorldSize=30;
 
 
 
@@ -175,10 +194,10 @@ short findGoalCount=0;
 
 
 
-short cX=0;
-short cY=0;
+int cX=0;
+int cY=0;
 
-enum direction {UP=1,RUP=2,RIGHT=3,RDOWN=4,DOWN=5, LDOWN=6,LEFT=7,LUP=8};
+enum direction {UP=1,RUP=2,RIGHT=3,RDOWN=4,DOWN=5, LDOWN=6,LEFT=7,LUP=8,ZEROD=9};
 enum direction cdirection=1;
 
 
@@ -197,11 +216,12 @@ char strint[5]={0};
  int Cost();
  void A_search();
  void Brain();
+ void Correct(void);
 
 
 
  int getParam(const char * p,int x,int y);
- int setParam(const char * p,int x,int y,int value);
+ void setParam(const char * p,int x,int y,int value);
  void strConstCpy (const char *source, char *dest);
 
 
@@ -234,7 +254,7 @@ int getParam(const char * p,int x,int y)
  }
 }
 
- int setParam(const char * p,int x,int y,int value)
+ void setParam(const char * p,int x,int y,int value)
  {
  strConstCpy(p,string);
  IntToStr (x,strint);
@@ -269,77 +289,179 @@ short comp(short d1,short d2)
 short SMove(short nx,short ny)
 {
  enum direction nd;
- int temp;
  short ax;
  short ry;
- short i,d;
+ short isMove=0;
  ax=comp(cX,nx);
 
  ry==comp(cY,ny);
+
  if(ax==-1)
- nd=3+ry;
+ nd=RIGHT+ry;
  if(ax==0)
  switch(ry)
  {
  case -1:
- nd=1;
+ nd=UP;
  break;
  case 0:
- nd=cdirection;
+ nd=ZEROD;
 
  break;
  case 1:
- nd=5;
+ nd=DOWN;
  break;
 
  }
  if(ax==1)
- nd=7-ry;
- SRotare(cdirection,nd);
+ nd=LEFT-ry;
 
-
- if(isSafe()==100)
+ switch (nd)
+ {
+ case UP:
+ if(isSafeY()>2)
  {
  Motor_Init();
  Change_Duty(SPEED);
  Motor_A_FWD();
  Motor_B_FWD();
- if(cdirection%2==0)
- delay_ms(DELAY_TIME_20*1414/1000);
- else
- delay_ms(DELAY_TIME_20);
- findGoalCount++;
- return 1;
- }
- else
- {
- d=isSafe();
- Motor_Init();
- Change_Duty(SPEED);
- Motor_A_FWD();
- Motor_B_FWD();
- for(i=0;i<d-DISTANCE_METALL;i++)
- delay_ms(DELAY_TIME_1sm);
+ delay_ms(2*DELAY_TIME_1sm);
  Motor_Stop();
- temp=getParam("Hint",cX+cxx,cY+cyy);
- setParam("Hint",cX+cxx,cY+cyy,temp++);
- findGoalCount++;
- if(isMetall())
- {
- Metals[MetallObjects][0]=cX+cxx;
- Metals[MetallObjects][1]=cY+cyy;
- MetallObjects++;
+ Correct();
+ isMove=1;
  }
-
+ break;
+ case RUP:
+ if(isSafeY()>2 && isSafeX()>2)
+ {
+ S_Right(255);
+ delay_ms(DELAY_TIME_VR_10*15/10);
+ Motor_Init();
+ Change_Duty(SPEED);
+ Motor_A_FWD();
+ Motor_B_FWD();
+ delay_ms(2*DELAY_TIME_1sm);
+ Motor_Stop();
+ S_Left(255);
+ delay_ms(DELAY_TIME_VR_10*15/10);
+ Correct();
+ isMove=1;
+ }
+ break;
+ case RIGHT:
+ if(isSafeX()>2)
+ {
  Motor_Init();
  Change_Duty(SPEED);
  Motor_A_BWD();
  Motor_B_BWD();
- for(i=0;i<d-DISTANCE_METALL;i++)
- delay_ms(DELAY_TIME_1sm);
-
- return 0;
+ delay_ms(2*DELAY_TIME_1sm);
+ Motor_Stop();
+ S_Right(255);
+ delay_ms(DELAY_TIME_VR_10*15/10);
+ Motor_Init();
+ Change_Duty(SPEED);
+ Motor_A_FWD();
+ Motor_B_FWD();
+ delay_ms(2*DELAY_TIME_1sm);
+ Motor_Stop();
+ S_Left(255);
+ delay_ms(DELAY_TIME_VR_10*15/10);
+ Correct();
+ isMove=1;
  }
+ break;
+ case RDOWN:
+ if(isSafeX()>2)
+ {
+ S_Left(255);
+ delay_ms(DELAY_TIME_VR_10*15/10);
+ Motor_Init();
+ Change_Duty(SPEED);
+ Motor_A_BWD();
+ Motor_B_BWD();
+ delay_ms(2*DELAY_TIME_1sm);
+ Motor_Stop();
+ S_Right(255);
+ delay_ms(DELAY_TIME_VR_10*15/10);
+ Correct();
+ isMove=1;
+ }
+ break;
+ case DOWN:
+ Motor_Init();
+ Change_Duty(SPEED);
+ Motor_A_BWD();
+ Motor_B_BWD();
+ delay_ms(2*DELAY_TIME_1sm);
+ Motor_Stop();
+ Correct();
+ isMove=1;
+ break;
+ case LDOWN:
+ S_Right(255);
+ delay_ms(DELAY_TIME_VR_10*15/10);
+ Motor_Init();
+ Change_Duty(SPEED);
+ Motor_A_BWD();
+ Motor_B_BWD();
+ delay_ms(2*DELAY_TIME_1sm);
+ Motor_Stop();
+ S_Left(255);
+ delay_ms(DELAY_TIME_VR_10*15/10);
+ Correct();
+ isMove=1;
+ break;
+ case LEFT:
+ Motor_Init();
+ Change_Duty(SPEED);
+ Motor_A_BWD();
+ Motor_B_BWD();
+ delay_ms(2*DELAY_TIME_1sm);
+ Motor_Stop();
+ S_Left(255);
+ delay_ms(DELAY_TIME_VR_10*15/10);
+ Motor_Init();
+ Change_Duty(SPEED);
+ Motor_A_FWD();
+ Motor_B_FWD();
+ delay_ms(2*DELAY_TIME_1sm);
+ Motor_Stop();
+ S_Right(255);
+ delay_ms(DELAY_TIME_VR_10*15/10);
+ Correct();
+ isMove=1;
+ break;
+ case LUP:
+ if(isSafeY()>2)
+ {
+ S_Left(255);
+ delay_ms(DELAY_TIME_VR_10*15/10);
+ Motor_Init();
+ Change_Duty(SPEED);
+ Motor_A_FWD();
+ Motor_B_FWD();
+ delay_ms(2*DELAY_TIME_1sm);
+ Motor_Stop();
+ S_Right(255);
+ delay_ms(DELAY_TIME_VR_10*15/10);
+ Correct();
+ isMove=1;
+ }
+ break;
+ case ZEROD:
+ break;
+ }
+
+
+ if(isMetall())
+ {
+
+ if(isMove)
+ setParam("Metall",nx,ny,1);
+ }
+ return isMove;
+
 }
 
 
@@ -351,10 +473,35 @@ void SRotare(enum direction d,enum direction nd)
  r=(d-nd);
  if(r>4) r=8-r;
  if(r>=0)
- S_Right(r*45);
+ {
+ S_Right(255);
+ for(;r>0;r--)
+ Delay_ms(DELAY_TIME_VR_10*45/10);
+ }
  else
- S_Left(-r*45);
+ {
+ S_Left(255);
+ for(;r<0;r++)
+ Delay_ms(DELAY_TIME_VR_10*45/10);
+ }
 }
+
+
+void Correct(void)
+{
+short r,nr;
+r=isSafeY();
+S_Left(DELAY_TIME_VR_10);
+nr=isSafeY();
+if(r==nr)
+S_Right(DELAY_TIME_VR_10);
+if(r>nr)
+return;
+if(r<nr)
+S_Right(2*DELAY_TIME_VR_10);
+
+}
+
 
 
 
@@ -363,12 +510,11 @@ void A_search()
  int i,j;
  int min,temp;
  if(findGoalCount==NumberOfGoals) return;
+ if(getParam("jobisdone?",1,1)==13) return;
+
  temp=getParam("Hint",cX,cY);
 
-
  setParam("Hint",cX,cY,temp++);
-
-
 
  min=getParam("Hint",cX,cY+1)+getParam("hevr",cX,cY+1);
  for(i=-1;i<=1;i++)
@@ -383,11 +529,32 @@ void A_search()
  cyy=j;
  }
  }
+ switch(cdirection)
+ {
+ case UP:
+ break;
+ case DOWN:
+ cyy*=-1;
+ break;
+ case LEFT:
+ temp=cxx;
+ cxx=cyy;
+ cyy=-temp;
+ break;
+ case RIGHT:
+ temp=cxx;
+ cxx=-cyy;
+ cyy=temp;
+ break;
+ }
+
  if(SMove(cX+cxx,cY+cyy))
  {
+
  cX+=cxx;
  cY+=cyy;
  }
+
 
 
 }
@@ -442,15 +609,42 @@ sbit LCD_D4_Direction at TRISD4_bit;
 
 }
 
-
 void main()
 {
-char temp;
-
-
-
+int x,y;
  UART1_Init(9600);
- getParam("Hint",5,250);
- setParam("hevr",899,623,3);
-#line 49 "Y:/Edward/MyProject.c"
+ while(getParam("start",1,1)!=13)
+ Delay_ms(100);
+
+ cdirection=UP;
+ cX=WorldSize-isSafeX()/2-1;
+ cY=WorldSize-isSafeY()/2-1;
+
+
+while(getParam("jobisdone?",1,1)!=13)
+{
+
+ enum direction nd;
+x=isSafeX();
+y=isSafeY();
+
+if(x==100 || y==100)
+{
+if(cX<=20 && cY<=10)
+ nd=DOWN;
+if(cX>20 && cY<=10)
+ nd=RIGHT;
+if(cY<=20 && cY>10 && cX<=20)
+ nd=LEFT;
+if(cY<=20 && cY>10 && cX>20)
+ nd=RIGHT;
+if(cY>20 && cX<=20)
+ nd=LEFT;
+if(cY>20 && cX>20)
+ nd=UP;
+ SRotare(cdirection,nd);
+ cdirection=nd;
+}
+A_search();
+}
 }
