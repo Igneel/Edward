@@ -197,21 +197,21 @@ _Adc_Rd:
 	SUBLW      3
 	BTFSS      STATUS+0, 0
 	GOTO       L_Adc_Rd4
-L__Adc_Rd158:
+L__Adc_Rd166:
 ;adc.h,5 :: 		TRISA |= (1<<ch);
 	MOVF       FARG_Adc_Rd_ch+0, 0
 	MOVWF      R1+0
 	MOVLW      1
 	MOVWF      R0+0
 	MOVF       R1+0, 0
-L__Adc_Rd179:
+L__Adc_Rd187:
 	BTFSC      STATUS+0, 2
-	GOTO       L__Adc_Rd180
+	GOTO       L__Adc_Rd188
 	RLF        R0+0, 1
 	BCF        R0+0, 0
 	ADDLW      255
-	GOTO       L__Adc_Rd179
-L__Adc_Rd180:
+	GOTO       L__Adc_Rd187
+L__Adc_Rd188:
 	MOVF       R0+0, 0
 	IORWF      TRISA+0, 1
 	GOTO       L_Adc_Rd5
@@ -234,7 +234,7 @@ L_Adc_Rd6:
 	SUBLW      7
 	BTFSS      STATUS+0, 0
 	GOTO       L_Adc_Rd10
-L__Adc_Rd157:
+L__Adc_Rd165:
 ;adc.h,9 :: 		TRISE |= (1<<(ch-5));
 	MOVLW      5
 	SUBWF      FARG_Adc_Rd_ch+0, 0
@@ -244,14 +244,14 @@ L__Adc_Rd157:
 	MOVLW      1
 	MOVWF      R0+0
 	MOVF       R1+0, 0
-L__Adc_Rd181:
+L__Adc_Rd189:
 	BTFSC      STATUS+0, 2
-	GOTO       L__Adc_Rd182
+	GOTO       L__Adc_Rd190
 	RLF        R0+0, 1
 	BCF        R0+0, 0
 	ADDLW      255
-	GOTO       L__Adc_Rd181
-L__Adc_Rd182:
+	GOTO       L__Adc_Rd189
+L__Adc_Rd190:
 	MOVF       R0+0, 0
 	IORWF      TRISE+0, 1
 L_Adc_Rd10:
@@ -263,14 +263,14 @@ L_Adc_Rd5:
 	MOVLW      1
 	MOVWF      R0+0
 	MOVF       R1+0, 0
-L__Adc_Rd183:
+L__Adc_Rd191:
 	BTFSC      STATUS+0, 2
-	GOTO       L__Adc_Rd184
+	GOTO       L__Adc_Rd192
 	RLF        R0+0, 1
 	BCF        R0+0, 0
 	ADDLW      255
-	GOTO       L__Adc_Rd183
-L__Adc_Rd184:
+	GOTO       L__Adc_Rd191
+L__Adc_Rd192:
 	MOVF       R0+0, 0
 	IORWF      ANSEL+0, 1
 ;adc.h,11 :: 		ADCON0 = (0xC1 + (ch*4));     // выбираем канал АЦП
@@ -313,14 +313,14 @@ L_Adc_Rd13:
 	MOVF       ADRESL+0, 0
 	MOVWF      R0+0
 	MOVF       R1+0, 0
-L__Adc_Rd185:
+L__Adc_Rd193:
 	BTFSC      STATUS+0, 2
-	GOTO       L__Adc_Rd186
+	GOTO       L__Adc_Rd194
 	RRF        R0+0, 1
 	BCF        R0+0, 7
 	ADDLW      255
-	GOTO       L__Adc_Rd185
-L__Adc_Rd186:
+	GOTO       L__Adc_Rd193
+L__Adc_Rd194:
 	MOVLW      0
 	MOVWF      R0+1
 	MOVF       R2+0, 0
@@ -364,10 +364,10 @@ _isSafeY:
 	XORWF      R0+1, 0
 	SUBWF      R2+0, 0
 	BTFSS      STATUS+0, 2
-	GOTO       L__isSafeY188
+	GOTO       L__isSafeY196
 	MOVF       R0+0, 0
 	SUBLW      90
-L__isSafeY188:
+L__isSafeY196:
 	BTFSC      STATUS+0, 0
 	GOTO       L_isSafeY14
 ;safedriving.h,21 :: 		Distance=(2914.0/(GP2+5))-1;  // переводим в сантиметры
@@ -459,10 +459,10 @@ _isSafeX:
 	XORWF      R0+1, 0
 	SUBWF      R2+0, 0
 	BTFSS      STATUS+0, 2
-	GOTO       L__isSafeX190
+	GOTO       L__isSafeX198
 	MOVF       R0+0, 0
 	SUBLW      90
-L__isSafeX190:
+L__isSafeX198:
 	BTFSC      STATUS+0, 0
 	GOTO       L_isSafeX15
 ;safedriving.h,34 :: 		Distance=(2914.0/(GP2+5))-1;  // переводим в сантиметры
@@ -660,16 +660,9 @@ L_getParam22:
 	GOTO       L_getParam24
 ;a.h,86 :: 		temp=UART1_Read();
 	CALL       _UART1_Read+0
-	MOVF       R0+0, 0
-	MOVWF      getParam_temp_L0+0
-;a.h,87 :: 		UART1_Write(temp);
-	MOVF       R0+0, 0
-	MOVWF      FARG_UART1_Write_data_+0
-	CALL       _UART1_Write+0
 ;a.h,88 :: 		return temp;
-	MOVF       getParam_temp_L0+0, 0
-	MOVWF      R0+0
-	CLRF       R0+1
+	MOVLW      0
+	MOVWF      R0+1
 	GOTO       L_end_getParam
 ;a.h,89 :: 		}
 L_getParam24:
@@ -767,7 +760,7 @@ _isMetall:
 	SUBWF      R0+0, 0
 	BTFSC      STATUS+0, 0
 	GOTO       L_isMetall27
-L__isMetall159:
+L__isMetall167:
 ;a.h,111 :: 		return 1;    // если объект металлический возвращаем единицу
 	MOVLW      1
 	MOVWF      R0+0
@@ -782,10 +775,15 @@ L_end_isMetall:
 
 _comp:
 
-;a.h,116 :: 		short comp(short d1,short d2)
+;a.h,116 :: 		short comp(int d1,int d2)
 ;a.h,118 :: 		if(d1==d2) return 0; // операнды равны
-	MOVF       FARG_comp_d1+0, 0
-	XORWF      FARG_comp_d2+0, 0
+	MOVF       FARG_comp_d1+1, 0
+	XORWF      FARG_comp_d2+1, 0
+	BTFSS      STATUS+0, 2
+	GOTO       L__comp205
+	MOVF       FARG_comp_d2+0, 0
+	XORWF      FARG_comp_d1+0, 0
+L__comp205:
 	BTFSS      STATUS+0, 2
 	GOTO       L_comp29
 	CLRF       R0+0
@@ -793,11 +791,16 @@ _comp:
 L_comp29:
 ;a.h,119 :: 		if(d1>d2) return 1; // первый больше второго
 	MOVLW      128
-	XORWF      FARG_comp_d2+0, 0
+	XORWF      FARG_comp_d2+1, 0
 	MOVWF      R0+0
 	MOVLW      128
-	XORWF      FARG_comp_d1+0, 0
+	XORWF      FARG_comp_d1+1, 0
 	SUBWF      R0+0, 0
+	BTFSS      STATUS+0, 2
+	GOTO       L__comp206
+	MOVF       FARG_comp_d1+0, 0
+	SUBWF      FARG_comp_d2+0, 0
+L__comp206:
 	BTFSC      STATUS+0, 0
 	GOTO       L_comp30
 	MOVLW      1
@@ -814,62 +817,76 @@ L_end_comp:
 
 _SMove:
 
-;a.h,124 :: 		short SMove(short nx,short ny)
-;a.h,129 :: 		short isMove=0; // индикатор - было ли движение
+;a.h,124 :: 		short SMove(int nx,int ny)
+;a.h,127 :: 		enum direction nd=1; // относительное направление движения
+	MOVLW      1
+	MOVWF      SMove_nd_L0+0
+	MOVLW      1
+	MOVWF      SMove_ax_L0+0
+	MOVLW      1
+	MOVWF      SMove_ry_L0+0
 	CLRF       SMove_isMove_L0+0
-;a.h,130 :: 		ax=comp(cX,nx);  // сравниваем текущие координаты с заданными
+;a.h,131 :: 		ax=comp(cX,nx);  // сравниваем текущие координаты с заданными
 	MOVF       _cX+0, 0
 	MOVWF      FARG_comp_d1+0
+	MOVF       _cX+1, 0
+	MOVWF      FARG_comp_d1+1
 	MOVF       FARG_SMove_nx+0, 0
 	MOVWF      FARG_comp_d2+0
+	MOVF       FARG_SMove_nx+1, 0
+	MOVWF      FARG_comp_d2+1
 	CALL       _comp+0
 	MOVF       R0+0, 0
 	MOVWF      SMove_ax_L0+0
-;a.h,132 :: 		ry==comp(cY,ny);
+;a.h,133 :: 		ry==comp(cY,ny);
 	MOVF       _cY+0, 0
 	MOVWF      FARG_comp_d1+0
+	MOVF       _cY+1, 0
+	MOVWF      FARG_comp_d1+1
 	MOVF       FARG_SMove_ny+0, 0
 	MOVWF      FARG_comp_d2+0
+	MOVF       FARG_SMove_ny+1, 0
+	MOVWF      FARG_comp_d2+1
 	CALL       _comp+0
-;a.h,134 :: 		if(ax==-1)  // если нам нужно направо
+;a.h,135 :: 		if(ax==-1)  // если нам нужно направо
 	MOVF       SMove_ax_L0+0, 0
 	XORLW      255
 	BTFSS      STATUS+0, 2
 	GOTO       L_SMove32
-;a.h,135 :: 		nd=RIGHT+ry;
+;a.h,136 :: 		nd=RIGHT+ry;
 	MOVF       SMove_ry_L0+0, 0
 	ADDLW      3
 	MOVWF      SMove_nd_L0+0
 L_SMove32:
-;a.h,136 :: 		if(ax==0)    // смещаться по оси х не нужно
+;a.h,137 :: 		if(ax==0)    // смещаться по оси х не нужно
 	MOVF       SMove_ax_L0+0, 0
 	XORLW      0
 	BTFSS      STATUS+0, 2
 	GOTO       L_SMove33
-;a.h,137 :: 		switch(ry)
+;a.h,138 :: 		switch(ry)
 	GOTO       L_SMove34
-;a.h,139 :: 		case -1: //
+;a.h,140 :: 		case -1: //
 L_SMove36:
-;a.h,140 :: 		nd=UP;
+;a.h,141 :: 		nd=UP;
 	MOVLW      1
 	MOVWF      SMove_nd_L0+0
-;a.h,141 :: 		break;
+;a.h,142 :: 		break;
 	GOTO       L_SMove35
-;a.h,142 :: 		case 0:
+;a.h,143 :: 		case 0:
 L_SMove37:
-;a.h,143 :: 		nd=ZEROD;
+;a.h,144 :: 		nd=ZEROD;
 	MOVLW      9
 	MOVWF      SMove_nd_L0+0
-;a.h,145 :: 		break;
+;a.h,146 :: 		break;
 	GOTO       L_SMove35
-;a.h,146 :: 		case 1:
+;a.h,147 :: 		case 1:
 L_SMove38:
-;a.h,147 :: 		nd=DOWN;
+;a.h,148 :: 		nd=DOWN;
 	MOVLW      5
 	MOVWF      SMove_nd_L0+0
-;a.h,148 :: 		break;
+;a.h,149 :: 		break;
 	GOTO       L_SMove35
-;a.h,150 :: 		}
+;a.h,151 :: 		}
 L_SMove34:
 	MOVF       SMove_ry_L0+0, 0
 	XORLW      255
@@ -885,21 +902,23 @@ L_SMove34:
 	GOTO       L_SMove38
 L_SMove35:
 L_SMove33:
-;a.h,151 :: 		if(ax==1)   // если нам нужно налево
+;a.h,152 :: 		if(ax==1)   // если нам нужно налево
 	MOVF       SMove_ax_L0+0, 0
 	XORLW      1
 	BTFSS      STATUS+0, 2
 	GOTO       L_SMove39
-;a.h,152 :: 		nd=LEFT-ry;
+;a.h,153 :: 		nd=LEFT-ry;
 	MOVF       SMove_ry_L0+0, 0
 	SUBLW      7
 	MOVWF      SMove_nd_L0+0
 L_SMove39:
-;a.h,154 :: 		switch (nd)
+;a.h,156 :: 		switch (nd)
 	GOTO       L_SMove40
-;a.h,156 :: 		case UP:
+;a.h,158 :: 		case 1:
 L_SMove42:
-;a.h,157 :: 		if(isSafeY()>2)
+;a.h,159 :: 		case UP:
+L_SMove43:
+;a.h,160 :: 		if(isSafeY()>2)
 	CALL       _isSafeY+0
 	MOVLW      128
 	XORLW      2
@@ -908,45 +927,47 @@ L_SMove42:
 	XORWF      R0+0, 0
 	SUBWF      R1+0, 0
 	BTFSC      STATUS+0, 0
-	GOTO       L_SMove43
-;a.h,159 :: 		Motor_Init();  // настраиваем моторы
+	GOTO       L_SMove44
+;a.h,162 :: 		Motor_Init();  // настраиваем моторы
 	CALL       _Motor_Init+0
-;a.h,160 :: 		Change_Duty(SPEED); // задаем скорость
+;a.h,163 :: 		Change_Duty(SPEED); // задаем скорость
 	MOVLW      255
 	MOVWF      FARG_Change_Duty_speed+0
 	CALL       _Change_Duty+0
-;a.h,161 :: 		Motor_A_FWD(); // запускаем моторы
+;a.h,164 :: 		Motor_A_FWD(); // запускаем моторы
 	CALL       _Motor_A_FWD+0
-;a.h,162 :: 		Motor_B_FWD();
+;a.h,165 :: 		Motor_B_FWD();
 	CALL       _Motor_B_FWD+0
-;a.h,163 :: 		delay_ms(2*DELAY_TIME_1sm); // ждем пока приедем
+;a.h,166 :: 		delay_ms(2*DELAY_TIME_1sm); // ждем пока приедем
 	MOVLW      4
 	MOVWF      R11+0
 	MOVLW      155
 	MOVWF      R12+0
 	MOVLW      15
 	MOVWF      R13+0
-L_SMove44:
+L_SMove45:
 	DECFSZ     R13+0, 1
-	GOTO       L_SMove44
+	GOTO       L_SMove45
 	DECFSZ     R12+0, 1
-	GOTO       L_SMove44
+	GOTO       L_SMove45
 	DECFSZ     R11+0, 1
-	GOTO       L_SMove44
-;a.h,164 :: 		Motor_Stop();
+	GOTO       L_SMove45
+;a.h,167 :: 		Motor_Stop();
 	CALL       _Motor_Stop+0
-;a.h,165 :: 		Correct();
+;a.h,168 :: 		Correct();
 	CALL       _Correct+0
-;a.h,166 :: 		isMove=1;
+;a.h,169 :: 		isMove=1;
 	MOVLW      1
 	MOVWF      SMove_isMove_L0+0
-;a.h,167 :: 		}
-L_SMove43:
-;a.h,168 :: 		break;
+;a.h,170 :: 		}
+L_SMove44:
+;a.h,171 :: 		break;
 	GOTO       L_SMove41
-;a.h,169 :: 		case RUP:
-L_SMove45:
-;a.h,170 :: 		if(isSafeY()>2 && isSafeX()>2)
+;a.h,172 :: 		case 2:
+L_SMove46:
+;a.h,173 :: 		case RUP:
+L_SMove47:
+;a.h,174 :: 		if(isSafeY()>2 && isSafeX()>2)
 	CALL       _isSafeY+0
 	MOVLW      128
 	XORLW      2
@@ -955,7 +976,7 @@ L_SMove45:
 	XORWF      R0+0, 0
 	SUBWF      R1+0, 0
 	BTFSC      STATUS+0, 0
-	GOTO       L_SMove48
+	GOTO       L_SMove50
 	CALL       _isSafeX+0
 	MOVLW      128
 	XORLW      2
@@ -964,58 +985,13 @@ L_SMove45:
 	XORWF      R0+0, 0
 	SUBWF      R1+0, 0
 	BTFSC      STATUS+0, 0
-	GOTO       L_SMove48
-L__SMove160:
-;a.h,172 :: 		S_Right(255);
+	GOTO       L_SMove50
+L__SMove168:
+;a.h,176 :: 		S_Right(255);
 	MOVLW      255
 	MOVWF      FARG_S_Right_speed+0
 	CALL       _S_Right+0
-;a.h,173 :: 		delay_ms(DELAY_TIME_VR_10*15/10);
-	MOVLW      3
-	MOVWF      R11+0
-	MOVLW      112
-	MOVWF      R12+0
-	MOVLW      92
-	MOVWF      R13+0
-L_SMove49:
-	DECFSZ     R13+0, 1
-	GOTO       L_SMove49
-	DECFSZ     R12+0, 1
-	GOTO       L_SMove49
-	DECFSZ     R11+0, 1
-	GOTO       L_SMove49
-	NOP
-;a.h,174 :: 		Motor_Init();  // настраиваем моторы
-	CALL       _Motor_Init+0
-;a.h,175 :: 		Change_Duty(SPEED); // задаем скорость
-	MOVLW      255
-	MOVWF      FARG_Change_Duty_speed+0
-	CALL       _Change_Duty+0
-;a.h,176 :: 		Motor_A_FWD(); // запускаем моторы
-	CALL       _Motor_A_FWD+0
-;a.h,177 :: 		Motor_B_FWD();
-	CALL       _Motor_B_FWD+0
-;a.h,178 :: 		delay_ms(2*DELAY_TIME_1sm); // ждем пока приедем
-	MOVLW      4
-	MOVWF      R11+0
-	MOVLW      155
-	MOVWF      R12+0
-	MOVLW      15
-	MOVWF      R13+0
-L_SMove50:
-	DECFSZ     R13+0, 1
-	GOTO       L_SMove50
-	DECFSZ     R12+0, 1
-	GOTO       L_SMove50
-	DECFSZ     R11+0, 1
-	GOTO       L_SMove50
-;a.h,179 :: 		Motor_Stop();
-	CALL       _Motor_Stop+0
-;a.h,180 :: 		S_Left(255);
-	MOVLW      255
-	MOVWF      FARG_S_Left_speed+0
-	CALL       _S_Left+0
-;a.h,181 :: 		delay_ms(DELAY_TIME_VR_10*15/10);
+;a.h,177 :: 		delay_ms(DELAY_TIME_VR_10*15/10);
 	MOVLW      3
 	MOVWF      R11+0
 	MOVLW      112
@@ -1030,18 +1006,65 @@ L_SMove51:
 	DECFSZ     R11+0, 1
 	GOTO       L_SMove51
 	NOP
-;a.h,182 :: 		Correct();
+;a.h,178 :: 		Motor_Init();  // настраиваем моторы
+	CALL       _Motor_Init+0
+;a.h,179 :: 		Change_Duty(SPEED); // задаем скорость
+	MOVLW      255
+	MOVWF      FARG_Change_Duty_speed+0
+	CALL       _Change_Duty+0
+;a.h,180 :: 		Motor_A_FWD(); // запускаем моторы
+	CALL       _Motor_A_FWD+0
+;a.h,181 :: 		Motor_B_FWD();
+	CALL       _Motor_B_FWD+0
+;a.h,182 :: 		delay_ms(2*DELAY_TIME_1sm); // ждем пока приедем
+	MOVLW      4
+	MOVWF      R11+0
+	MOVLW      155
+	MOVWF      R12+0
+	MOVLW      15
+	MOVWF      R13+0
+L_SMove52:
+	DECFSZ     R13+0, 1
+	GOTO       L_SMove52
+	DECFSZ     R12+0, 1
+	GOTO       L_SMove52
+	DECFSZ     R11+0, 1
+	GOTO       L_SMove52
+;a.h,183 :: 		Motor_Stop();
+	CALL       _Motor_Stop+0
+;a.h,184 :: 		S_Left(255);
+	MOVLW      255
+	MOVWF      FARG_S_Left_speed+0
+	CALL       _S_Left+0
+;a.h,185 :: 		delay_ms(DELAY_TIME_VR_10*15/10);
+	MOVLW      3
+	MOVWF      R11+0
+	MOVLW      112
+	MOVWF      R12+0
+	MOVLW      92
+	MOVWF      R13+0
+L_SMove53:
+	DECFSZ     R13+0, 1
+	GOTO       L_SMove53
+	DECFSZ     R12+0, 1
+	GOTO       L_SMove53
+	DECFSZ     R11+0, 1
+	GOTO       L_SMove53
+	NOP
+;a.h,186 :: 		Correct();
 	CALL       _Correct+0
-;a.h,183 :: 		isMove=1;
+;a.h,187 :: 		isMove=1;
 	MOVLW      1
 	MOVWF      SMove_isMove_L0+0
-;a.h,184 :: 		}
-L_SMove48:
-;a.h,185 :: 		break;
+;a.h,188 :: 		}
+L_SMove50:
+;a.h,189 :: 		break;
 	GOTO       L_SMove41
-;a.h,186 :: 		case RIGHT:
-L_SMove52:
-;a.h,187 :: 		if(isSafeX()>2)
+;a.h,190 :: 		case 3:
+L_SMove54:
+;a.h,191 :: 		case RIGHT:
+L_SMove55:
+;a.h,192 :: 		if(isSafeX()>2)
 	CALL       _isSafeX+0
 	MOVLW      128
 	XORLW      2
@@ -1050,88 +1073,23 @@ L_SMove52:
 	XORWF      R0+0, 0
 	SUBWF      R1+0, 0
 	BTFSC      STATUS+0, 0
-	GOTO       L_SMove53
-;a.h,189 :: 		Motor_Init();  // настраиваем моторы
+	GOTO       L_SMove56
+;a.h,194 :: 		Motor_Init();  // настраиваем моторы
 	CALL       _Motor_Init+0
-;a.h,190 :: 		Change_Duty(SPEED); // задаем скорость
+;a.h,195 :: 		Change_Duty(SPEED); // задаем скорость
 	MOVLW      255
 	MOVWF      FARG_Change_Duty_speed+0
 	CALL       _Change_Duty+0
-;a.h,191 :: 		Motor_A_BWD(); // запускаем моторы
+;a.h,196 :: 		Motor_A_BWD(); // запускаем моторы
 	CALL       _Motor_A_BWD+0
-;a.h,192 :: 		Motor_B_BWD();
+;a.h,197 :: 		Motor_B_BWD();
 	CALL       _Motor_B_BWD+0
-;a.h,193 :: 		delay_ms(2*DELAY_TIME_1sm); // ждем пока приедем
+;a.h,198 :: 		delay_ms(2*DELAY_TIME_1sm); // ждем пока приедем
 	MOVLW      4
 	MOVWF      R11+0
 	MOVLW      155
 	MOVWF      R12+0
 	MOVLW      15
-	MOVWF      R13+0
-L_SMove54:
-	DECFSZ     R13+0, 1
-	GOTO       L_SMove54
-	DECFSZ     R12+0, 1
-	GOTO       L_SMove54
-	DECFSZ     R11+0, 1
-	GOTO       L_SMove54
-;a.h,194 :: 		Motor_Stop();
-	CALL       _Motor_Stop+0
-;a.h,195 :: 		S_Right(255);
-	MOVLW      255
-	MOVWF      FARG_S_Right_speed+0
-	CALL       _S_Right+0
-;a.h,196 :: 		delay_ms(DELAY_TIME_VR_10*15/10);
-	MOVLW      3
-	MOVWF      R11+0
-	MOVLW      112
-	MOVWF      R12+0
-	MOVLW      92
-	MOVWF      R13+0
-L_SMove55:
-	DECFSZ     R13+0, 1
-	GOTO       L_SMove55
-	DECFSZ     R12+0, 1
-	GOTO       L_SMove55
-	DECFSZ     R11+0, 1
-	GOTO       L_SMove55
-	NOP
-;a.h,197 :: 		Motor_Init();  // настраиваем моторы
-	CALL       _Motor_Init+0
-;a.h,198 :: 		Change_Duty(SPEED); // задаем скорость
-	MOVLW      255
-	MOVWF      FARG_Change_Duty_speed+0
-	CALL       _Change_Duty+0
-;a.h,199 :: 		Motor_A_FWD(); // запускаем моторы
-	CALL       _Motor_A_FWD+0
-;a.h,200 :: 		Motor_B_FWD();
-	CALL       _Motor_B_FWD+0
-;a.h,201 :: 		delay_ms(2*DELAY_TIME_1sm); // ждем пока приедем
-	MOVLW      4
-	MOVWF      R11+0
-	MOVLW      155
-	MOVWF      R12+0
-	MOVLW      15
-	MOVWF      R13+0
-L_SMove56:
-	DECFSZ     R13+0, 1
-	GOTO       L_SMove56
-	DECFSZ     R12+0, 1
-	GOTO       L_SMove56
-	DECFSZ     R11+0, 1
-	GOTO       L_SMove56
-;a.h,202 :: 		Motor_Stop();
-	CALL       _Motor_Stop+0
-;a.h,203 :: 		S_Left(255);
-	MOVLW      255
-	MOVWF      FARG_S_Left_speed+0
-	CALL       _S_Left+0
-;a.h,204 :: 		delay_ms(DELAY_TIME_VR_10*15/10);
-	MOVLW      3
-	MOVWF      R11+0
-	MOVLW      112
-	MOVWF      R12+0
-	MOVLW      92
 	MOVWF      R13+0
 L_SMove57:
 	DECFSZ     R13+0, 1
@@ -1140,33 +1098,58 @@ L_SMove57:
 	GOTO       L_SMove57
 	DECFSZ     R11+0, 1
 	GOTO       L_SMove57
-	NOP
-;a.h,205 :: 		Correct();
-	CALL       _Correct+0
-;a.h,206 :: 		isMove=1;
-	MOVLW      1
-	MOVWF      SMove_isMove_L0+0
-;a.h,207 :: 		}
-L_SMove53:
-;a.h,208 :: 		break;
-	GOTO       L_SMove41
-;a.h,209 :: 		case RDOWN:
+;a.h,199 :: 		Motor_Stop();
+	CALL       _Motor_Stop+0
+;a.h,200 :: 		S_Right(255);
+	MOVLW      255
+	MOVWF      FARG_S_Right_speed+0
+	CALL       _S_Right+0
+;a.h,201 :: 		delay_ms(DELAY_TIME_VR_10*15/10);
+	MOVLW      3
+	MOVWF      R11+0
+	MOVLW      112
+	MOVWF      R12+0
+	MOVLW      92
+	MOVWF      R13+0
 L_SMove58:
-;a.h,210 :: 		if(isSafeX()>2)
-	CALL       _isSafeX+0
-	MOVLW      128
-	XORLW      2
-	MOVWF      R1+0
-	MOVLW      128
-	XORWF      R0+0, 0
-	SUBWF      R1+0, 0
-	BTFSC      STATUS+0, 0
+	DECFSZ     R13+0, 1
+	GOTO       L_SMove58
+	DECFSZ     R12+0, 1
+	GOTO       L_SMove58
+	DECFSZ     R11+0, 1
+	GOTO       L_SMove58
+	NOP
+;a.h,202 :: 		Motor_Init();  // настраиваем моторы
+	CALL       _Motor_Init+0
+;a.h,203 :: 		Change_Duty(SPEED); // задаем скорость
+	MOVLW      255
+	MOVWF      FARG_Change_Duty_speed+0
+	CALL       _Change_Duty+0
+;a.h,204 :: 		Motor_A_FWD(); // запускаем моторы
+	CALL       _Motor_A_FWD+0
+;a.h,205 :: 		Motor_B_FWD();
+	CALL       _Motor_B_FWD+0
+;a.h,206 :: 		delay_ms(2*DELAY_TIME_1sm); // ждем пока приедем
+	MOVLW      4
+	MOVWF      R11+0
+	MOVLW      155
+	MOVWF      R12+0
+	MOVLW      15
+	MOVWF      R13+0
+L_SMove59:
+	DECFSZ     R13+0, 1
 	GOTO       L_SMove59
-;a.h,212 :: 		S_Left(255);
+	DECFSZ     R12+0, 1
+	GOTO       L_SMove59
+	DECFSZ     R11+0, 1
+	GOTO       L_SMove59
+;a.h,207 :: 		Motor_Stop();
+	CALL       _Motor_Stop+0
+;a.h,208 :: 		S_Left(255);
 	MOVLW      255
 	MOVWF      FARG_S_Left_speed+0
 	CALL       _S_Left+0
-;a.h,213 :: 		delay_ms(DELAY_TIME_VR_10*15/10);
+;a.h,209 :: 		delay_ms(DELAY_TIME_VR_10*15/10);
 	MOVLW      3
 	MOVWF      R11+0
 	MOVLW      112
@@ -1181,78 +1164,39 @@ L_SMove60:
 	DECFSZ     R11+0, 1
 	GOTO       L_SMove60
 	NOP
-;a.h,214 :: 		Motor_Init();  // настраиваем моторы
-	CALL       _Motor_Init+0
-;a.h,215 :: 		Change_Duty(SPEED); // задаем скорость
-	MOVLW      255
-	MOVWF      FARG_Change_Duty_speed+0
-	CALL       _Change_Duty+0
-;a.h,216 :: 		Motor_A_BWD(); // запускаем моторы
-	CALL       _Motor_A_BWD+0
-;a.h,217 :: 		Motor_B_BWD();
-	CALL       _Motor_B_BWD+0
-;a.h,218 :: 		delay_ms(2*DELAY_TIME_1sm); // ждем пока приедем
-	MOVLW      4
-	MOVWF      R11+0
-	MOVLW      155
-	MOVWF      R12+0
-	MOVLW      15
-	MOVWF      R13+0
+;a.h,210 :: 		Correct();
+	CALL       _Correct+0
+;a.h,211 :: 		isMove=1;
+	MOVLW      1
+	MOVWF      SMove_isMove_L0+0
+;a.h,212 :: 		}
+L_SMove56:
+;a.h,213 :: 		break;
+	GOTO       L_SMove41
+;a.h,214 :: 		case 4:
 L_SMove61:
-	DECFSZ     R13+0, 1
-	GOTO       L_SMove61
-	DECFSZ     R12+0, 1
-	GOTO       L_SMove61
-	DECFSZ     R11+0, 1
-	GOTO       L_SMove61
-;a.h,219 :: 		Motor_Stop();
-	CALL       _Motor_Stop+0
-;a.h,220 :: 		S_Right(255);
+;a.h,215 :: 		case RDOWN:
+L_SMove62:
+;a.h,216 :: 		if(isSafeX()>2)
+	CALL       _isSafeX+0
+	MOVLW      128
+	XORLW      2
+	MOVWF      R1+0
+	MOVLW      128
+	XORWF      R0+0, 0
+	SUBWF      R1+0, 0
+	BTFSC      STATUS+0, 0
+	GOTO       L_SMove63
+;a.h,218 :: 		S_Left(255);
 	MOVLW      255
-	MOVWF      FARG_S_Right_speed+0
-	CALL       _S_Right+0
-;a.h,221 :: 		delay_ms(DELAY_TIME_VR_10*15/10);
+	MOVWF      FARG_S_Left_speed+0
+	CALL       _S_Left+0
+;a.h,219 :: 		delay_ms(DELAY_TIME_VR_10*15/10);
 	MOVLW      3
 	MOVWF      R11+0
 	MOVLW      112
 	MOVWF      R12+0
 	MOVLW      92
-	MOVWF      R13+0
-L_SMove62:
-	DECFSZ     R13+0, 1
-	GOTO       L_SMove62
-	DECFSZ     R12+0, 1
-	GOTO       L_SMove62
-	DECFSZ     R11+0, 1
-	GOTO       L_SMove62
-	NOP
-;a.h,222 :: 		Correct();
-	CALL       _Correct+0
-;a.h,223 :: 		isMove=1;
-	MOVLW      1
-	MOVWF      SMove_isMove_L0+0
-;a.h,224 :: 		}
-L_SMove59:
-;a.h,225 :: 		break;
-	GOTO       L_SMove41
-;a.h,226 :: 		case DOWN:
-L_SMove63:
-;a.h,227 :: 		Motor_Init();  // настраиваем моторы
-	CALL       _Motor_Init+0
-;a.h,228 :: 		Change_Duty(SPEED); // задаем скорость
-	MOVLW      255
-	MOVWF      FARG_Change_Duty_speed+0
-	CALL       _Change_Duty+0
-;a.h,229 :: 		Motor_A_BWD(); // запускаем моторы
-	CALL       _Motor_A_BWD+0
-;a.h,230 :: 		Motor_B_BWD();
-	CALL       _Motor_B_BWD+0
-;a.h,231 :: 		delay_ms(2*DELAY_TIME_1sm); // ждем пока приедем
-	MOVLW      4
-	MOVWF      R11+0
-	MOVLW      155
-	MOVWF      R12+0
-	MOVLW      15
 	MOVWF      R13+0
 L_SMove64:
 	DECFSZ     R13+0, 1
@@ -1261,22 +1205,38 @@ L_SMove64:
 	GOTO       L_SMove64
 	DECFSZ     R11+0, 1
 	GOTO       L_SMove64
-;a.h,232 :: 		Motor_Stop();
-	CALL       _Motor_Stop+0
-;a.h,233 :: 		Correct();
-	CALL       _Correct+0
-;a.h,234 :: 		isMove=1;
-	MOVLW      1
-	MOVWF      SMove_isMove_L0+0
-;a.h,235 :: 		break;
-	GOTO       L_SMove41
-;a.h,236 :: 		case LDOWN:
+	NOP
+;a.h,220 :: 		Motor_Init();  // настраиваем моторы
+	CALL       _Motor_Init+0
+;a.h,221 :: 		Change_Duty(SPEED); // задаем скорость
+	MOVLW      255
+	MOVWF      FARG_Change_Duty_speed+0
+	CALL       _Change_Duty+0
+;a.h,222 :: 		Motor_A_BWD(); // запускаем моторы
+	CALL       _Motor_A_BWD+0
+;a.h,223 :: 		Motor_B_BWD();
+	CALL       _Motor_B_BWD+0
+;a.h,224 :: 		delay_ms(2*DELAY_TIME_1sm); // ждем пока приедем
+	MOVLW      4
+	MOVWF      R11+0
+	MOVLW      155
+	MOVWF      R12+0
+	MOVLW      15
+	MOVWF      R13+0
 L_SMove65:
-;a.h,237 :: 		S_Right(255);
+	DECFSZ     R13+0, 1
+	GOTO       L_SMove65
+	DECFSZ     R12+0, 1
+	GOTO       L_SMove65
+	DECFSZ     R11+0, 1
+	GOTO       L_SMove65
+;a.h,225 :: 		Motor_Stop();
+	CALL       _Motor_Stop+0
+;a.h,226 :: 		S_Right(255);
 	MOVLW      255
 	MOVWF      FARG_S_Right_speed+0
 	CALL       _S_Right+0
-;a.h,238 :: 		delay_ms(DELAY_TIME_VR_10*15/10);
+;a.h,227 :: 		delay_ms(DELAY_TIME_VR_10*15/10);
 	MOVLW      3
 	MOVWF      R11+0
 	MOVLW      112
@@ -1291,121 +1251,68 @@ L_SMove66:
 	DECFSZ     R11+0, 1
 	GOTO       L_SMove66
 	NOP
-;a.h,239 :: 		Motor_Init();  // настраиваем моторы
-	CALL       _Motor_Init+0
-;a.h,240 :: 		Change_Duty(SPEED); // задаем скорость
-	MOVLW      255
-	MOVWF      FARG_Change_Duty_speed+0
-	CALL       _Change_Duty+0
-;a.h,241 :: 		Motor_A_BWD(); // запускаем моторы
-	CALL       _Motor_A_BWD+0
-;a.h,242 :: 		Motor_B_BWD();
-	CALL       _Motor_B_BWD+0
-;a.h,243 :: 		delay_ms(2*DELAY_TIME_1sm); // ждем пока приедем
-	MOVLW      4
-	MOVWF      R11+0
-	MOVLW      155
-	MOVWF      R12+0
-	MOVLW      15
-	MOVWF      R13+0
-L_SMove67:
-	DECFSZ     R13+0, 1
-	GOTO       L_SMove67
-	DECFSZ     R12+0, 1
-	GOTO       L_SMove67
-	DECFSZ     R11+0, 1
-	GOTO       L_SMove67
-;a.h,244 :: 		Motor_Stop();
-	CALL       _Motor_Stop+0
-;a.h,245 :: 		S_Left(255);
-	MOVLW      255
-	MOVWF      FARG_S_Left_speed+0
-	CALL       _S_Left+0
-;a.h,246 :: 		delay_ms(DELAY_TIME_VR_10*15/10);
-	MOVLW      3
-	MOVWF      R11+0
-	MOVLW      112
-	MOVWF      R12+0
-	MOVLW      92
-	MOVWF      R13+0
-L_SMove68:
-	DECFSZ     R13+0, 1
-	GOTO       L_SMove68
-	DECFSZ     R12+0, 1
-	GOTO       L_SMove68
-	DECFSZ     R11+0, 1
-	GOTO       L_SMove68
-	NOP
-;a.h,247 :: 		Correct();
+;a.h,228 :: 		Correct();
 	CALL       _Correct+0
-;a.h,248 :: 		isMove=1;
+;a.h,229 :: 		isMove=1;
 	MOVLW      1
 	MOVWF      SMove_isMove_L0+0
-;a.h,249 :: 		break;
+;a.h,230 :: 		}
+L_SMove63:
+;a.h,231 :: 		break;
 	GOTO       L_SMove41
-;a.h,250 :: 		case LEFT:
-L_SMove69:
-;a.h,251 :: 		Motor_Init();  // настраиваем моторы
+;a.h,232 :: 		case 5:
+L_SMove67:
+;a.h,233 :: 		case DOWN:
+L_SMove68:
+;a.h,234 :: 		Motor_Init();  // настраиваем моторы
 	CALL       _Motor_Init+0
-;a.h,252 :: 		Change_Duty(SPEED); // задаем скорость
+;a.h,235 :: 		Change_Duty(SPEED); // задаем скорость
 	MOVLW      255
 	MOVWF      FARG_Change_Duty_speed+0
 	CALL       _Change_Duty+0
-;a.h,253 :: 		Motor_A_BWD(); // запускаем моторы
+;a.h,236 :: 		Motor_A_BWD(); // запускаем моторы
 	CALL       _Motor_A_BWD+0
-;a.h,254 :: 		Motor_B_BWD();
+;a.h,237 :: 		Motor_B_BWD();
 	CALL       _Motor_B_BWD+0
-;a.h,255 :: 		delay_ms(2*DELAY_TIME_1sm); // ждем пока приедем
+;a.h,238 :: 		delay_ms(2*DELAY_TIME_1sm); // ждем пока приедем
 	MOVLW      4
 	MOVWF      R11+0
 	MOVLW      155
 	MOVWF      R12+0
 	MOVLW      15
 	MOVWF      R13+0
-L_SMove70:
+L_SMove69:
 	DECFSZ     R13+0, 1
-	GOTO       L_SMove70
+	GOTO       L_SMove69
 	DECFSZ     R12+0, 1
-	GOTO       L_SMove70
+	GOTO       L_SMove69
 	DECFSZ     R11+0, 1
-	GOTO       L_SMove70
-;a.h,256 :: 		Motor_Stop();
+	GOTO       L_SMove69
+;a.h,239 :: 		Motor_Stop();
 	CALL       _Motor_Stop+0
-;a.h,257 :: 		S_Left(255);
+;a.h,240 :: 		Motor_Init();
+	CALL       _Motor_Init+0
+;a.h,241 :: 		Correct();
+	CALL       _Correct+0
+;a.h,242 :: 		isMove=1;
+	MOVLW      1
+	MOVWF      SMove_isMove_L0+0
+;a.h,243 :: 		break;
+	GOTO       L_SMove41
+;a.h,244 :: 		case 6:
+L_SMove70:
+;a.h,245 :: 		case LDOWN:
+L_SMove71:
+;a.h,246 :: 		S_Right(255);
 	MOVLW      255
-	MOVWF      FARG_S_Left_speed+0
-	CALL       _S_Left+0
-;a.h,258 :: 		delay_ms(DELAY_TIME_VR_10*15/10);
+	MOVWF      FARG_S_Right_speed+0
+	CALL       _S_Right+0
+;a.h,247 :: 		delay_ms(DELAY_TIME_VR_10*15/10);
 	MOVLW      3
 	MOVWF      R11+0
 	MOVLW      112
 	MOVWF      R12+0
 	MOVLW      92
-	MOVWF      R13+0
-L_SMove71:
-	DECFSZ     R13+0, 1
-	GOTO       L_SMove71
-	DECFSZ     R12+0, 1
-	GOTO       L_SMove71
-	DECFSZ     R11+0, 1
-	GOTO       L_SMove71
-	NOP
-;a.h,259 :: 		Motor_Init();  // настраиваем моторы
-	CALL       _Motor_Init+0
-;a.h,260 :: 		Change_Duty(SPEED); // задаем скорость
-	MOVLW      255
-	MOVWF      FARG_Change_Duty_speed+0
-	CALL       _Change_Duty+0
-;a.h,261 :: 		Motor_A_FWD(); // запускаем моторы
-	CALL       _Motor_A_FWD+0
-;a.h,262 :: 		Motor_B_FWD();
-	CALL       _Motor_B_FWD+0
-;a.h,263 :: 		delay_ms(2*DELAY_TIME_1sm); // ждем пока приедем
-	MOVLW      4
-	MOVWF      R11+0
-	MOVLW      155
-	MOVWF      R12+0
-	MOVLW      15
 	MOVWF      R13+0
 L_SMove72:
 	DECFSZ     R13+0, 1
@@ -1414,18 +1321,23 @@ L_SMove72:
 	GOTO       L_SMove72
 	DECFSZ     R11+0, 1
 	GOTO       L_SMove72
-;a.h,264 :: 		Motor_Stop();
-	CALL       _Motor_Stop+0
-;a.h,265 :: 		S_Right(255);
+	NOP
+;a.h,248 :: 		Motor_Init();  // настраиваем моторы
+	CALL       _Motor_Init+0
+;a.h,249 :: 		Change_Duty(SPEED); // задаем скорость
 	MOVLW      255
-	MOVWF      FARG_S_Right_speed+0
-	CALL       _S_Right+0
-;a.h,266 :: 		delay_ms(DELAY_TIME_VR_10*15/10);
-	MOVLW      3
+	MOVWF      FARG_Change_Duty_speed+0
+	CALL       _Change_Duty+0
+;a.h,250 :: 		Motor_A_BWD(); // запускаем моторы
+	CALL       _Motor_A_BWD+0
+;a.h,251 :: 		Motor_B_BWD();
+	CALL       _Motor_B_BWD+0
+;a.h,252 :: 		delay_ms(2*DELAY_TIME_1sm); // ждем пока приедем
+	MOVLW      4
 	MOVWF      R11+0
-	MOVLW      112
+	MOVLW      155
 	MOVWF      R12+0
-	MOVLW      92
+	MOVLW      15
 	MOVWF      R13+0
 L_SMove73:
 	DECFSZ     R13+0, 1
@@ -1434,56 +1346,49 @@ L_SMove73:
 	GOTO       L_SMove73
 	DECFSZ     R11+0, 1
 	GOTO       L_SMove73
-	NOP
-;a.h,267 :: 		Correct();
-	CALL       _Correct+0
-;a.h,268 :: 		isMove=1;
-	MOVLW      1
-	MOVWF      SMove_isMove_L0+0
-;a.h,269 :: 		break;
-	GOTO       L_SMove41
-;a.h,270 :: 		case LUP:
-L_SMove74:
-;a.h,271 :: 		if(isSafeY()>2)
-	CALL       _isSafeY+0
-	MOVLW      128
-	XORLW      2
-	MOVWF      R1+0
-	MOVLW      128
-	XORWF      R0+0, 0
-	SUBWF      R1+0, 0
-	BTFSC      STATUS+0, 0
-	GOTO       L_SMove75
-;a.h,273 :: 		S_Left(255);
+;a.h,253 :: 		Motor_Stop();
+	CALL       _Motor_Stop+0
+;a.h,254 :: 		S_Left(255);
 	MOVLW      255
 	MOVWF      FARG_S_Left_speed+0
 	CALL       _S_Left+0
-;a.h,274 :: 		delay_ms(DELAY_TIME_VR_10*15/10);
+;a.h,255 :: 		delay_ms(DELAY_TIME_VR_10*15/10);
 	MOVLW      3
 	MOVWF      R11+0
 	MOVLW      112
 	MOVWF      R12+0
 	MOVLW      92
 	MOVWF      R13+0
-L_SMove76:
+L_SMove74:
 	DECFSZ     R13+0, 1
-	GOTO       L_SMove76
+	GOTO       L_SMove74
 	DECFSZ     R12+0, 1
-	GOTO       L_SMove76
+	GOTO       L_SMove74
 	DECFSZ     R11+0, 1
-	GOTO       L_SMove76
+	GOTO       L_SMove74
 	NOP
-;a.h,275 :: 		Motor_Init();  // настраиваем моторы
+;a.h,256 :: 		Correct();
+	CALL       _Correct+0
+;a.h,257 :: 		isMove=1;
+	MOVLW      1
+	MOVWF      SMove_isMove_L0+0
+;a.h,258 :: 		break;
+	GOTO       L_SMove41
+;a.h,259 :: 		case 7:
+L_SMove75:
+;a.h,260 :: 		case LEFT:
+L_SMove76:
+;a.h,261 :: 		Motor_Init();  // настраиваем моторы
 	CALL       _Motor_Init+0
-;a.h,276 :: 		Change_Duty(SPEED); // задаем скорость
+;a.h,262 :: 		Change_Duty(SPEED); // задаем скорость
 	MOVLW      255
 	MOVWF      FARG_Change_Duty_speed+0
 	CALL       _Change_Duty+0
-;a.h,277 :: 		Motor_A_FWD(); // запускаем моторы
-	CALL       _Motor_A_FWD+0
-;a.h,278 :: 		Motor_B_FWD();
-	CALL       _Motor_B_FWD+0
-;a.h,279 :: 		delay_ms(2*DELAY_TIME_1sm); // ждем пока приедем
+;a.h,263 :: 		Motor_A_BWD(); // запускаем моторы
+	CALL       _Motor_A_BWD+0
+;a.h,264 :: 		Motor_B_BWD();
+	CALL       _Motor_B_BWD+0
+;a.h,265 :: 		delay_ms(2*DELAY_TIME_1sm); // ждем пока приедем
 	MOVLW      4
 	MOVWF      R11+0
 	MOVLW      155
@@ -1497,13 +1402,13 @@ L_SMove77:
 	GOTO       L_SMove77
 	DECFSZ     R11+0, 1
 	GOTO       L_SMove77
-;a.h,280 :: 		Motor_Stop();
+;a.h,266 :: 		Motor_Stop();
 	CALL       _Motor_Stop+0
-;a.h,281 :: 		S_Right(255);
+;a.h,267 :: 		S_Left(255);
 	MOVLW      255
-	MOVWF      FARG_S_Right_speed+0
-	CALL       _S_Right+0
-;a.h,282 :: 		delay_ms(DELAY_TIME_VR_10*15/10);
+	MOVWF      FARG_S_Left_speed+0
+	CALL       _S_Left+0
+;a.h,268 :: 		delay_ms(DELAY_TIME_VR_10*15/10);
 	MOVLW      3
 	MOVWF      R11+0
 	MOVLW      112
@@ -1518,110 +1423,288 @@ L_SMove78:
 	DECFSZ     R11+0, 1
 	GOTO       L_SMove78
 	NOP
-;a.h,283 :: 		Correct();
+;a.h,269 :: 		Motor_Init();  // настраиваем моторы
+	CALL       _Motor_Init+0
+;a.h,270 :: 		Change_Duty(SPEED); // задаем скорость
+	MOVLW      255
+	MOVWF      FARG_Change_Duty_speed+0
+	CALL       _Change_Duty+0
+;a.h,271 :: 		Motor_A_FWD(); // запускаем моторы
+	CALL       _Motor_A_FWD+0
+;a.h,272 :: 		Motor_B_FWD();
+	CALL       _Motor_B_FWD+0
+;a.h,273 :: 		delay_ms(2*DELAY_TIME_1sm); // ждем пока приедем
+	MOVLW      4
+	MOVWF      R11+0
+	MOVLW      155
+	MOVWF      R12+0
+	MOVLW      15
+	MOVWF      R13+0
+L_SMove79:
+	DECFSZ     R13+0, 1
+	GOTO       L_SMove79
+	DECFSZ     R12+0, 1
+	GOTO       L_SMove79
+	DECFSZ     R11+0, 1
+	GOTO       L_SMove79
+;a.h,274 :: 		Motor_Stop();
+	CALL       _Motor_Stop+0
+;a.h,275 :: 		S_Right(255);
+	MOVLW      255
+	MOVWF      FARG_S_Right_speed+0
+	CALL       _S_Right+0
+;a.h,276 :: 		delay_ms(DELAY_TIME_VR_10*15/10);
+	MOVLW      3
+	MOVWF      R11+0
+	MOVLW      112
+	MOVWF      R12+0
+	MOVLW      92
+	MOVWF      R13+0
+L_SMove80:
+	DECFSZ     R13+0, 1
+	GOTO       L_SMove80
+	DECFSZ     R12+0, 1
+	GOTO       L_SMove80
+	DECFSZ     R11+0, 1
+	GOTO       L_SMove80
+	NOP
+;a.h,277 :: 		Correct();
 	CALL       _Correct+0
-;a.h,284 :: 		isMove=1;
+;a.h,278 :: 		isMove=1;
 	MOVLW      1
 	MOVWF      SMove_isMove_L0+0
-;a.h,285 :: 		}
-L_SMove75:
-;a.h,286 :: 		break;
+;a.h,279 :: 		break;
 	GOTO       L_SMove41
-;a.h,287 :: 		case ZEROD:
-L_SMove79:
-;a.h,288 :: 		break;
+;a.h,280 :: 		case 8:
+L_SMove81:
+;a.h,281 :: 		case LUP:
+L_SMove82:
+;a.h,282 :: 		if(isSafeY()>2)
+	CALL       _isSafeY+0
+	MOVLW      128
+	XORLW      2
+	MOVWF      R1+0
+	MOVLW      128
+	XORWF      R0+0, 0
+	SUBWF      R1+0, 0
+	BTFSC      STATUS+0, 0
+	GOTO       L_SMove83
+;a.h,284 :: 		S_Left(255);
+	MOVLW      255
+	MOVWF      FARG_S_Left_speed+0
+	CALL       _S_Left+0
+;a.h,285 :: 		delay_ms(DELAY_TIME_VR_10*15/10);
+	MOVLW      3
+	MOVWF      R11+0
+	MOVLW      112
+	MOVWF      R12+0
+	MOVLW      92
+	MOVWF      R13+0
+L_SMove84:
+	DECFSZ     R13+0, 1
+	GOTO       L_SMove84
+	DECFSZ     R12+0, 1
+	GOTO       L_SMove84
+	DECFSZ     R11+0, 1
+	GOTO       L_SMove84
+	NOP
+;a.h,286 :: 		Motor_Init();  // настраиваем моторы
+	CALL       _Motor_Init+0
+;a.h,287 :: 		Change_Duty(SPEED); // задаем скорость
+	MOVLW      255
+	MOVWF      FARG_Change_Duty_speed+0
+	CALL       _Change_Duty+0
+;a.h,288 :: 		Motor_A_FWD(); // запускаем моторы
+	CALL       _Motor_A_FWD+0
+;a.h,289 :: 		Motor_B_FWD();
+	CALL       _Motor_B_FWD+0
+;a.h,290 :: 		delay_ms(2*DELAY_TIME_1sm); // ждем пока приедем
+	MOVLW      4
+	MOVWF      R11+0
+	MOVLW      155
+	MOVWF      R12+0
+	MOVLW      15
+	MOVWF      R13+0
+L_SMove85:
+	DECFSZ     R13+0, 1
+	GOTO       L_SMove85
+	DECFSZ     R12+0, 1
+	GOTO       L_SMove85
+	DECFSZ     R11+0, 1
+	GOTO       L_SMove85
+;a.h,291 :: 		Motor_Stop();
+	CALL       _Motor_Stop+0
+;a.h,292 :: 		S_Right(255);
+	MOVLW      255
+	MOVWF      FARG_S_Right_speed+0
+	CALL       _S_Right+0
+;a.h,293 :: 		delay_ms(DELAY_TIME_VR_10*15/10);
+	MOVLW      3
+	MOVWF      R11+0
+	MOVLW      112
+	MOVWF      R12+0
+	MOVLW      92
+	MOVWF      R13+0
+L_SMove86:
+	DECFSZ     R13+0, 1
+	GOTO       L_SMove86
+	DECFSZ     R12+0, 1
+	GOTO       L_SMove86
+	DECFSZ     R11+0, 1
+	GOTO       L_SMove86
+	NOP
+;a.h,294 :: 		Correct();
+	CALL       _Correct+0
+;a.h,295 :: 		isMove=1;
+	MOVLW      1
+	MOVWF      SMove_isMove_L0+0
+;a.h,296 :: 		}
+L_SMove83:
+;a.h,297 :: 		break;
 	GOTO       L_SMove41
-;a.h,289 :: 		}
+;a.h,298 :: 		case 9:
+L_SMove87:
+;a.h,299 :: 		case ZEROD:
+L_SMove88:
+;a.h,300 :: 		getParam("zerod",1,1);
+	MOVLW      ?lstr_1_MyProject+0
+	MOVWF      FARG_getParam_p+0
+	MOVLW      hi_addr(?lstr_1_MyProject+0)
+	MOVWF      FARG_getParam_p+1
+	MOVLW      1
+	MOVWF      FARG_getParam_x+0
+	MOVLW      0
+	MOVWF      FARG_getParam_x+1
+	MOVLW      1
+	MOVWF      FARG_getParam_y+0
+	MOVLW      0
+	MOVWF      FARG_getParam_y+1
+	CALL       _getParam+0
+;a.h,301 :: 		break;
+	GOTO       L_SMove41
+;a.h,302 :: 		}
 L_SMove40:
 	MOVF       SMove_nd_L0+0, 0
 	XORLW      1
 	BTFSC      STATUS+0, 2
 	GOTO       L_SMove42
 	MOVF       SMove_nd_L0+0, 0
+	XORLW      1
+	BTFSC      STATUS+0, 2
+	GOTO       L_SMove43
+	MOVF       SMove_nd_L0+0, 0
 	XORLW      2
 	BTFSC      STATUS+0, 2
-	GOTO       L_SMove45
+	GOTO       L_SMove46
+	MOVF       SMove_nd_L0+0, 0
+	XORLW      2
+	BTFSC      STATUS+0, 2
+	GOTO       L_SMove47
 	MOVF       SMove_nd_L0+0, 0
 	XORLW      3
 	BTFSC      STATUS+0, 2
-	GOTO       L_SMove52
+	GOTO       L_SMove54
+	MOVF       SMove_nd_L0+0, 0
+	XORLW      3
+	BTFSC      STATUS+0, 2
+	GOTO       L_SMove55
 	MOVF       SMove_nd_L0+0, 0
 	XORLW      4
 	BTFSC      STATUS+0, 2
-	GOTO       L_SMove58
+	GOTO       L_SMove61
+	MOVF       SMove_nd_L0+0, 0
+	XORLW      4
+	BTFSC      STATUS+0, 2
+	GOTO       L_SMove62
 	MOVF       SMove_nd_L0+0, 0
 	XORLW      5
 	BTFSC      STATUS+0, 2
-	GOTO       L_SMove63
+	GOTO       L_SMove67
+	MOVF       SMove_nd_L0+0, 0
+	XORLW      5
+	BTFSC      STATUS+0, 2
+	GOTO       L_SMove68
 	MOVF       SMove_nd_L0+0, 0
 	XORLW      6
 	BTFSC      STATUS+0, 2
-	GOTO       L_SMove65
+	GOTO       L_SMove70
+	MOVF       SMove_nd_L0+0, 0
+	XORLW      6
+	BTFSC      STATUS+0, 2
+	GOTO       L_SMove71
 	MOVF       SMove_nd_L0+0, 0
 	XORLW      7
 	BTFSC      STATUS+0, 2
-	GOTO       L_SMove69
+	GOTO       L_SMove75
+	MOVF       SMove_nd_L0+0, 0
+	XORLW      7
+	BTFSC      STATUS+0, 2
+	GOTO       L_SMove76
 	MOVF       SMove_nd_L0+0, 0
 	XORLW      8
 	BTFSC      STATUS+0, 2
-	GOTO       L_SMove74
+	GOTO       L_SMove81
+	MOVF       SMove_nd_L0+0, 0
+	XORLW      8
+	BTFSC      STATUS+0, 2
+	GOTO       L_SMove82
 	MOVF       SMove_nd_L0+0, 0
 	XORLW      9
 	BTFSC      STATUS+0, 2
-	GOTO       L_SMove79
+	GOTO       L_SMove87
+	MOVF       SMove_nd_L0+0, 0
+	XORLW      9
+	BTFSC      STATUS+0, 2
+	GOTO       L_SMove88
 L_SMove41:
-;a.h,292 :: 		if(isMetall()) // проверяем есть ли тут монетка
+;a.h,305 :: 		if(isMetall()) // проверяем есть ли тут монетка
 	CALL       _isMetall+0
 	MOVF       R0+0, 0
 	BTFSC      STATUS+0, 2
-	GOTO       L_SMove80
-;a.h,295 :: 		if(isMove)
+	GOTO       L_SMove89
+;a.h,308 :: 		if(isMove)
 	MOVF       SMove_isMove_L0+0, 0
 	BTFSC      STATUS+0, 2
-	GOTO       L_SMove81
-;a.h,296 :: 		setParam("Metall",nx,ny,1);
-	MOVLW      ?lstr_1_MyProject+0
+	GOTO       L_SMove90
+;a.h,309 :: 		setParam("Metall",nx,ny,1);
+	MOVLW      ?lstr_2_MyProject+0
 	MOVWF      FARG_setParam_p+0
-	MOVLW      hi_addr(?lstr_1_MyProject+0)
+	MOVLW      hi_addr(?lstr_2_MyProject+0)
 	MOVWF      FARG_setParam_p+1
 	MOVF       FARG_SMove_nx+0, 0
 	MOVWF      FARG_setParam_x+0
-	MOVLW      0
-	BTFSC      FARG_setParam_x+0, 7
-	MOVLW      255
+	MOVF       FARG_SMove_nx+1, 0
 	MOVWF      FARG_setParam_x+1
 	MOVF       FARG_SMove_ny+0, 0
 	MOVWF      FARG_setParam_y+0
-	MOVLW      0
-	BTFSC      FARG_setParam_y+0, 7
-	MOVLW      255
+	MOVF       FARG_SMove_ny+1, 0
 	MOVWF      FARG_setParam_y+1
 	MOVLW      1
 	MOVWF      FARG_setParam_value+0
 	MOVLW      0
 	MOVWF      FARG_setParam_value+1
 	CALL       _setParam+0
-L_SMove81:
-;a.h,297 :: 		}
-L_SMove80:
-;a.h,298 :: 		return isMove;    // сообщаем было ли движение
+L_SMove90:
+;a.h,310 :: 		}
+L_SMove89:
+;a.h,311 :: 		return isMove;    // сообщаем было ли движение
 	MOVF       SMove_isMove_L0+0, 0
 	MOVWF      R0+0
-;a.h,300 :: 		}
+;a.h,313 :: 		}
 L_end_SMove:
 	RETURN
 ; end of _SMove
 
 _SRotare:
 
-;a.h,305 :: 		void SRotare(enum direction d,enum direction nd)
-;a.h,308 :: 		r=(d-nd);
+;a.h,317 :: 		void SRotare(enum direction d,enum direction nd)
+;a.h,320 :: 		r=(d-nd);
 	MOVF       FARG_SRotare_nd+0, 0
 	SUBWF      FARG_SRotare_d+0, 0
 	MOVWF      R1+0
 	MOVF       R1+0, 0
 	MOVWF      SRotare_r_L0+0
-;a.h,309 :: 		if(r>4) r=8-r; // если угол поворота больше 180 - будем поворачитьвася в другую сторону
+;a.h,321 :: 		if(r>4) r=8-r; // если угол поворота больше 180 - будем поворачитьвася в другую сторону
 	MOVLW      128
 	XORLW      4
 	MOVWF      R0+0
@@ -1629,12 +1712,12 @@ _SRotare:
 	XORWF      R1+0, 0
 	SUBWF      R0+0, 0
 	BTFSC      STATUS+0, 0
-	GOTO       L_SRotare82
+	GOTO       L_SRotare91
 	MOVF       SRotare_r_L0+0, 0
 	SUBLW      8
 	MOVWF      SRotare_r_L0+0
-L_SRotare82:
-;a.h,310 :: 		if(r>=0)
+L_SRotare91:
+;a.h,322 :: 		if(r>=0)
 	MOVLW      128
 	XORWF      SRotare_r_L0+0, 0
 	MOVWF      R0+0
@@ -1642,13 +1725,13 @@ L_SRotare82:
 	XORLW      0
 	SUBWF      R0+0, 0
 	BTFSS      STATUS+0, 0
-	GOTO       L_SRotare83
-;a.h,312 :: 		S_Right(255); // поворачиваемся по наименьшему пути
+	GOTO       L_SRotare92
+;a.h,324 :: 		S_Right(255); // поворачиваемся по наименьшему пути
 	MOVLW      255
 	MOVWF      FARG_S_Right_speed+0
 	CALL       _S_Right+0
-;a.h,313 :: 		for(;r>0;r--)
-L_SRotare84:
+;a.h,325 :: 		for(;r>0;r--)
+L_SRotare93:
 	MOVLW      128
 	XORLW      0
 	MOVWF      R0+0
@@ -1656,37 +1739,37 @@ L_SRotare84:
 	XORWF      SRotare_r_L0+0, 0
 	SUBWF      R0+0, 0
 	BTFSC      STATUS+0, 0
-	GOTO       L_SRotare85
-;a.h,314 :: 		Delay_ms(DELAY_TIME_VR_10*45/10);
+	GOTO       L_SRotare94
+;a.h,326 :: 		Delay_ms(DELAY_TIME_VR_10*45/10);
 	MOVLW      8
 	MOVWF      R11+0
 	MOVLW      79
 	MOVWF      R12+0
 	MOVLW      25
 	MOVWF      R13+0
-L_SRotare87:
+L_SRotare96:
 	DECFSZ     R13+0, 1
-	GOTO       L_SRotare87
+	GOTO       L_SRotare96
 	DECFSZ     R12+0, 1
-	GOTO       L_SRotare87
+	GOTO       L_SRotare96
 	DECFSZ     R11+0, 1
-	GOTO       L_SRotare87
+	GOTO       L_SRotare96
 	NOP
 	NOP
-;a.h,313 :: 		for(;r>0;r--)
+;a.h,325 :: 		for(;r>0;r--)
 	DECF       SRotare_r_L0+0, 1
-;a.h,314 :: 		Delay_ms(DELAY_TIME_VR_10*45/10);
-	GOTO       L_SRotare84
-L_SRotare85:
-;a.h,315 :: 		}
-	GOTO       L_SRotare88
-L_SRotare83:
-;a.h,318 :: 		S_Left(255);
+;a.h,326 :: 		Delay_ms(DELAY_TIME_VR_10*45/10);
+	GOTO       L_SRotare93
+L_SRotare94:
+;a.h,327 :: 		}
+	GOTO       L_SRotare97
+L_SRotare92:
+;a.h,330 :: 		S_Left(255);
 	MOVLW      255
 	MOVWF      FARG_S_Left_speed+0
 	CALL       _S_Left+0
-;a.h,319 :: 		for(;r<0;r++)
-L_SRotare89:
+;a.h,331 :: 		for(;r<0;r++)
+L_SRotare98:
 	MOVLW      128
 	XORWF      SRotare_r_L0+0, 0
 	MOVWF      R0+0
@@ -1694,61 +1777,63 @@ L_SRotare89:
 	XORLW      0
 	SUBWF      R0+0, 0
 	BTFSC      STATUS+0, 0
-	GOTO       L_SRotare90
-;a.h,320 :: 		Delay_ms(DELAY_TIME_VR_10*45/10);
+	GOTO       L_SRotare99
+;a.h,332 :: 		Delay_ms(DELAY_TIME_VR_10*45/10);
 	MOVLW      8
 	MOVWF      R11+0
 	MOVLW      79
 	MOVWF      R12+0
 	MOVLW      25
 	MOVWF      R13+0
-L_SRotare92:
+L_SRotare101:
 	DECFSZ     R13+0, 1
-	GOTO       L_SRotare92
+	GOTO       L_SRotare101
 	DECFSZ     R12+0, 1
-	GOTO       L_SRotare92
+	GOTO       L_SRotare101
 	DECFSZ     R11+0, 1
-	GOTO       L_SRotare92
+	GOTO       L_SRotare101
 	NOP
 	NOP
-;a.h,319 :: 		for(;r<0;r++)
+;a.h,331 :: 		for(;r<0;r++)
 	INCF       SRotare_r_L0+0, 1
-;a.h,320 :: 		Delay_ms(DELAY_TIME_VR_10*45/10);
-	GOTO       L_SRotare89
-L_SRotare90:
-;a.h,321 :: 		}
-L_SRotare88:
-;a.h,322 :: 		}
+;a.h,332 :: 		Delay_ms(DELAY_TIME_VR_10*45/10);
+	GOTO       L_SRotare98
+L_SRotare99:
+;a.h,333 :: 		}
+L_SRotare97:
+;a.h,334 :: 		Motor_Stop();
+	CALL       _Motor_Stop+0
+;a.h,335 :: 		}
 L_end_SRotare:
 	RETURN
 ; end of _SRotare
 
 _Correct:
 
-;a.h,325 :: 		void Correct(void) // корректирует направление робота
-;a.h,328 :: 		r=isSafeY();                // проверить расстояние
+;a.h,338 :: 		void Correct(void) // корректирует направление робота
+;a.h,341 :: 		r=isSafeY();                // проверить расстояние
 	CALL       _isSafeY+0
 	MOVF       R0+0, 0
 	MOVWF      Correct_r_L0+0
-;a.h,329 :: 		S_Left(DELAY_TIME_VR_10);  // повернуться
+;a.h,342 :: 		S_Left(DELAY_TIME_VR_10);  // повернуться
 	MOVLW      64
 	MOVWF      FARG_S_Left_speed+0
 	CALL       _S_Left+0
-;a.h,330 :: 		nr=isSafeY();               // проверить расстояние
+;a.h,343 :: 		nr=isSafeY();               // проверить расстояние
 	CALL       _isSafeY+0
 	MOVF       R0+0, 0
 	MOVWF      Correct_nr_L0+0
-;a.h,331 :: 		if(r==nr)                   // сравнить их, если получаем правильное соотношение
+;a.h,344 :: 		if(r==nr)                   // сравнить их, если получаем правильное соотношение
 	MOVF       Correct_r_L0+0, 0
 	XORWF      R0+0, 0
 	BTFSS      STATUS+0, 2
-	GOTO       L_Correct93
-;a.h,332 :: 		S_Right(DELAY_TIME_VR_10);  // то мы находимся в правильном положении
+	GOTO       L_Correct102
+;a.h,345 :: 		S_Right(DELAY_TIME_VR_10);  // то мы находимся в правильном положении
 	MOVLW      64
 	MOVWF      FARG_S_Right_speed+0
 	CALL       _S_Right+0
-L_Correct93:
-;a.h,333 :: 		if(r>nr)
+L_Correct102:
+;a.h,346 :: 		if(r>nr)
 	MOVLW      128
 	XORWF      Correct_nr_L0+0, 0
 	MOVWF      R0+0
@@ -1756,11 +1841,11 @@ L_Correct93:
 	XORWF      Correct_r_L0+0, 0
 	SUBWF      R0+0, 0
 	BTFSC      STATUS+0, 0
-	GOTO       L_Correct94
-;a.h,334 :: 		return;
+	GOTO       L_Correct103
+;a.h,347 :: 		return;
 	GOTO       L_end_Correct
-L_Correct94:
-;a.h,335 :: 		if(r<nr)
+L_Correct103:
+;a.h,348 :: 		if(r<nr)
 	MOVLW      128
 	XORWF      Correct_r_L0+0, 0
 	MOVWF      R0+0
@@ -1768,31 +1853,26 @@ L_Correct94:
 	XORWF      Correct_nr_L0+0, 0
 	SUBWF      R0+0, 0
 	BTFSC      STATUS+0, 0
-	GOTO       L_Correct95
-;a.h,336 :: 		S_Right(2*DELAY_TIME_VR_10);
+	GOTO       L_Correct104
+;a.h,349 :: 		S_Right(2*DELAY_TIME_VR_10);
 	MOVLW      128
 	MOVWF      FARG_S_Right_speed+0
 	CALL       _S_Right+0
-L_Correct95:
-;a.h,338 :: 		}
+L_Correct104:
+;a.h,350 :: 		Motor_Stop();
+	CALL       _Motor_Stop+0
+;a.h,351 :: 		}
 L_end_Correct:
 	RETURN
 ; end of _Correct
 
 _A_search:
 
-;a.h,343 :: 		void A_search()
-;a.h,347 :: 		if(findGoalCount==NumberOfGoals) return;// проверили все состояния - достигли цели - закончили работу.
-	MOVF       _findGoalCount+0, 0
-	XORLW      131
-	BTFSS      STATUS+0, 2
-	GOTO       L_A_search96
-	GOTO       L_end_A_search
-L_A_search96:
-;a.h,348 :: 		if(getParam("jobisdone?",1,1)==13) return; // если база говорит что работа окончена - завершаем работу.
-	MOVLW      ?lstr_2_MyProject+0
+;a.h,356 :: 		void A_search()
+;a.h,361 :: 		if(getParam("jobisdone?",1,1)==13) return; // если база говорит что работа окончена - завершаем работу.
+	MOVLW      ?lstr_3_MyProject+0
 	MOVWF      FARG_getParam_p+0
-	MOVLW      hi_addr(?lstr_2_MyProject+0)
+	MOVLW      hi_addr(?lstr_3_MyProject+0)
 	MOVWF      FARG_getParam_p+1
 	MOVLW      1
 	MOVWF      FARG_getParam_x+0
@@ -1806,18 +1886,18 @@ L_A_search96:
 	MOVLW      0
 	XORWF      R0+1, 0
 	BTFSS      STATUS+0, 2
-	GOTO       L__A_search201
+	GOTO       L__A_search211
 	MOVLW      13
 	XORWF      R0+0, 0
-L__A_search201:
+L__A_search211:
 	BTFSS      STATUS+0, 2
-	GOTO       L_A_search97
+	GOTO       L_A_search105
 	GOTO       L_end_A_search
-L_A_search97:
-;a.h,350 :: 		temp=getParam("Hint",cX,cY); // получаем значение для текущего состояния
-	MOVLW      ?lstr_3_MyProject+0
+L_A_search105:
+;a.h,363 :: 		temp=getParam("Hint",cX,cY); // получаем значение для текущего состояния
+	MOVLW      ?lstr_4_MyProject+0
 	MOVWF      FARG_getParam_p+0
-	MOVLW      hi_addr(?lstr_3_MyProject+0)
+	MOVLW      hi_addr(?lstr_4_MyProject+0)
 	MOVWF      FARG_getParam_p+1
 	MOVF       _cX+0, 0
 	MOVWF      FARG_getParam_x+0
@@ -1832,10 +1912,10 @@ L_A_search97:
 	MOVWF      A_search_temp_L0+0
 	MOVF       R0+1, 0
 	MOVWF      A_search_temp_L0+1
-;a.h,352 :: 		setParam("Hint",cX,cY,temp++); // увеличиваем его, т.к. мы уже здесь
-	MOVLW      ?lstr_4_MyProject+0
+;a.h,365 :: 		setParam("Hint",cX,cY,temp++); // увеличиваем его, т.к. мы уже здесь
+	MOVLW      ?lstr_5_MyProject+0
 	MOVWF      FARG_setParam_p+0
-	MOVLW      hi_addr(?lstr_4_MyProject+0)
+	MOVLW      hi_addr(?lstr_5_MyProject+0)
 	MOVWF      FARG_setParam_p+1
 	MOVF       _cX+0, 0
 	MOVWF      FARG_setParam_x+0
@@ -1853,28 +1933,7 @@ L_A_search97:
 	INCF       A_search_temp_L0+0, 1
 	BTFSC      STATUS+0, 2
 	INCF       A_search_temp_L0+1, 1
-;a.h,354 :: 		min=getParam("Hint",cX,cY+1)+getParam("hevr",cX,cY+1);//H[cX][cY+1]+h_evr[cX][cY+1];
-	MOVLW      ?lstr_5_MyProject+0
-	MOVWF      FARG_getParam_p+0
-	MOVLW      hi_addr(?lstr_5_MyProject+0)
-	MOVWF      FARG_getParam_p+1
-	MOVF       _cX+0, 0
-	MOVWF      FARG_getParam_x+0
-	MOVF       _cX+1, 0
-	MOVWF      FARG_getParam_x+1
-	MOVF       _cY+0, 0
-	ADDLW      1
-	MOVWF      FARG_getParam_y+0
-	MOVLW      0
-	BTFSC      STATUS+0, 0
-	ADDLW      1
-	ADDWF      _cY+1, 0
-	MOVWF      FARG_getParam_y+1
-	CALL       _getParam+0
-	MOVF       R0+0, 0
-	MOVWF      FLOC__A_search+0
-	MOVF       R0+1, 0
-	MOVWF      FLOC__A_search+1
+;a.h,367 :: 		min=getParam("H+hevr",cX,cY+1);//+getParam("hevr",cX,cY+1);
 	MOVLW      ?lstr_6_MyProject+0
 	MOVWF      FARG_getParam_p+0
 	MOVLW      hi_addr(?lstr_6_MyProject+0)
@@ -1893,72 +1952,73 @@ L_A_search97:
 	MOVWF      FARG_getParam_y+1
 	CALL       _getParam+0
 	MOVF       R0+0, 0
-	ADDWF      FLOC__A_search+0, 0
 	MOVWF      A_search_min_L0+0
-	MOVF       FLOC__A_search+1, 0
-	BTFSC      STATUS+0, 0
-	ADDLW      1
-	ADDWF      R0+1, 0
+	MOVF       R0+1, 0
 	MOVWF      A_search_min_L0+1
-;a.h,355 :: 		for(i=-1;i<=1;i++) // у нас в любом состоянии 8 возможных действий
+;a.h,368 :: 		cxx=0;
+	CLRF       _cxx+0
+;a.h,369 :: 		cyy=1;
+	MOVLW      1
+	MOVWF      _cyy+0
+;a.h,370 :: 		for(i=-1;i<=1;i++) // у нас в любом состоянии 8 возможных действий
 	MOVLW      255
 	MOVWF      A_search_i_L0+0
 	MOVLW      255
 	MOVWF      A_search_i_L0+1
-L_A_search98:
+L_A_search106:
 	MOVLW      128
 	MOVWF      R0+0
 	MOVLW      128
 	XORWF      A_search_i_L0+1, 0
 	SUBWF      R0+0, 0
 	BTFSS      STATUS+0, 2
-	GOTO       L__A_search202
+	GOTO       L__A_search212
 	MOVF       A_search_i_L0+0, 0
 	SUBLW      1
-L__A_search202:
+L__A_search212:
 	BTFSS      STATUS+0, 0
-	GOTO       L_A_search99
-;a.h,356 :: 		for(j=-1;j<=1;j++)//----------------------------------------------------------------------------------------------------------------------!!!!!
+	GOTO       L_A_search107
+;a.h,372 :: 		for(j=-1;j<=1;j++)//----------------------------------------------------------------------------------------------------------------------!!!!!
 	MOVLW      255
 	MOVWF      A_search_j_L0+0
 	MOVLW      255
 	MOVWF      A_search_j_L0+1
-L_A_search101:
+L_A_search109:
 	MOVLW      128
 	MOVWF      R0+0
 	MOVLW      128
 	XORWF      A_search_j_L0+1, 0
 	SUBWF      R0+0, 0
 	BTFSS      STATUS+0, 2
-	GOTO       L__A_search203
+	GOTO       L__A_search213
 	MOVF       A_search_j_L0+0, 0
 	SUBLW      1
-L__A_search203:
+L__A_search213:
 	BTFSS      STATUS+0, 0
-	GOTO       L_A_search102
-;a.h,358 :: 		if(i==0 && j==0) continue;
+	GOTO       L_A_search110
+;a.h,374 :: 		if(i==0 && j==0) continue;
 	MOVLW      0
 	XORWF      A_search_i_L0+1, 0
 	BTFSS      STATUS+0, 2
-	GOTO       L__A_search204
+	GOTO       L__A_search214
 	MOVLW      0
 	XORWF      A_search_i_L0+0, 0
-L__A_search204:
+L__A_search214:
 	BTFSS      STATUS+0, 2
-	GOTO       L_A_search106
+	GOTO       L_A_search114
 	MOVLW      0
 	XORWF      A_search_j_L0+1, 0
 	BTFSS      STATUS+0, 2
-	GOTO       L__A_search205
+	GOTO       L__A_search215
 	MOVLW      0
 	XORWF      A_search_j_L0+0, 0
-L__A_search205:
+L__A_search215:
 	BTFSS      STATUS+0, 2
-	GOTO       L_A_search106
-L__A_search161:
-	GOTO       L_A_search103
-L_A_search106:
-;a.h,359 :: 		temp=getParam("Hint",cX+i,cY+j)+getParam("hevr",cX+i,cY+j); //H[cX+i][cY+j]+h_evr[cX+i][cY+j];
+	GOTO       L_A_search114
+L__A_search169:
+	GOTO       L_A_search111
+L_A_search114:
+;a.h,375 :: 		temp=getParam("H+hevr",cX+i,cY+j);//+getParam("hevr",cX+i,cY+j);
 	MOVLW      ?lstr_7_MyProject+0
 	MOVWF      FARG_getParam_p+0
 	MOVLW      hi_addr(?lstr_7_MyProject+0)
@@ -1981,94 +2041,63 @@ L_A_search106:
 	MOVWF      FARG_getParam_y+1
 	CALL       _getParam+0
 	MOVF       R0+0, 0
-	MOVWF      FLOC__A_search+0
-	MOVF       R0+1, 0
-	MOVWF      FLOC__A_search+1
-	MOVLW      ?lstr_8_MyProject+0
-	MOVWF      FARG_getParam_p+0
-	MOVLW      hi_addr(?lstr_8_MyProject+0)
-	MOVWF      FARG_getParam_p+1
-	MOVF       A_search_i_L0+0, 0
-	ADDWF      _cX+0, 0
-	MOVWF      FARG_getParam_x+0
-	MOVF       _cX+1, 0
-	BTFSC      STATUS+0, 0
-	ADDLW      1
-	ADDWF      A_search_i_L0+1, 0
-	MOVWF      FARG_getParam_x+1
-	MOVF       A_search_j_L0+0, 0
-	ADDWF      _cY+0, 0
-	MOVWF      FARG_getParam_y+0
-	MOVF       _cY+1, 0
-	BTFSC      STATUS+0, 0
-	ADDLW      1
-	ADDWF      A_search_j_L0+1, 0
-	MOVWF      FARG_getParam_y+1
-	CALL       _getParam+0
-	MOVF       R0+0, 0
-	ADDWF      FLOC__A_search+0, 0
-	MOVWF      R2+0
-	MOVF       FLOC__A_search+1, 0
-	BTFSC      STATUS+0, 0
-	ADDLW      1
-	ADDWF      R0+1, 0
-	MOVWF      R2+1
-	MOVF       R2+0, 0
 	MOVWF      A_search_temp_L0+0
-	MOVF       R2+1, 0
+	MOVF       R0+1, 0
 	MOVWF      A_search_temp_L0+1
-;a.h,360 :: 		if(temp<min) // имеющее минимальную стоимость
+;a.h,376 :: 		if(temp<min) // имеющее минимальную стоимость
 	MOVLW      128
-	XORWF      R2+1, 0
-	MOVWF      R0+0
+	XORWF      R0+1, 0
+	MOVWF      R2+0
 	MOVLW      128
 	XORWF      A_search_min_L0+1, 0
-	SUBWF      R0+0, 0
-	BTFSS      STATUS+0, 2
-	GOTO       L__A_search206
-	MOVF       A_search_min_L0+0, 0
 	SUBWF      R2+0, 0
-L__A_search206:
+	BTFSS      STATUS+0, 2
+	GOTO       L__A_search216
+	MOVF       A_search_min_L0+0, 0
+	SUBWF      R0+0, 0
+L__A_search216:
 	BTFSC      STATUS+0, 0
-	GOTO       L_A_search107
-;a.h,362 :: 		min=temp;
+	GOTO       L_A_search115
+;a.h,378 :: 		min=temp;
 	MOVF       A_search_temp_L0+0, 0
 	MOVWF      A_search_min_L0+0
 	MOVF       A_search_temp_L0+1, 0
 	MOVWF      A_search_min_L0+1
-;a.h,363 :: 		cxx=i;
+;a.h,379 :: 		cxx=i;
 	MOVF       A_search_i_L0+0, 0
 	MOVWF      _cxx+0
-;a.h,364 :: 		cyy=j;
+;a.h,380 :: 		cyy=j;
 	MOVF       A_search_j_L0+0, 0
 	MOVWF      _cyy+0
-;a.h,365 :: 		}
-L_A_search107:
-;a.h,366 :: 		}
-L_A_search103:
-;a.h,356 :: 		for(j=-1;j<=1;j++)//----------------------------------------------------------------------------------------------------------------------!!!!!
+;a.h,381 :: 		}
+L_A_search115:
+;a.h,382 :: 		}
+L_A_search111:
+;a.h,372 :: 		for(j=-1;j<=1;j++)//----------------------------------------------------------------------------------------------------------------------!!!!!
 	INCF       A_search_j_L0+0, 1
 	BTFSC      STATUS+0, 2
 	INCF       A_search_j_L0+1, 1
-;a.h,366 :: 		}
-	GOTO       L_A_search101
-L_A_search102:
-;a.h,355 :: 		for(i=-1;i<=1;i++) // у нас в любом состоянии 8 возможных действий
+;a.h,382 :: 		}
+	GOTO       L_A_search109
+L_A_search110:
+;a.h,370 :: 		for(i=-1;i<=1;i++) // у нас в любом состоянии 8 возможных действий
 	INCF       A_search_i_L0+0, 1
 	BTFSC      STATUS+0, 2
 	INCF       A_search_i_L0+1, 1
-;a.h,366 :: 		}
-	GOTO       L_A_search98
-L_A_search99:
-;a.h,367 :: 		switch(cdirection)
-	GOTO       L_A_search108
-;a.h,369 :: 		case UP:
-L_A_search110:
-;a.h,370 :: 		break;
-	GOTO       L_A_search109
-;a.h,371 :: 		case DOWN:
-L_A_search111:
-;a.h,372 :: 		cyy*=-1;
+;a.h,383 :: 		}
+	GOTO       L_A_search106
+L_A_search107:
+;a.h,385 :: 		if(cdirection==UP) ;
+	MOVF       _cdirection+0, 0
+	XORLW      1
+	BTFSS      STATUS+0, 2
+	GOTO       L_A_search116
+L_A_search116:
+;a.h,386 :: 		if(cdirection==DOWN) cyy*=-1 ;
+	MOVF       _cdirection+0, 0
+	XORLW      5
+	BTFSS      STATUS+0, 2
+	GOTO       L_A_search117
 	MOVF       _cyy+0, 0
 	MOVWF      R0+0
 	MOVLW      255
@@ -2076,75 +2105,77 @@ L_A_search111:
 	CALL       _Mul_8x8_U+0
 	MOVF       R0+0, 0
 	MOVWF      _cyy+0
-;a.h,373 :: 		break;
-	GOTO       L_A_search109
-;a.h,374 :: 		case LEFT:
-L_A_search112:
-;a.h,375 :: 		temp=cxx;
-	MOVF       _cxx+0, 0
-	MOVWF      A_search_temp_L0+0
-	MOVLW      0
-	BTFSC      A_search_temp_L0+0, 7
-	MOVLW      255
-	MOVWF      A_search_temp_L0+1
-;a.h,376 :: 		cxx=cyy;
-	MOVF       _cyy+0, 0
-	MOVWF      _cxx+0
-;a.h,377 :: 		cyy=-temp;
-	MOVF       A_search_temp_L0+0, 0
-	SUBLW      0
-	MOVWF      _cyy+0
-;a.h,378 :: 		break;
-	GOTO       L_A_search109
-;a.h,379 :: 		case RIGHT:
-L_A_search113:
-;a.h,380 :: 		temp=cxx;
-	MOVF       _cxx+0, 0
-	MOVWF      A_search_temp_L0+0
-	MOVLW      0
-	BTFSC      A_search_temp_L0+0, 7
-	MOVLW      255
-	MOVWF      A_search_temp_L0+1
-;a.h,381 :: 		cxx=-cyy;
-	MOVF       _cyy+0, 0
-	SUBLW      0
-	MOVWF      _cxx+0
-;a.h,382 :: 		cyy=temp;
-	MOVF       A_search_temp_L0+0, 0
-	MOVWF      _cyy+0
-;a.h,383 :: 		break;
-	GOTO       L_A_search109
-;a.h,384 :: 		}
-L_A_search108:
-	MOVF       _cdirection+0, 0
-	XORLW      1
-	BTFSC      STATUS+0, 2
-	GOTO       L_A_search110
-	MOVF       _cdirection+0, 0
-	XORLW      5
-	BTFSC      STATUS+0, 2
-	GOTO       L_A_search111
+L_A_search117:
+;a.h,387 :: 		if(cdirection==LEFT)
 	MOVF       _cdirection+0, 0
 	XORLW      7
-	BTFSC      STATUS+0, 2
-	GOTO       L_A_search112
+	BTFSS      STATUS+0, 2
+	GOTO       L_A_search118
+;a.h,389 :: 		temp=cxx;
+	MOVF       _cxx+0, 0
+	MOVWF      A_search_temp_L0+0
+	MOVLW      0
+	BTFSC      A_search_temp_L0+0, 7
+	MOVLW      255
+	MOVWF      A_search_temp_L0+1
+;a.h,390 :: 		cxx=cyy;
+	MOVF       _cyy+0, 0
+	MOVWF      _cxx+0
+;a.h,391 :: 		cyy=-temp;
+	MOVF       A_search_temp_L0+0, 0
+	SUBLW      0
+	MOVWF      _cyy+0
+;a.h,392 :: 		}
+L_A_search118:
+;a.h,393 :: 		if(cdirection==RIGHT)
 	MOVF       _cdirection+0, 0
 	XORLW      3
-	BTFSC      STATUS+0, 2
-	GOTO       L_A_search113
-L_A_search109:
-;a.h,386 :: 		if(SMove(cX+cxx,cY+cyy)) // перемещаемся в выбранное состояние
+	BTFSS      STATUS+0, 2
+	GOTO       L_A_search119
+;a.h,395 :: 		temp=cxx;
+	MOVF       _cxx+0, 0
+	MOVWF      A_search_temp_L0+0
+	MOVLW      0
+	BTFSC      A_search_temp_L0+0, 7
+	MOVLW      255
+	MOVWF      A_search_temp_L0+1
+;a.h,396 :: 		cxx=cyy;
+	MOVF       _cyy+0, 0
+	MOVWF      _cxx+0
+;a.h,397 :: 		cyy=-temp;
+	MOVF       A_search_temp_L0+0, 0
+	SUBLW      0
+	MOVWF      _cyy+0
+;a.h,398 :: 		}
+L_A_search119:
+;a.h,400 :: 		if(SMove(cX+cxx,cY+cyy)) // перемещаемся в выбранное состояние
 	MOVF       _cxx+0, 0
 	ADDWF      _cX+0, 0
 	MOVWF      FARG_SMove_nx+0
+	MOVF       _cX+1, 0
+	BTFSC      STATUS+0, 0
+	ADDLW      1
+	MOVWF      FARG_SMove_nx+1
+	MOVLW      0
+	BTFSC      _cxx+0, 7
+	MOVLW      255
+	ADDWF      FARG_SMove_nx+1, 1
 	MOVF       _cyy+0, 0
 	ADDWF      _cY+0, 0
 	MOVWF      FARG_SMove_ny+0
+	MOVF       _cY+1, 0
+	BTFSC      STATUS+0, 0
+	ADDLW      1
+	MOVWF      FARG_SMove_ny+1
+	MOVLW      0
+	BTFSC      _cyy+0, 7
+	MOVLW      255
+	ADDWF      FARG_SMove_ny+1, 1
 	CALL       _SMove+0
 	MOVF       R0+0, 0
 	BTFSC      STATUS+0, 2
-	GOTO       L_A_search114
-;a.h,389 :: 		cX+=cxx; // обновление текущих координат
+	GOTO       L_A_search120
+;a.h,403 :: 		cX+=cxx; // обновление текущих координат
 	MOVF       _cxx+0, 0
 	ADDWF      _cX+0, 1
 	BTFSC      STATUS+0, 0
@@ -2153,7 +2184,7 @@ L_A_search109:
 	BTFSC      _cxx+0, 7
 	MOVLW      255
 	ADDWF      _cX+1, 1
-;a.h,390 :: 		cY+=cyy;
+;a.h,404 :: 		cY+=cyy;
 	MOVF       _cyy+0, 0
 	ADDWF      _cY+0, 1
 	BTFSC      STATUS+0, 0
@@ -2162,17 +2193,17 @@ L_A_search109:
 	BTFSC      _cyy+0, 7
 	MOVLW      255
 	ADDWF      _cY+1, 1
-;a.h,391 :: 		}
-L_A_search114:
-;a.h,395 :: 		}
+;a.h,405 :: 		}
+L_A_search120:
+;a.h,409 :: 		}
 L_end_A_search:
 	RETURN
 ; end of _A_search
 
 _mod:
 
-;a.h,398 :: 		short mod(short x)
-;a.h,400 :: 		if(x>=0) return x;
+;a.h,412 :: 		short mod(short x)
+;a.h,414 :: 		if(x>=0) return x;
 	MOVLW      128
 	XORWF      FARG_mod_x+0, 0
 	MOVWF      R0+0
@@ -2180,26 +2211,26 @@ _mod:
 	XORLW      0
 	SUBWF      R0+0, 0
 	BTFSS      STATUS+0, 0
-	GOTO       L_mod115
+	GOTO       L_mod121
 	MOVF       FARG_mod_x+0, 0
 	MOVWF      R0+0
 	GOTO       L_end_mod
-L_mod115:
-;a.h,401 :: 		else return -x;
+L_mod121:
+;a.h,415 :: 		else return -x;
 	MOVF       FARG_mod_x+0, 0
 	SUBLW      0
 	MOVWF      R0+0
-;a.h,402 :: 		}
+;a.h,416 :: 		}
 L_end_mod:
 	RETURN
 ; end of _mod
 
 _Brain:
 
-;a.h,404 :: 		void Brain()
-;a.h,409 :: 		for(x=0;x<WorldSize;x++)
+;a.h,418 :: 		void Brain()
+;a.h,423 :: 		for(x=0;x<WorldSize;x++)
 	CLRF       Brain_x_L0+0
-L_Brain117:
+L_Brain123:
 	MOVLW      128
 	XORWF      Brain_x_L0+0, 0
 	MOVWF      R0+0
@@ -2207,10 +2238,10 @@ L_Brain117:
 	XORLW      30
 	SUBWF      R0+0, 0
 	BTFSC      STATUS+0, 0
-	GOTO       L_Brain118
-;a.h,411 :: 		for(y=0;y<WorldSize;y++)
+	GOTO       L_Brain124
+;a.h,425 :: 		for(y=0;y<WorldSize;y++)
 	CLRF       Brain_y_L0+0
-L_Brain120:
+L_Brain126:
 	MOVLW      128
 	XORWF      Brain_y_L0+0, 0
 	MOVWF      R0+0
@@ -2218,11 +2249,11 @@ L_Brain120:
 	XORLW      30
 	SUBWF      R0+0, 0
 	BTFSC      STATUS+0, 0
-	GOTO       L_Brain121
-;a.h,413 :: 		if(getParam("Hint",x,y)/*H[x][y]*/!=0) continue; // если значение не нулевое- значит мы там были и всё нашли.
-	MOVLW      ?lstr_9_MyProject+0
+	GOTO       L_Brain127
+;a.h,427 :: 		if(getParam("Hint",x,y)/*H[x][y]*/!=0) continue; // если значение не нулевое- значит мы там были и всё нашли.
+	MOVLW      ?lstr_8_MyProject+0
 	MOVWF      FARG_getParam_p+0
-	MOVLW      hi_addr(?lstr_9_MyProject+0)
+	MOVLW      hi_addr(?lstr_8_MyProject+0)
 	MOVWF      FARG_getParam_p+1
 	MOVF       Brain_x_L0+0, 0
 	MOVWF      FARG_getParam_x+0
@@ -2240,17 +2271,17 @@ L_Brain120:
 	MOVLW      0
 	XORWF      R0+1, 0
 	BTFSS      STATUS+0, 2
-	GOTO       L__Brain209
+	GOTO       L__Brain219
 	MOVLW      0
 	XORWF      R0+0, 0
-L__Brain209:
+L__Brain219:
 	BTFSC      STATUS+0, 2
-	GOTO       L_Brain123
-	GOTO       L_Brain122
-L_Brain123:
-;a.h,414 :: 		for(j=0;j<WorldSize;j++) // x
+	GOTO       L_Brain129
+	GOTO       L_Brain128
+L_Brain129:
+;a.h,428 :: 		for(j=0;j<WorldSize;j++) // x
 	CLRF       Brain_j_L0+0
-L_Brain124:
+L_Brain130:
 	MOVLW      128
 	XORWF      Brain_j_L0+0, 0
 	MOVWF      R0+0
@@ -2258,10 +2289,10 @@ L_Brain124:
 	XORLW      30
 	SUBWF      R0+0, 0
 	BTFSC      STATUS+0, 0
-	GOTO       L_Brain125
-;a.h,415 :: 		for(k=0;k<WorldSize;k++) // y
+	GOTO       L_Brain131
+;a.h,429 :: 		for(k=0;k<WorldSize;k++) // y
 	CLRF       Brain_k_L0+0
-L_Brain127:
+L_Brain133:
 	MOVLW      128
 	XORWF      Brain_k_L0+0, 0
 	MOVWF      R0+0
@@ -2269,8 +2300,8 @@ L_Brain127:
 	XORLW      30
 	SUBWF      R0+0, 0
 	BTFSC      STATUS+0, 0
-	GOTO       L_Brain128
-;a.h,417 :: 		r=mod(x-j)+mod(y-k);  // манхетенское расстояние
+	GOTO       L_Brain134
+;a.h,431 :: 		r=mod(x-j)+mod(y-k);  // манхетенское расстояние
 	MOVF       Brain_j_L0+0, 0
 	SUBWF      Brain_x_L0+0, 0
 	MOVWF      FARG_mod_x+0
@@ -2284,10 +2315,10 @@ L_Brain127:
 	MOVF       R0+0, 0
 	ADDWF      FLOC__Brain+0, 0
 	MOVWF      Brain_r_L0+0
-;a.h,418 :: 		if(r<getParam("hevr",j,k)) setParam("hevr",j,k,r); //h_evr[j][k])  // h_evr[j][k]=r; // если есть цель ближе - запишем расстояние до неё
-	MOVLW      ?lstr_10_MyProject+0
+;a.h,432 :: 		if(r<getParam("hevr",j,k)) setParam("hevr",j,k,r); //h_evr[j][k])  // h_evr[j][k]=r; // если есть цель ближе - запишем расстояние до неё
+	MOVLW      ?lstr_9_MyProject+0
 	MOVWF      FARG_getParam_p+0
-	MOVLW      hi_addr(?lstr_10_MyProject+0)
+	MOVLW      hi_addr(?lstr_9_MyProject+0)
 	MOVWF      FARG_getParam_p+1
 	MOVF       Brain_j_L0+0, 0
 	MOVWF      FARG_getParam_x+0
@@ -2310,15 +2341,15 @@ L_Brain127:
 	XORWF      R0+1, 0
 	SUBWF      R2+0, 0
 	BTFSS      STATUS+0, 2
-	GOTO       L__Brain210
+	GOTO       L__Brain220
 	MOVF       R0+0, 0
 	SUBWF      Brain_r_L0+0, 0
-L__Brain210:
+L__Brain220:
 	BTFSC      STATUS+0, 0
-	GOTO       L_Brain130
-	MOVLW      ?lstr_11_MyProject+0
+	GOTO       L_Brain136
+	MOVLW      ?lstr_10_MyProject+0
 	MOVWF      FARG_setParam_p+0
-	MOVLW      hi_addr(?lstr_11_MyProject+0)
+	MOVLW      hi_addr(?lstr_10_MyProject+0)
 	MOVWF      FARG_setParam_p+1
 	MOVF       Brain_j_L0+0, 0
 	MOVWF      FARG_setParam_x+0
@@ -2339,30 +2370,30 @@ L__Brain210:
 	MOVLW      255
 	MOVWF      FARG_setParam_value+1
 	CALL       _setParam+0
-L_Brain130:
-;a.h,415 :: 		for(k=0;k<WorldSize;k++) // y
+L_Brain136:
+;a.h,429 :: 		for(k=0;k<WorldSize;k++) // y
 	INCF       Brain_k_L0+0, 1
-;a.h,419 :: 		}
-	GOTO       L_Brain127
-L_Brain128:
-;a.h,414 :: 		for(j=0;j<WorldSize;j++) // x
+;a.h,433 :: 		}
+	GOTO       L_Brain133
+L_Brain134:
+;a.h,428 :: 		for(j=0;j<WorldSize;j++) // x
 	INCF       Brain_j_L0+0, 1
-;a.h,419 :: 		}
-	GOTO       L_Brain124
-L_Brain125:
-;a.h,420 :: 		}
-L_Brain122:
-;a.h,411 :: 		for(y=0;y<WorldSize;y++)
+;a.h,433 :: 		}
+	GOTO       L_Brain130
+L_Brain131:
+;a.h,434 :: 		}
+L_Brain128:
+;a.h,425 :: 		for(y=0;y<WorldSize;y++)
 	INCF       Brain_y_L0+0, 1
-;a.h,420 :: 		}
-	GOTO       L_Brain120
-L_Brain121:
-;a.h,409 :: 		for(x=0;x<WorldSize;x++)
+;a.h,434 :: 		}
+	GOTO       L_Brain126
+L_Brain127:
+;a.h,423 :: 		for(x=0;x<WorldSize;x++)
 	INCF       Brain_x_L0+0, 1
-;a.h,421 :: 		}
-	GOTO       L_Brain117
-L_Brain118:
-;a.h,422 :: 		}
+;a.h,435 :: 		}
+	GOTO       L_Brain123
+L_Brain124:
+;a.h,436 :: 		}
 L_end_Brain:
 	RETURN
 ; end of _Brain
@@ -2402,10 +2433,10 @@ _main:
 	BSF        TXSTA+0, 2
 	CALL       _UART1_Init+0
 ;MyProject.c,31 :: 		while(getParam("start",1,1)!=13) // ждем сигнала старта
-L_main131:
-	MOVLW      ?lstr_12_MyProject+0
+L_main137:
+	MOVLW      ?lstr_11_MyProject+0
 	MOVWF      FARG_getParam_p+0
-	MOVLW      hi_addr(?lstr_12_MyProject+0)
+	MOVLW      hi_addr(?lstr_11_MyProject+0)
 	MOVWF      FARG_getParam_p+1
 	MOVLW      1
 	MOVWF      FARG_getParam_x+0
@@ -2419,12 +2450,12 @@ L_main131:
 	MOVLW      0
 	XORWF      R0+1, 0
 	BTFSS      STATUS+0, 2
-	GOTO       L__main213
+	GOTO       L__main223
 	MOVLW      13
 	XORWF      R0+0, 0
-L__main213:
+L__main223:
 	BTFSC      STATUS+0, 2
-	GOTO       L_main132
+	GOTO       L_main138
 ;MyProject.c,32 :: 		Delay_ms(100);
 	MOVLW      3
 	MOVWF      R11+0
@@ -2432,21 +2463,21 @@ L__main213:
 	MOVWF      R12+0
 	MOVLW      85
 	MOVWF      R13+0
-L_main133:
+L_main139:
 	DECFSZ     R13+0, 1
-	GOTO       L_main133
+	GOTO       L_main139
 	DECFSZ     R12+0, 1
-	GOTO       L_main133
+	GOTO       L_main139
 	DECFSZ     R11+0, 1
-	GOTO       L_main133
+	GOTO       L_main139
 	NOP
 	NOP
-	GOTO       L_main131
-L_main132:
+	GOTO       L_main137
+L_main138:
 ;MyProject.c,34 :: 		cdirection=UP; // начальное направление - вверх
 	MOVLW      1
 	MOVWF      _cdirection+0
-;MyProject.c,35 :: 		cX=WorldSize-isSafeX()/2-1;  // получаем текущие координаты
+;MyProject.c,36 :: 		cX=WorldSize-isSafeX()/2-1;  // получаем текущие координаты
 	CALL       _isSafeX+0
 	MOVF       R0+0, 0
 	MOVWF      R1+0
@@ -2468,7 +2499,7 @@ L_main132:
 	SUBWF      _cX+0, 1
 	BTFSS      STATUS+0, 0
 	DECF       _cX+1, 1
-;MyProject.c,36 :: 		cY=WorldSize-isSafeY()/2-1;
+;MyProject.c,37 :: 		cY=WorldSize-isSafeY()/2-1;
 	CALL       _isSafeY+0
 	MOVF       R0+0, 0
 	MOVWF      R1+0
@@ -2490,11 +2521,43 @@ L_main132:
 	SUBWF      _cY+0, 1
 	BTFSS      STATUS+0, 0
 	DECF       _cY+1, 1
-;MyProject.c,39 :: 		while(getParam("jobisdone?",1,1)!=13)
-L_main134:
-	MOVLW      ?lstr_13_MyProject+0
+;MyProject.c,38 :: 		if(cX<0) cX=0;
+	MOVLW      128
+	XORWF      _cX+1, 0
+	MOVWF      R0+0
+	MOVLW      128
+	SUBWF      R0+0, 0
+	BTFSS      STATUS+0, 2
+	GOTO       L__main224
+	MOVLW      0
+	SUBWF      _cX+0, 0
+L__main224:
+	BTFSC      STATUS+0, 0
+	GOTO       L_main140
+	CLRF       _cX+0
+	CLRF       _cX+1
+L_main140:
+;MyProject.c,39 :: 		if(cY<0) cY=0;
+	MOVLW      128
+	XORWF      _cY+1, 0
+	MOVWF      R0+0
+	MOVLW      128
+	SUBWF      R0+0, 0
+	BTFSS      STATUS+0, 2
+	GOTO       L__main225
+	MOVLW      0
+	SUBWF      _cY+0, 0
+L__main225:
+	BTFSC      STATUS+0, 0
+	GOTO       L_main141
+	CLRF       _cY+0
+	CLRF       _cY+1
+L_main141:
+;MyProject.c,42 :: 		while(getParam("jobisdone?",1,1)!=13)
+L_main142:
+	MOVLW      ?lstr_12_MyProject+0
 	MOVWF      FARG_getParam_p+0
-	MOVLW      hi_addr(?lstr_13_MyProject+0)
+	MOVLW      hi_addr(?lstr_12_MyProject+0)
 	MOVWF      FARG_getParam_p+1
 	MOVLW      1
 	MOVWF      FARG_getParam_x+0
@@ -2508,13 +2571,13 @@ L_main134:
 	MOVLW      0
 	XORWF      R0+1, 0
 	BTFSS      STATUS+0, 2
-	GOTO       L__main214
+	GOTO       L__main226
 	MOVLW      13
 	XORWF      R0+0, 0
-L__main214:
+L__main226:
 	BTFSC      STATUS+0, 2
-	GOTO       L_main135
-;MyProject.c,43 :: 		x=isSafeX();
+	GOTO       L_main143
+;MyProject.c,46 :: 		x=isSafeX();
 	CALL       _isSafeX+0
 	MOVF       R0+0, 0
 	MOVWF      main_x_L0+0
@@ -2522,7 +2585,7 @@ L__main214:
 	BTFSC      main_x_L0+0, 7
 	MOVLW      255
 	MOVWF      main_x_L0+1
-;MyProject.c,44 :: 		y=isSafeY();
+;MyProject.c,47 :: 		y=isSafeY();
 	CALL       _isSafeY+0
 	MOVF       R0+0, 0
 	MOVWF      main_y_L0+0
@@ -2530,248 +2593,292 @@ L__main214:
 	BTFSC      main_y_L0+0, 7
 	MOVLW      255
 	MOVWF      main_y_L0+1
-;MyProject.c,46 :: 		if(x==100 || y==100)
+;MyProject.c,49 :: 		if(x==100 || y==100)
 	MOVLW      0
 	XORWF      main_x_L0+1, 0
 	BTFSS      STATUS+0, 2
-	GOTO       L__main215
+	GOTO       L__main227
 	MOVLW      100
 	XORWF      main_x_L0+0, 0
-L__main215:
+L__main227:
 	BTFSC      STATUS+0, 2
-	GOTO       L__main168
+	GOTO       L__main176
 	MOVLW      0
 	XORWF      main_y_L0+1, 0
 	BTFSS      STATUS+0, 2
-	GOTO       L__main216
+	GOTO       L__main228
 	MOVLW      100
 	XORWF      main_y_L0+0, 0
-L__main216:
-	BTFSC      STATUS+0, 2
-	GOTO       L__main168
-	GOTO       L_main138
-L__main168:
-;MyProject.c,48 :: 		if(cX<=20 && cY<=10)
-	MOVLW      128
-	MOVWF      R0+0
-	MOVLW      128
-	XORWF      _cX+1, 0
-	SUBWF      R0+0, 0
-	BTFSS      STATUS+0, 2
-	GOTO       L__main217
-	MOVF       _cX+0, 0
-	SUBLW      20
-L__main217:
-	BTFSS      STATUS+0, 0
-	GOTO       L_main141
-	MOVLW      128
-	MOVWF      R0+0
-	MOVLW      128
-	XORWF      _cY+1, 0
-	SUBWF      R0+0, 0
-	BTFSS      STATUS+0, 2
-	GOTO       L__main218
-	MOVF       _cY+0, 0
-	SUBLW      10
-L__main218:
-	BTFSS      STATUS+0, 0
-	GOTO       L_main141
-L__main167:
-;MyProject.c,49 :: 		nd=DOWN;
-	MOVLW      5
-	MOVWF      main_nd_L1+0
-L_main141:
-;MyProject.c,50 :: 		if(cX>20 && cY<=10)
-	MOVLW      128
-	MOVWF      R0+0
-	MOVLW      128
-	XORWF      _cX+1, 0
-	SUBWF      R0+0, 0
-	BTFSS      STATUS+0, 2
-	GOTO       L__main219
-	MOVF       _cX+0, 0
-	SUBLW      20
-L__main219:
-	BTFSC      STATUS+0, 0
-	GOTO       L_main144
-	MOVLW      128
-	MOVWF      R0+0
-	MOVLW      128
-	XORWF      _cY+1, 0
-	SUBWF      R0+0, 0
-	BTFSS      STATUS+0, 2
-	GOTO       L__main220
-	MOVF       _cY+0, 0
-	SUBLW      10
-L__main220:
-	BTFSS      STATUS+0, 0
-	GOTO       L_main144
-L__main166:
-;MyProject.c,51 :: 		nd=RIGHT;
-	MOVLW      3
-	MOVWF      main_nd_L1+0
-L_main144:
-;MyProject.c,52 :: 		if(cY<=20 && cY>10 && cX<=20)
-	MOVLW      128
-	MOVWF      R0+0
-	MOVLW      128
-	XORWF      _cY+1, 0
-	SUBWF      R0+0, 0
-	BTFSS      STATUS+0, 2
-	GOTO       L__main221
-	MOVF       _cY+0, 0
-	SUBLW      20
-L__main221:
-	BTFSS      STATUS+0, 0
-	GOTO       L_main147
-	MOVLW      128
-	MOVWF      R0+0
-	MOVLW      128
-	XORWF      _cY+1, 0
-	SUBWF      R0+0, 0
-	BTFSS      STATUS+0, 2
-	GOTO       L__main222
-	MOVF       _cY+0, 0
-	SUBLW      10
-L__main222:
-	BTFSC      STATUS+0, 0
-	GOTO       L_main147
-	MOVLW      128
-	MOVWF      R0+0
-	MOVLW      128
-	XORWF      _cX+1, 0
-	SUBWF      R0+0, 0
-	BTFSS      STATUS+0, 2
-	GOTO       L__main223
-	MOVF       _cX+0, 0
-	SUBLW      20
-L__main223:
-	BTFSS      STATUS+0, 0
-	GOTO       L_main147
-L__main165:
-;MyProject.c,53 :: 		nd=LEFT;
-	MOVLW      7
-	MOVWF      main_nd_L1+0
-L_main147:
-;MyProject.c,54 :: 		if(cY<=20 && cY>10 && cX>20)
-	MOVLW      128
-	MOVWF      R0+0
-	MOVLW      128
-	XORWF      _cY+1, 0
-	SUBWF      R0+0, 0
-	BTFSS      STATUS+0, 2
-	GOTO       L__main224
-	MOVF       _cY+0, 0
-	SUBLW      20
-L__main224:
-	BTFSS      STATUS+0, 0
-	GOTO       L_main150
-	MOVLW      128
-	MOVWF      R0+0
-	MOVLW      128
-	XORWF      _cY+1, 0
-	SUBWF      R0+0, 0
-	BTFSS      STATUS+0, 2
-	GOTO       L__main225
-	MOVF       _cY+0, 0
-	SUBLW      10
-L__main225:
-	BTFSC      STATUS+0, 0
-	GOTO       L_main150
-	MOVLW      128
-	MOVWF      R0+0
-	MOVLW      128
-	XORWF      _cX+1, 0
-	SUBWF      R0+0, 0
-	BTFSS      STATUS+0, 2
-	GOTO       L__main226
-	MOVF       _cX+0, 0
-	SUBLW      20
-L__main226:
-	BTFSC      STATUS+0, 0
-	GOTO       L_main150
-L__main164:
-;MyProject.c,55 :: 		nd=RIGHT;
-	MOVLW      3
-	MOVWF      main_nd_L1+0
-L_main150:
-;MyProject.c,56 :: 		if(cY>20 && cX<=20)
-	MOVLW      128
-	MOVWF      R0+0
-	MOVLW      128
-	XORWF      _cY+1, 0
-	SUBWF      R0+0, 0
-	BTFSS      STATUS+0, 2
-	GOTO       L__main227
-	MOVF       _cY+0, 0
-	SUBLW      20
-L__main227:
-	BTFSC      STATUS+0, 0
-	GOTO       L_main153
-	MOVLW      128
-	MOVWF      R0+0
-	MOVLW      128
-	XORWF      _cX+1, 0
-	SUBWF      R0+0, 0
-	BTFSS      STATUS+0, 2
-	GOTO       L__main228
-	MOVF       _cX+0, 0
-	SUBLW      20
 L__main228:
-	BTFSS      STATUS+0, 0
-	GOTO       L_main153
-L__main163:
-;MyProject.c,57 :: 		nd=LEFT;
-	MOVLW      7
-	MOVWF      main_nd_L1+0
-L_main153:
-;MyProject.c,58 :: 		if(cY>20 && cX>20)
+	BTFSC      STATUS+0, 2
+	GOTO       L__main176
+	GOTO       L_main146
+L__main176:
+;MyProject.c,51 :: 		if(cX<=20 && cY<=10)
 	MOVLW      128
 	MOVWF      R0+0
 	MOVLW      128
-	XORWF      _cY+1, 0
+	XORWF      _cX+1, 0
 	SUBWF      R0+0, 0
 	BTFSS      STATUS+0, 2
 	GOTO       L__main229
-	MOVF       _cY+0, 0
+	MOVF       _cX+0, 0
 	SUBLW      20
 L__main229:
-	BTFSC      STATUS+0, 0
-	GOTO       L_main156
+	BTFSS      STATUS+0, 0
+	GOTO       L_main149
+	MOVLW      128
+	MOVWF      R0+0
+	MOVLW      128
+	XORWF      _cY+1, 0
+	SUBWF      R0+0, 0
+	BTFSS      STATUS+0, 2
+	GOTO       L__main230
+	MOVF       _cY+0, 0
+	SUBLW      10
+L__main230:
+	BTFSS      STATUS+0, 0
+	GOTO       L_main149
+L__main175:
+;MyProject.c,52 :: 		nd=DOWN;
+	MOVLW      5
+	MOVWF      main_nd_L1+0
+L_main149:
+;MyProject.c,53 :: 		if(cX>20 && cY<=10)
 	MOVLW      128
 	MOVWF      R0+0
 	MOVLW      128
 	XORWF      _cX+1, 0
 	SUBWF      R0+0, 0
 	BTFSS      STATUS+0, 2
-	GOTO       L__main230
+	GOTO       L__main231
 	MOVF       _cX+0, 0
 	SUBLW      20
-L__main230:
+L__main231:
 	BTFSC      STATUS+0, 0
-	GOTO       L_main156
-L__main162:
-;MyProject.c,59 :: 		nd=UP;
+	GOTO       L_main152
+	MOVLW      128
+	MOVWF      R0+0
+	MOVLW      128
+	XORWF      _cY+1, 0
+	SUBWF      R0+0, 0
+	BTFSS      STATUS+0, 2
+	GOTO       L__main232
+	MOVF       _cY+0, 0
+	SUBLW      10
+L__main232:
+	BTFSS      STATUS+0, 0
+	GOTO       L_main152
+L__main174:
+;MyProject.c,54 :: 		nd=RIGHT;
+	MOVLW      3
+	MOVWF      main_nd_L1+0
+L_main152:
+;MyProject.c,55 :: 		if(cY<=20 && cY>10 && cX<=20)
+	MOVLW      128
+	MOVWF      R0+0
+	MOVLW      128
+	XORWF      _cY+1, 0
+	SUBWF      R0+0, 0
+	BTFSS      STATUS+0, 2
+	GOTO       L__main233
+	MOVF       _cY+0, 0
+	SUBLW      20
+L__main233:
+	BTFSS      STATUS+0, 0
+	GOTO       L_main155
+	MOVLW      128
+	MOVWF      R0+0
+	MOVLW      128
+	XORWF      _cY+1, 0
+	SUBWF      R0+0, 0
+	BTFSS      STATUS+0, 2
+	GOTO       L__main234
+	MOVF       _cY+0, 0
+	SUBLW      10
+L__main234:
+	BTFSC      STATUS+0, 0
+	GOTO       L_main155
+	MOVLW      128
+	MOVWF      R0+0
+	MOVLW      128
+	XORWF      _cX+1, 0
+	SUBWF      R0+0, 0
+	BTFSS      STATUS+0, 2
+	GOTO       L__main235
+	MOVF       _cX+0, 0
+	SUBLW      20
+L__main235:
+	BTFSS      STATUS+0, 0
+	GOTO       L_main155
+L__main173:
+;MyProject.c,56 :: 		nd=LEFT;
+	MOVLW      7
+	MOVWF      main_nd_L1+0
+L_main155:
+;MyProject.c,57 :: 		if(cY<=20 && cY>10 && cX>20)
+	MOVLW      128
+	MOVWF      R0+0
+	MOVLW      128
+	XORWF      _cY+1, 0
+	SUBWF      R0+0, 0
+	BTFSS      STATUS+0, 2
+	GOTO       L__main236
+	MOVF       _cY+0, 0
+	SUBLW      20
+L__main236:
+	BTFSS      STATUS+0, 0
+	GOTO       L_main158
+	MOVLW      128
+	MOVWF      R0+0
+	MOVLW      128
+	XORWF      _cY+1, 0
+	SUBWF      R0+0, 0
+	BTFSS      STATUS+0, 2
+	GOTO       L__main237
+	MOVF       _cY+0, 0
+	SUBLW      10
+L__main237:
+	BTFSC      STATUS+0, 0
+	GOTO       L_main158
+	MOVLW      128
+	MOVWF      R0+0
+	MOVLW      128
+	XORWF      _cX+1, 0
+	SUBWF      R0+0, 0
+	BTFSS      STATUS+0, 2
+	GOTO       L__main238
+	MOVF       _cX+0, 0
+	SUBLW      20
+L__main238:
+	BTFSC      STATUS+0, 0
+	GOTO       L_main158
+L__main172:
+;MyProject.c,58 :: 		nd=RIGHT;
+	MOVLW      3
+	MOVWF      main_nd_L1+0
+L_main158:
+;MyProject.c,59 :: 		if(cY>20 && cX<=20)
+	MOVLW      128
+	MOVWF      R0+0
+	MOVLW      128
+	XORWF      _cY+1, 0
+	SUBWF      R0+0, 0
+	BTFSS      STATUS+0, 2
+	GOTO       L__main239
+	MOVF       _cY+0, 0
+	SUBLW      20
+L__main239:
+	BTFSC      STATUS+0, 0
+	GOTO       L_main161
+	MOVLW      128
+	MOVWF      R0+0
+	MOVLW      128
+	XORWF      _cX+1, 0
+	SUBWF      R0+0, 0
+	BTFSS      STATUS+0, 2
+	GOTO       L__main240
+	MOVF       _cX+0, 0
+	SUBLW      20
+L__main240:
+	BTFSS      STATUS+0, 0
+	GOTO       L_main161
+L__main171:
+;MyProject.c,60 :: 		nd=LEFT;
+	MOVLW      7
+	MOVWF      main_nd_L1+0
+L_main161:
+;MyProject.c,61 :: 		if(cY>20 && cX>20)
+	MOVLW      128
+	MOVWF      R0+0
+	MOVLW      128
+	XORWF      _cY+1, 0
+	SUBWF      R0+0, 0
+	BTFSS      STATUS+0, 2
+	GOTO       L__main241
+	MOVF       _cY+0, 0
+	SUBLW      20
+L__main241:
+	BTFSC      STATUS+0, 0
+	GOTO       L_main164
+	MOVLW      128
+	MOVWF      R0+0
+	MOVLW      128
+	XORWF      _cX+1, 0
+	SUBWF      R0+0, 0
+	BTFSS      STATUS+0, 2
+	GOTO       L__main242
+	MOVF       _cX+0, 0
+	SUBLW      20
+L__main242:
+	BTFSC      STATUS+0, 0
+	GOTO       L_main164
+L__main170:
+;MyProject.c,62 :: 		nd=UP;
 	MOVLW      1
 	MOVWF      main_nd_L1+0
-L_main156:
-;MyProject.c,60 :: 		SRotare(cdirection,nd);
+L_main164:
+;MyProject.c,63 :: 		SRotare(cdirection,nd);
 	MOVF       _cdirection+0, 0
 	MOVWF      FARG_SRotare_d+0
 	MOVF       main_nd_L1+0, 0
 	MOVWF      FARG_SRotare_nd+0
 	CALL       _SRotare+0
-;MyProject.c,61 :: 		cdirection=nd;
+;MyProject.c,64 :: 		cdirection=nd;
 	MOVF       main_nd_L1+0, 0
 	MOVWF      _cdirection+0
-;MyProject.c,62 :: 		}
-L_main138:
-;MyProject.c,63 :: 		A_search();
+;MyProject.c,66 :: 		cX=WorldSize-isSafeX()/2-1;  // получаем текущие координаты
+	CALL       _isSafeX+0
+	MOVF       R0+0, 0
+	MOVWF      R1+0
+	RRF        R1+0, 1
+	BCF        R1+0, 7
+	BTFSC      R1+0, 6
+	BSF        R1+0, 7
+	MOVF       R1+0, 0
+	SUBLW      30
+	MOVWF      _cX+0
+	CLRF       _cX+1
+	BTFSS      STATUS+0, 0
+	DECF       _cX+1, 1
+	MOVLW      1
+	BTFSS      R1+0, 7
+	MOVLW      0
+	ADDWF      _cX+1, 1
+	MOVLW      1
+	SUBWF      _cX+0, 1
+	BTFSS      STATUS+0, 0
+	DECF       _cX+1, 1
+;MyProject.c,67 :: 		cY=WorldSize-isSafeY()/2-1;
+	CALL       _isSafeY+0
+	MOVF       R0+0, 0
+	MOVWF      R1+0
+	RRF        R1+0, 1
+	BCF        R1+0, 7
+	BTFSC      R1+0, 6
+	BSF        R1+0, 7
+	MOVF       R1+0, 0
+	SUBLW      30
+	MOVWF      _cY+0
+	CLRF       _cY+1
+	BTFSS      STATUS+0, 0
+	DECF       _cY+1, 1
+	MOVLW      1
+	BTFSS      R1+0, 7
+	MOVLW      0
+	ADDWF      _cY+1, 1
+	MOVLW      1
+	SUBWF      _cY+0, 1
+	BTFSS      STATUS+0, 0
+	DECF       _cY+1, 1
+;MyProject.c,68 :: 		}
+L_main146:
+;MyProject.c,69 :: 		A_search();
 	CALL       _A_search+0
-;MyProject.c,64 :: 		}
-	GOTO       L_main134
-L_main135:
-;MyProject.c,65 :: 		}
+;MyProject.c,70 :: 		}
+	GOTO       L_main142
+L_main143:
+;MyProject.c,71 :: 		}
 L_end_main:
 	GOTO       $+0
 ; end of _main

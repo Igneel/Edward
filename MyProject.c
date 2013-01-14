@@ -32,8 +32,11 @@ int x,y;
      Delay_ms(100);
      
      cdirection=UP; // начальное направление - вверх
+      //cdirection=1; // начальное направление - вверх
      cX=WorldSize-isSafeX()/2-1;  // получаем текущие координаты
      cY=WorldSize-isSafeY()/2-1;
+     if(cX<0) cX=0;
+     if(cY<0) cY=0;
      
      
 while(getParam("jobisdone?",1,1)!=13)
@@ -59,6 +62,9 @@ if(cY>20 && cX>20)
  nd=UP;
  SRotare(cdirection,nd);
  cdirection=nd;
+ 
+ cX=WorldSize-isSafeX()/2-1;  // получаем текущие координаты
+     cY=WorldSize-isSafeY()/2-1;
 }
 A_search();
 }

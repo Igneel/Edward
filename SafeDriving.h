@@ -7,8 +7,8 @@ const unsigned char channelX=3;
 
 
 
-short isSafeY() ;
-short isSafeX() ;
+short isSafeY();
+short isSafeX();
 
 
 short isSafeY()   // функция возвращает расстояние до объекта в сантиметрах по оси Y.

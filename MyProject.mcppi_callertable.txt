@@ -13,7 +13,6 @@ main
 			UART1_Write
 		UART1_Data_Ready
 		UART1_Read
-		UART1_Write
 	isSafeX
 		Adc_Rd
 		Int2Double
@@ -93,6 +92,14 @@ main
 				PWM1_Start
 			Motor_B_FWD
 				PWM2_Start
+		Motor_Stop
+			Change_Duty
+				PWM1_Set_Duty
+					Mul_16x16_U
+				PWM2_Set_Duty
+					Mul_16x16_U
+			PWM1_Stop
+			PWM2_Stop
 	A_search
 		getParam
 			strConstCpy
@@ -105,7 +112,6 @@ main
 				UART1_Write
 			UART1_Data_Ready
 			UART1_Read
-			UART1_Write
 		setParam
 			strConstCpy
 				____DoICP
@@ -217,6 +223,14 @@ main
 						PWM1_Start
 					Motor_B_BWD
 						PWM2_Start
+				Motor_Stop
+					Change_Duty
+						PWM1_Set_Duty
+							Mul_16x16_U
+						PWM2_Set_Duty
+							Mul_16x16_U
+					PWM1_Stop
+					PWM2_Stop
 			isSafeX
 				Adc_Rd
 				Int2Double
@@ -273,6 +287,17 @@ main
 				PWM1_Start
 			Motor_B_BWD
 				PWM2_Start
+			getParam
+				strConstCpy
+					____DoICP
+				IntToStr
+					WordToStr
+						Div_16x16_U
+				stradd
+				UART1_Write_Text
+					UART1_Write
+				UART1_Data_Ready
+				UART1_Read
 			isMetall
 				Adc_Rd
 			setParam

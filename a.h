@@ -14,10 +14,6 @@ const short DISTANCE_METALL=5; // расстояние в см, при котором мы касаемся объек
 const short SPEED=255;
 
 const short WorldSize=30;
-// клеточки будут размером 20х20 см по длине робота.
-//short H[WorldSize][WorldSize]={0};
-//short h_evr[WorldSize][WorldSize]={0};
-//short result[WorldSize][WorldSize]={0};
 
 // массив содержащий координаты всех целей
 const short NumberOfGoals=WorldSize*WorldSize-1;
@@ -36,7 +32,7 @@ enum direction {UP=1,RUP=2,RIGHT=3,RDOWN=4,DOWN=5, LDOWN=6,LEFT=7,LUP=8,ZEROD=9}
 enum direction cdirection=1;  // начально направление - вверх
 
 
-short cxx,cyy; // сюда будет записываться прибавка к текущим координатам
+short cxx=0,cyy=0; // сюда будет записываться прибавка к текущим координатам
 char string[16];
 char delimiter[16];
 
@@ -84,7 +80,6 @@ int getParam(const char * p,int x,int y)
  while(1) if(UART1_Data_Ready())
  {
  temp=UART1_Read();
- UART1_Write(temp);
  return temp;
  }
 }
@@ -113,7 +108,7 @@ else
 return 0;
 }
 // функция для сравнения, возвращает три возможных значения +1,0,-1
-short comp(short d1,short d2)
+short comp(int d1,int d2)
 {
         if(d1==d2) return 0; // операнды равны
         if(d1>d2) return 1; // первый больше второго
@@ -121,14 +116,15 @@ short comp(short d1,short d2)
 }
 // перемещение надо указать направление и новые координаты
 // направление - глобальная переменная
-short SMove(short nx,short ny)
+short SMove(int nx,int ny)
 {
-        enum direction nd; // относительное направление движения
-        short ax;
-        short ry;
+
+        enum direction nd=1; // относительное направление движения
+        short ax=1;
+        short ry=1;
         short isMove=0; // индикатор - было ли движение
         ax=comp(cX,nx);  // сравниваем текущие координаты с заданными
-
+        //getParam("axry",ax,ry);
         ry==comp(cY,ny);
         // в зависимости от результатов - определяем нужное направление
         if(ax==-1)  // если нам нужно направо
@@ -151,8 +147,10 @@ short SMove(short nx,short ny)
         if(ax==1)   // если нам нужно налево
                 nd=LEFT-ry;
         // мы определили новое направление, теперь нужно переместиться.
+        //getParam("swNd",nd,1);
         switch (nd)
         {
+        case 1:
         case UP:
         if(isSafeY()>2)
         {
@@ -166,6 +164,7 @@ short SMove(short nx,short ny)
         isMove=1;
         }
         break;
+        case 2:
         case RUP:
         if(isSafeY()>2 && isSafeX()>2)
         {
@@ -183,6 +182,7 @@ short SMove(short nx,short ny)
         isMove=1;
         }
         break;
+        case 3:
         case RIGHT:
         if(isSafeX()>2)
         {
@@ -206,6 +206,7 @@ short SMove(short nx,short ny)
         isMove=1;
         }
         break;
+        case 4:
         case RDOWN:
         if(isSafeX()>2)
         {
@@ -223,6 +224,7 @@ short SMove(short nx,short ny)
         isMove=1;
         }
         break;
+        case 5:
         case DOWN:
         Motor_Init();  // настраиваем моторы
         Change_Duty(SPEED); // задаем скорость
@@ -230,9 +232,11 @@ short SMove(short nx,short ny)
         Motor_B_BWD();
         delay_ms(2*DELAY_TIME_1sm); // ждем пока приедем
         Motor_Stop();
+        Motor_Init();
         Correct();
         isMove=1;
         break;
+        case 6:
         case LDOWN:
         S_Right(255);
         delay_ms(DELAY_TIME_VR_10*15/10);
@@ -247,6 +251,7 @@ short SMove(short nx,short ny)
         Correct();
         isMove=1;
         break;
+        case 7:
         case LEFT:
         Motor_Init();  // настраиваем моторы
         Change_Duty(SPEED); // задаем скорость
@@ -267,6 +272,7 @@ short SMove(short nx,short ny)
         Correct();
         isMove=1;
         break;
+        case 8:
         case LUP:
         if(isSafeY()>2)
         {
@@ -284,7 +290,9 @@ short SMove(short nx,short ny)
         isMove=1;
         }
         break;
+        case 9:
         case ZEROD:
+        getParam("zerod",1,1);
         break;
         }
         
@@ -318,6 +326,7 @@ void SRotare(enum direction d,enum direction nd)
                 for(;r<0;r++)
                 Delay_ms(DELAY_TIME_VR_10*45/10);
         }
+        Motor_Stop();
 }
 
 
@@ -333,7 +342,7 @@ if(r>nr)
 return;
 if(r<nr)
 S_Right(2*DELAY_TIME_VR_10);
-
+Motor_Stop();
 }
 
 
@@ -343,19 +352,22 @@ void A_search()
 {
         int i,j;
         int min,temp;
-        if(findGoalCount==NumberOfGoals) return;// проверили все состояния - достигли цели - закончили работу.
+        //if(findGoalCount==NumberOfGoals) return;// проверили все состояния - достигли цели - закончили работу.
         if(getParam("jobisdone?",1,1)==13) return; // если база говорит что работа окончена - завершаем работу.
         
         temp=getParam("Hint",cX,cY); // получаем значение для текущего состояния
 
         setParam("Hint",cX,cY,temp++); // увеличиваем его, т.к. мы уже здесь
         // оцениваем перспективность доступных состояний
-        min=getParam("Hint",cX,cY+1)+getParam("hevr",cX,cY+1);//H[cX][cY+1]+h_evr[cX][cY+1];
+        min=getParam("H+hevr",cX,cY+1);//+getParam("hevr",cX,cY+1);
+        cxx=0;
+        cyy=1;
         for(i=-1;i<=1;i++) // у нас в любом состоянии 8 возможных действий
+        {
            for(j=-1;j<=1;j++)//----------------------------------------------------------------------------------------------------------------------!!!!!
               { // анализируем все возможные состояния и находим состояние
                   if(i==0 && j==0) continue;
-                  temp=getParam("Hint",cX+i,cY+j)+getParam("hevr",cX+i,cY+j); //H[cX+i][cY+j]+h_evr[cX+i][cY+j];
+                  temp=getParam("H+hevr",cX+i,cY+j);//+getParam("hevr",cX+i,cY+j);
                   if(temp<min) // имеющее минимальную стоимость
                   {            // а значит ближайшее к цели
                      min=temp;
@@ -363,32 +375,28 @@ void A_search()
                      cyy=j;
                   }
               }
-        switch(cdirection)
-        {
-        case UP:
-        break;
-        case DOWN:
-        cyy*=-1;
-        break;
-        case LEFT:
-        temp=cxx;
-        cxx=cyy;
-        cyy=-temp;
-        break;
-        case RIGHT:
-        temp=cxx;
-        cxx=-cyy;
-        cyy=temp;
-        break; 
         }
-        
+              if(cdirection==UP) ;
+              if(cdirection==DOWN) cyy*=-1 ;
+              if(cdirection==LEFT)
+              {
+              temp=cxx;
+              cxx=cyy;
+              cyy=-temp; 
+              }
+              if(cdirection==RIGHT)
+              {
+              temp=cxx;
+              cxx=cyy;
+              cyy=-temp;
+              }
         if(SMove(cX+cxx,cY+cyy)) // перемещаемся в выбранное состояние
         {
         
         cX+=cxx; // обновление текущих координат
         cY+=cyy;
         }
-         // если перемещения не произошло, то робот вряд ли выберет тот же путь
+        // если перемещения не произошло, то робот вряд ли выберет тот же путь
         // так как его стоимость теперь увеличилась
 
 }

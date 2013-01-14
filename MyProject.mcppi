@@ -24,11 +24,12 @@ Count=0
 Count=0
 ActiveImageIndex=-1
 [OPENED_FILES]
-Count=4
+Count=5
 File0=MyProject.c
 File1=motor.h
 File2=SafeDriving.h
 File3=a.h
+File4=adc.h
 [EEPROM]
 Count=0
 [ACTIVE_COMMENTS_FILES]
@@ -36,12 +37,14 @@ Count=0
 [OTHER_FILES]
 Count=0
 [SEARCH_PATH]
-Count=5
-Path0=C:\Program Files\Mikroelektronika\mikroC PRO for PIC\defs\
-Path1=C:\Program Files\Mikroelektronika\mikroC PRO for PIC\Uses\P16\
-Path2=Y:\Edward\
-Path3=C:\Edward\
-Path4=C:\Копия Edward\
+Count=7
+Path0=C:\Users\Public\Documents\Mikroelektronika\mikroC PRO for PIC\defs\
+Path1=C:\Users\Public\Documents\Mikroelektronika\mikroC PRO for PIC\Uses\P16\
+Path2=C:\Edward\
+Path3=C:\Program Files\Mikroelektronika\mikroC PRO for PIC\defs\
+Path4=C:\Program Files\Mikroelektronika\mikroC PRO for PIC\Uses\P16\
+Path5=Y:\Edward\
+Path6=C:\Копия Edward\
 [HEADER_PATH]
 Count=0
 [HEADERS]
