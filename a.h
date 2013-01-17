@@ -10,20 +10,11 @@
 // константы задержки, при перемещении между состояниями и при проверке состояния.
 const short DELAY_TIME_VR_10=64; // время поворота на 10 градусов
 const short DELAY_TIME_1sm=71;  // задержка на 1 см
-const short DISTANCE_METALL=5; // расстояние в см, при котором мы касаемся объекта креплениями металлодеректора
 const short SPEED=255;
 
 const short WorldSize=30;
 
-// массив содержащий координаты всех целей
-const short NumberOfGoals=WorldSize*WorldSize-1;
-const short MaxMetall=30;
-short Metals[MaxMetall][2]={0};
-short MetallObjects=0; // кол-во металлических объектов
-// количество найденных целей
-short findGoalCount=0;
-
-// текущее положение робота определяют относительные координаты и вектор направления 
+// текущее положение робота определяют относительные координаты и вектор направления
 // cX cY direction
 int cX=0;
 int cY=0;
@@ -71,13 +62,14 @@ while (*source) *dest++ = *source++;
 int getParam(const char * p,int x,int y)
 {
  char temp;
- strConstCpy(p,string);
+ strConstCpy(p,string); // копируем код команды
  IntToStr (x,strint);
  stradd(strint,string);
  IntToStr (y,strint);
  stradd(strint,string);
+ stradd("\r",string);
  UART1_Write_Text(string);
- while(1) if(UART1_Data_Ready())
+ while(1) if(UART1_Data_Ready()) // ждем ответ
  {
  temp=UART1_Read();
  return temp;
@@ -86,14 +78,15 @@ int getParam(const char * p,int x,int y)
 
  void setParam(const char * p,int x,int y,int value)
  {
- strConstCpy(p,string);
+ strConstCpy(p,string); // копируем код команды
  IntToStr (x,strint);
- stradd(strint,string);
+ stradd(strint,string); // копируем первую координату
  IntToStr (y,strint);
- stradd(strint,string);
+ stradd(strint,string); // копируем вторую координату
  IntToStr (value,strint);
  stradd(strint,string);
- UART1_Write_Text(string);
+ stradd("\r",string);    // дописываем символ 13 в конец строки
+ UART1_Write_Text(string); // отправляем данные
  }
 
 //------------------------------------------------------------------------------
@@ -124,7 +117,6 @@ short SMove(int nx,int ny)
         short ry=1;
         short isMove=0; // индикатор - было ли движение
         ax=comp(cX,nx);  // сравниваем текущие координаты с заданными
-        //getParam("axry",ax,ry);
         ry==comp(cY,ny);
         // в зависимости от результатов - определяем нужное направление
         if(ax==-1)  // если нам нужно направо
@@ -352,14 +344,13 @@ void A_search()
 {
         int i,j;
         int min,temp;
-        //if(findGoalCount==NumberOfGoals) return;// проверили все состояния - достигли цели - закончили работу.
         if(getParam("jobisdone?",1,1)==13) return; // если база говорит что работа окончена - завершаем работу.
         
-        temp=getParam("Hint",cX,cY); // получаем значение для текущего состояния
+        temp=getParam("Hint",cX,cY); // получаем значение стоимости для текущего состояния
 
         setParam("Hint",cX,cY,temp++); // увеличиваем его, т.к. мы уже здесь
         // оцениваем перспективность доступных состояний
-        min=getParam("H+hevr",cX,cY+1);//+getParam("hevr",cX,cY+1);
+        min=getParam("H+hevr",cX,cY+1);
         cxx=0;
         cyy=1;
         for(i=-1;i<=1;i++) // у нас в любом состоянии 8 возможных действий
@@ -367,7 +358,7 @@ void A_search()
            for(j=-1;j<=1;j++)//----------------------------------------------------------------------------------------------------------------------!!!!!
               { // анализируем все возможные состояния и находим состояние
                   if(i==0 && j==0) continue;
-                  temp=getParam("H+hevr",cX+i,cY+j);//+getParam("hevr",cX+i,cY+j);
+                  temp=getParam("H+hevr",cX+i,cY+j);
                   if(temp<min) // имеющее минимальную стоимость
                   {            // а значит ближайшее к цели
                      min=temp;

@@ -470,7 +470,6 @@ delay_cyc
 delay_time_1sm
 delay_time_vr_10
 delimiter
-distance_metall
 div
 div_16x16_s
 div_16x16_s_l
@@ -531,7 +530,6 @@ f
 fabs
 ferr
 ferr_bit
-findgoalcount
 fixsign32
 flash_read
 flash_write
@@ -711,7 +709,6 @@ manchester_0
 manchester_1
 manchester_out
 max
-maxmetall
 mc1out
 mc1out_bit
 mc2out
@@ -721,8 +718,6 @@ memcmp
 memcpy
 memmove
 memset
-metallobjects
-metals
 min
 mm_error_
 mm_freememtable
@@ -796,7 +791,6 @@ not_write_bit
 nr_free_blocks
 nrm3232
 nrm4032
-numberofgoals
 oerr
 oerr_bit
 option_reg

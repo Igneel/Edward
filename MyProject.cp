@@ -1,6 +1,6 @@
-#line 1 "C:/Edward/MyProject.c"
-#line 1 "c:/edward/a.h"
-#line 1 "c:/edward/motor.h"
+#line 1 "Y:/Edward/MyProject.c"
+#line 1 "y:/edward/a.h"
+#line 1 "y:/edward/motor.h"
 
 
 
@@ -18,7 +18,7 @@ char motor_init_=0;
  void S_Right(char speed);
  void S_Left(char speed);
  void Motor_Stop();
-#line 32 "c:/edward/motor.h"
+#line 32 "y:/edward/motor.h"
 void Motor_Init()
 {
  if (motor_init_==0)
@@ -118,8 +118,8 @@ void Motor_Stop()
  motor_init_=0;
 
 }
-#line 1 "c:/edward/safedriving.h"
-#line 1 "c:/edward/adc.h"
+#line 1 "y:/edward/safedriving.h"
+#line 1 "y:/edward/adc.h"
 int Adc_Rd(char ch)
 {
  int dat=0;
@@ -137,7 +137,7 @@ int Adc_Rd(char ch)
  dat = (ADRESH*4)+(ADRESL/64);
  return dat;
 }
-#line 5 "c:/edward/safedriving.h"
+#line 5 "y:/edward/safedriving.h"
 const unsigned char channelY=2;
 const unsigned char channelX=3;
 
@@ -172,25 +172,12 @@ short isSafeX()
  return Distance;
 
 }
-#line 11 "c:/edward/a.h"
+#line 11 "y:/edward/a.h"
 const short DELAY_TIME_VR_10=64;
 const short DELAY_TIME_1sm=71;
-const short DISTANCE_METALL=5;
 const short SPEED=255;
 
 const short WorldSize=30;
-
-
-
-
-
-
-const short NumberOfGoals=WorldSize*WorldSize-1;
-const short MaxMetall=30;
-short Metals[MaxMetall][2]={0};
-short MetallObjects=0;
-
-short findGoalCount=0;
 
 
 
@@ -198,7 +185,7 @@ int cX=0;
 int cY=0;
 
 enum direction {UP=1,RUP=2,RIGHT=3,RDOWN=4,DOWN=5, LDOWN=6,LEFT=7,LUP=8,ZEROD=9};
-enum direction cdirection=5;
+enum direction cdirection=1;
 
 
 short cxx=0,cyy=0;
@@ -245,11 +232,11 @@ int getParam(const char * p,int x,int y)
  stradd(strint,string);
  IntToStr (y,strint);
  stradd(strint,string);
+ stradd("\r",string);
  UART1_Write_Text(string);
  while(1) if(UART1_Data_Ready())
  {
  temp=UART1_Read();
-
  return temp;
  }
 }
@@ -263,6 +250,7 @@ int getParam(const char * p,int x,int y)
  stradd(strint,string);
  IntToStr (value,strint);
  stradd(strint,string);
+ stradd("\r",string);
  UART1_Write_Text(string);
  }
 
@@ -294,7 +282,6 @@ short SMove(int nx,int ny)
  short ry=1;
  short isMove=0;
  ax=comp(cX,nx);
-
  ry==comp(cY,ny);
 
  if(ax==-1)
@@ -522,7 +509,6 @@ void A_search()
 {
  int i,j;
  int min,temp;
-
  if(getParam("jobisdone?",1,1)==13) return;
 
  temp=getParam("Hint",cX,cY);
@@ -546,7 +532,6 @@ void A_search()
  }
  }
  }
-
  if(cdirection==UP) ;
  if(cdirection==DOWN) cyy*=-1 ;
  if(cdirection==LEFT)
@@ -561,7 +546,6 @@ void A_search()
  cxx=cyy;
  cyy=-temp;
  }
-
  if(SMove(cX+cxx,cY+cyy))
  {
 
@@ -599,7 +583,7 @@ void Brain()
  }
  }
 }
-#line 4 "C:/Edward/MyProject.c"
+#line 4 "Y:/Edward/MyProject.c"
 sbit LCD_RS at RD2_bit;
 sbit LCD_EN at RD3_bit;
 sbit LCD_D7 at RD7_bit;
@@ -630,12 +614,9 @@ int x,y;
  while(getParam("start",1,1)!=13)
  Delay_ms(100);
 
- cdirection=UP;
-
- cX=WorldSize-isSafeX()/2-1;
- cY=WorldSize-isSafeY()/2-1;
- if(cX<0) cX=0;
- if(cY<0) cY=0;
+ cdirection=DOWN;
+ cX=isSafeX()/2;
+ cY=isSafeY()/2;
 
 
 while(getParam("jobisdone?",1,1)!=13)

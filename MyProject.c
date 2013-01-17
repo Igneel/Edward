@@ -31,13 +31,10 @@ int x,y;
      while(getParam("start",1,1)!=13) // ждем сигнала старта
      Delay_ms(100);
      
-     cdirection=UP; // начальное направление - вверх
-      //cdirection=1; // начальное направление - вверх
-     cX=WorldSize-isSafeX()/2-1;  // получаем текущие координаты
-     cY=WorldSize-isSafeY()/2-1;
-     if(cX<0) cX=0;
-     if(cY<0) cY=0;
-     
+     cdirection=DOWN; // начальное направление - вниз
+     cX=isSafeX()/2;  // получаем текущие координаты
+     cY=isSafeY()/2;
+
      
 while(getParam("jobisdone?",1,1)!=13)
 {
