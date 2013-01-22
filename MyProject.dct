@@ -484,6 +484,8 @@ double2int
 double2longint
 double2longword
 double2word
+dx
+dy
 eccpas
 eccpas0
 eccpas0_bit
@@ -709,6 +711,8 @@ manchester_0
 manchester_1
 manchester_out
 max
+maxx
+maxy
 mc1out
 mc1out_bit
 mc2out

@@ -26,7 +26,6 @@ sbit LCD_D4_Direction at TRISD4_bit;
 
 void main() 
 {
-int x,y;
      UART1_Init(9600);
      while(getParam("start",1,1)!=13) // ждем сигнала старта
      Delay_ms(100);
@@ -34,35 +33,36 @@ int x,y;
      cdirection=DOWN; // начальное направление - вниз
      cX=isSafeX()/2;  // получаем текущие координаты
      cY=isSafeY()/2;
-
+     getParam("Hint",cX,cY);
+     SRotare(cdirection,UP);
+     maxX=cX+isSafeX()/2;
+     maxY=cY+isSafeY()/2;
+     setParam("max",maxX,maxY,1);
+     getParam("Hint",cX,cY);
+     getParam("Hinyt",cX,cY);
      
 while(getParam("jobisdone?",1,1)!=13)
 {
 
   enum direction nd;
-x=isSafeX();
-y=isSafeY();
+  
+  if(cX<=maxX/2)
+  {
+        if(cY<=maxY/2)
+            nd=DOWN;
+        else
+            nd=LEFT;
+  }
+  else
+  {
+        if(cY<=maxY/2)
+            nd=RIGHT;
+        else
+            nd=UP;
+  }
 
-if(x==100 || y==100)
-{
-if(cX<=20 && cY<=10)
- nd=DOWN;
-if(cX>20 && cY<=10)
- nd=RIGHT;
-if(cY<=20 && cY>10 && cX<=20)
- nd=LEFT;
-if(cY<=20 && cY>10 && cX>20)
- nd=RIGHT;
-if(cY>20 && cX<=20)
- nd=LEFT;
-if(cY>20 && cX>20)
- nd=UP;
  SRotare(cdirection,nd);
- cdirection=nd;
- 
- cX=WorldSize-isSafeX()/2-1;  // получаем текущие координаты
-     cY=WorldSize-isSafeY()/2-1;
-}
+
 A_search();
 }
 }

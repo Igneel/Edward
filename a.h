@@ -13,6 +13,11 @@ const short DELAY_TIME_1sm=71;  // задержка на 1 см
 const short SPEED=255;
 
 const short WorldSize=30;
+int maxX=0;
+int maxY=0;
+
+const int dX=2; // смещение центра вращения робота относительно дальномера
+const int dY=4;
 
 // текущее положение робота определяют относительные координаты и вектор направления
 // cX cY direction
@@ -61,13 +66,13 @@ while (*source) *dest++ = *source++;
 // "Hint" Для H и "hevr" для эвристики
 int getParam(const char * p,int x,int y)
 {
- char temp;
+ char temp=0;
  strConstCpy(p,string); // копируем код команды
  IntToStr (x,strint);
  stradd(strint,string);
  IntToStr (y,strint);
  stradd(strint,string);
- stradd("\r",string);
+ stradd("   ",string);
  UART1_Write_Text(string);
  while(1) if(UART1_Data_Ready()) // ждем ответ
  {
@@ -78,6 +83,7 @@ int getParam(const char * p,int x,int y)
 
  void setParam(const char * p,int x,int y,int value)
  {
+ char temp=0;
  strConstCpy(p,string); // копируем код команды
  IntToStr (x,strint);
  stradd(strint,string); // копируем первую координату
@@ -85,8 +91,13 @@ int getParam(const char * p,int x,int y)
  stradd(strint,string); // копируем вторую координату
  IntToStr (value,strint);
  stradd(strint,string);
- stradd("\r",string);    // дописываем символ 13 в конец строки
+ stradd("   ",string);    // дописываем символ пробела в конец строки
  UART1_Write_Text(string); // отправляем данные
+ while(1) if(UART1_Data_Ready()) // ждем ответ
+ {
+ temp=UART1_Read();
+ return;
+ }
  }
 
 //------------------------------------------------------------------------------
@@ -190,7 +201,7 @@ short SMove(int nx,int ny)
         Change_Duty(SPEED); // задаем скорость
         Motor_A_FWD(); // запускаем моторы
         Motor_B_FWD();
-        delay_ms(2*DELAY_TIME_1sm); // ждем пока приедем
+        delay_ms(3*DELAY_TIME_1sm); // ждем пока приедем  -------------------------------------------------------------------------------------------------
         Motor_Stop();
         S_Left(255);
         delay_ms(DELAY_TIME_VR_10*15/10);
@@ -257,7 +268,7 @@ short SMove(int nx,int ny)
         Change_Duty(SPEED); // задаем скорость
         Motor_A_FWD(); // запускаем моторы
         Motor_B_FWD();
-        delay_ms(2*DELAY_TIME_1sm); // ждем пока приедем
+        delay_ms(3*DELAY_TIME_1sm); // ждем пока приедем ----------------------------------------------------------------------------------------------
         Motor_Stop();
         S_Right(255);
         delay_ms(DELAY_TIME_VR_10*15/10);
@@ -303,22 +314,76 @@ short SMove(int nx,int ny)
 
 void SRotare(enum direction d,enum direction nd)
 {
-        short r;
+int xa=0;
+int ya=0;
+int temp=0;
+short r=0;
+xa=cX;
+ya=cY;
+
+
         r=(d-nd);
         if(r>4) r=8-r; // если угол поворота больше 180 - будем поворачитьвася в другую сторону
         if(r>=0)
-        {
+        {       ;
                 S_Right(255); // поворачиваемся по наименьшему пути
                 for(;r>0;r--)
+                {
                 Delay_ms(DELAY_TIME_VR_10*45/10);
+                if(r%2==1) continue;
+                switch(cdirection)
+                {
+                case UP:
+                  xa=cY;
+                  ya=-dX+cX;
+                break;
+                case DOWN:
+                  xa=cY;
+                  ya=cX+dY;
+                break;
+                case RIGHT:
+                  xa=cY;
+                  ya=-2*dX+cX;
+                break;
+                case LEFT:
+                  xa=cY;
+                  ya=cX+dX;
+                break;
+                }
+                }
         }
         else
         {
                 S_Left(255);
                 for(;r<0;r++)
+                {
                 Delay_ms(DELAY_TIME_VR_10*45/10);
+                if((-r)%2==1) continue;
+                switch(cdirection)
+                {
+                case UP:
+                  xa=cY-2*dY;
+                  ya=cX;
+                break;
+                case DOWN:
+                  xa=cY;
+                  ya=2*dX+cX;
+                break;
+                case RIGHT:
+                  xa=cY;
+                  ya=cX+dY;
+                break;
+                case LEFT:
+                  xa=cX+dX;
+                  ya=cX;
+                break;
+                }
+                }
         }
         Motor_Stop();
+cdirection=nd;
+cX=xa;
+cY=ya;
 }
 
 
@@ -342,15 +407,15 @@ Motor_Stop();
 // непосредственно сам поиск
 void A_search()
 {
-        int i,j;
+        //int i,j;
         int min,temp;
-        if(getParam("jobisdone?",1,1)==13) return; // если база говорит что работа окончена - завершаем работу.
+        //if(getParam("jobisdone?",1,1)==13) return; // если база говорит что работа окончена - завершаем работу.
         
         temp=getParam("Hint",cX,cY); // получаем значение стоимости для текущего состояния
 
-        setParam("Hint",cX,cY,temp++); // увеличиваем его, т.к. мы уже здесь
+        setParam("Hint",cX,cY,++temp); // увеличиваем его, т.к. мы уже здесь
         // оцениваем перспективность доступных состояний
-        min=getParam("H+hevr",cX,cY+1);
+        /*min=getParam("H+hevr",cX,cY+1);
         cxx=0;
         cyy=1;
         for(i=-1;i<=1;i++) // у нас в любом состоянии 8 возможных действий
@@ -366,7 +431,9 @@ void A_search()
                      cyy=j;
                   }
               }
-        }
+        }   */
+        cxx=getParam("Calc",cX,cY);
+        cyy=getParam("Calc2",cX,cY);
               if(cdirection==UP) ;
               if(cdirection==DOWN) cyy*=-1 ;
               if(cdirection==LEFT)

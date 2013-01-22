@@ -79,6 +79,7 @@ main
 				PWM1_Start
 			Motor_B_BWD
 				PWM2_Start
+		Div_8x8_S
 		S_Left
 			Motor_Init
 				PWM1_Init
@@ -92,6 +93,8 @@ main
 				PWM1_Start
 			Motor_B_FWD
 				PWM2_Start
+		Div_16x16_S
+			Div_16x16_S_L
 		Motor_Stop
 			Change_Duty
 				PWM1_Set_Duty
@@ -100,6 +103,17 @@ main
 					Mul_16x16_U
 			PWM1_Stop
 			PWM2_Stop
+	setParam
+		strConstCpy
+			____DoICP
+		IntToStr
+			WordToStr
+				Div_16x16_U
+		stradd
+		UART1_Write_Text
+			UART1_Write
+		UART1_Data_Ready
+		UART1_Read
 	A_search
 		getParam
 			strConstCpy
@@ -121,6 +135,8 @@ main
 			stradd
 			UART1_Write_Text
 				UART1_Write
+			UART1_Data_Ready
+			UART1_Read
 		Mul_8x8_U
 		SMove
 			comp
@@ -309,3 +325,5 @@ main
 				stradd
 				UART1_Write_Text
 					UART1_Write
+				UART1_Data_Ready
+				UART1_Read
