@@ -143,13 +143,13 @@ const unsigned char channelX=3;
 
 
 
-short isSafeY();
-short isSafeX();
+int isSafeY();
+int isSafeX();
 
 
-short isSafeY()
+int isSafeY()
 {
- float Distance=100;
+ int Distance=100;
  int GP2=0;
  GP2=Adc_Rd(channelY);
  if (GP2>90)
@@ -160,9 +160,9 @@ short isSafeY()
 
 }
 
-short isSafeX()
+int isSafeX()
 {
- float Distance=100;
+ int Distance=100;
  int GP2=0;
  GP2=Adc_Rd(channelX);
  if (GP2>90)
@@ -176,6 +176,7 @@ short isSafeX()
 const short DELAY_TIME_VR_10=64;
 const short DELAY_TIME_1sm=71;
 const short SPEED=255;
+const double Pi=3.14159;
 
 const short WorldSize=30;
 int maxX=0;
@@ -183,6 +184,8 @@ int maxY=0;
 
 const int dX=2;
 const int dY=4;
+const double dfi=1.108;
+const double Radius=4.472;
 
 
 
@@ -194,7 +197,7 @@ enum direction cdirection=1;
 
 
 short cxx=0,cyy=0;
-char string[16];
+char string[29];
 char delimiter[16];
 
 char strint[5]={0};
@@ -234,10 +237,12 @@ int getParam(const char * p,int x,int y)
  char temp=0;
  strConstCpy(p,string);
  IntToStr (x,strint);
+ stradd(" g ",string);
  stradd(strint,string);
  IntToStr (y,strint);
  stradd(strint,string);
- stradd("   ",string);
+ stradd(" ",string);
+ stradd("    0 ",string);
  UART1_Write_Text(string);
  while(1) if(UART1_Data_Ready())
  {
@@ -250,13 +255,15 @@ int getParam(const char * p,int x,int y)
  {
  char temp=0;
  strConstCpy(p,string);
+
  IntToStr (x,strint);
+ stradd(" s ",string);
  stradd(strint,string);
  IntToStr (y,strint);
  stradd(strint,string);
  IntToStr (value,strint);
  stradd(strint,string);
- stradd("   ",string);
+ stradd(" ",string);
  UART1_Write_Text(string);
  while(1) if(UART1_Data_Ready())
  {
@@ -291,9 +298,11 @@ short SMove(int nx,int ny)
  enum direction nd=1;
  short ax=1;
  short ry=1;
+ int temp=0;
+ int temp1=0;
  short isMove=0;
  ax=comp(cX,nx);
- ry==comp(cY,ny);
+ ry=comp(cY,ny);
 
  if(ax==-1)
  nd=RIGHT+ry;
@@ -315,13 +324,16 @@ short SMove(int nx,int ny)
  if(ax==1)
  nd=LEFT-ry;
 
-
+ temp1=isSafeY();
+ temp=isSafeX();
+ getParam("isSafe",temp,temp1);
  switch (nd)
  {
  case 1:
  case UP:
  if(isSafeY()>2)
  {
+
  Motor_Init();
  Change_Duty(SPEED);
  Motor_A_FWD();
@@ -460,7 +472,7 @@ short SMove(int nx,int ny)
  break;
  case 9:
  case ZEROD:
- getParam("zerod",1,1);
+ getParam("zerod ",1,1);
  break;
  }
 
@@ -483,8 +495,6 @@ int xa=0;
 int ya=0;
 int temp=0;
 short r=0;
-xa=cX;
-ya=cY;
 
 
  r=(d-nd);
@@ -499,20 +509,20 @@ ya=cY;
  switch(cdirection)
  {
  case UP:
- xa=cY;
- ya=-dX+cX;
+ xa=cX+Radius*cos(dfi-Pi/2);
+ ya=cY+Radius*sin(dfi-Pi/2);
  break;
  case DOWN:
- xa=cY;
- ya=cX+dY;
+ xa=cX+Radius*cos(dfi+Pi-Pi/2);
+ ya=cY+Radius*sin(dfi+Pi-Pi/2);
  break;
  case RIGHT:
- xa=cY;
- ya=-2*dX+cX;
+ xa=cX+Radius*cos(dfi-Pi/2-Pi/2);
+ ya=cY+Radius*sin(dfi-Pi/2-Pi/2);
  break;
  case LEFT:
- xa=cY;
- ya=cX+dX;
+ xa=cX+Radius*cos(dfi+Pi/2-Pi/2);
+ ya=cY+Radius*sin(dfi+Pi/2-Pi/2);
  break;
  }
  }
@@ -527,20 +537,20 @@ ya=cY;
  switch(cdirection)
  {
  case UP:
- xa=cY-2*dY;
- ya=cX;
+ xa=cX+Radius*cos(dfi+Pi/2);
+ ya=cY+Radius*sin(dfi+Pi/2);
  break;
  case DOWN:
- xa=cY;
- ya=2*dX+cX;
+ xa=cX+Radius*cos(dfi+Pi+Pi/2);
+ ya=cY+Radius*sin(dfi+Pi+Pi/2);
  break;
  case RIGHT:
- xa=cY;
- ya=cX+dY;
+ xa=cX+Radius*cos(dfi-Pi/2+Pi/2);
+ ya=cY+Radius*sin(dfi-Pi/2+Pi/2);
  break;
  case LEFT:
- xa=cX+dX;
- ya=cX;
+ xa=cX+Radius*cos(dfi+Pi/2+Pi/2);
+ ya=cY+Radius*sin(dfi+Pi/2+Pi/2);
  break;
  }
  }
@@ -572,16 +582,12 @@ Motor_Stop();
 
 void A_search()
 {
+ int temp=0;
+ temp=getParam("Hint  ",cX,cY);
+ setParam("Hint  ",cX,cY,++temp);
 
- int min,temp;
-
-
- temp=getParam("Hint",cX,cY);
-
- setParam("Hint",cX,cY,++temp);
-#line 435 "c:/edward/a.h"
- cxx=getParam("Calc",cX,cY);
- cyy=getParam("Calc2",cX,cY);
+ cxx=getParam("Calc  ",cX,cY);
+ cyy=getParam("Calc2 ",cX,cY);
  if(cdirection==UP) ;
  if(cdirection==DOWN) cyy*=-1 ;
  if(cdirection==LEFT)
@@ -598,40 +604,12 @@ void A_search()
  }
  if(SMove(cX+cxx,cY+cyy))
  {
-
  cX+=cxx;
  cY+=cyy;
  }
 
 
 
-}
-
-
- short mod(short x)
- {
- if(x>=0) return x;
- else return -x;
- }
-
-void Brain()
-{
- short x,y,j,k;
- short r;
-
- for(x=0;x<WorldSize;x++)
- {
- for(y=0;y<WorldSize;y++)
- {
- if(getParam("Hint",x,y) !=0) continue;
- for(j=0;j<WorldSize;j++)
- for(k=0;k<WorldSize;k++)
- {
- r=mod(x-j)+mod(y-k);
- if(r<getParam("hevr",j,k)) setParam("hevr",j,k,r);
- }
- }
- }
 }
 #line 4 "C:/Edward/MyProject.c"
 sbit LCD_RS at RD2_bit;
@@ -659,43 +637,31 @@ sbit LCD_D4_Direction at TRISD4_bit;
 
 void main()
 {
+int temp=0;
+ int temp1=0;
  UART1_Init(9600);
- while(getParam("start",1,1)!=13)
+ while(getParam("start ",1,1)!=13)
  Delay_ms(100);
 
  cdirection=DOWN;
  cX=isSafeX()/2;
  cY=isSafeY()/2;
- getParam("Hint",cX,cY);
+ getParam("Hint  ",cX,cY);
  SRotare(cdirection,UP);
  maxX=cX+isSafeX()/2;
  maxY=cY+isSafeY()/2;
- setParam("max",maxX,maxY,1);
- getParam("Hint",cX,cY);
- getParam("Hinyt",cX,cY);
 
-while(getParam("jobisdone?",1,1)!=13)
+ temp1=isSafeY();
+ temp=isSafeX();
+ getParam("isSafe",temp,temp1);
+ setParam("max   ",maxX,maxY,1);
+ getParam("Hint  ",cX,cY);
+
+while(getParam("jbsdne",1,1)!=13)
 {
 
  enum direction nd;
-
- if(cX<=maxX/2)
- {
- if(cY<=maxY/2)
- nd=DOWN;
- else
- nd=LEFT;
- }
- else
- {
- if(cY<=maxY/2)
- nd=RIGHT;
- else
- nd=UP;
- }
-
- SRotare(cdirection,nd);
-
+#line 71 "C:/Edward/MyProject.c"
 A_search();
 }
 }

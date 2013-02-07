@@ -80,6 +80,177 @@ main
 			Motor_B_BWD
 				PWM2_Start
 		Div_8x8_S
+		cos
+			Compare_Double
+			Sub_32x32_FP
+				Add_32x32_FP
+					NRM4032
+						RES032
+						SETFUN32
+						FIXSIGN32
+						SETFOV32
+					NRM3232
+						RES032
+						SETFUN32
+						FIXSIGN32
+					SETFOV32
+			sin
+				Compare_Double
+				Mul_32x32_FP
+					RES032
+					SETFOV32
+					SETFUN32
+				floor
+					Compare_Double
+					Double2Longint
+						SETIOV3224
+					Longint2Double
+						NRM4032
+							RES032
+							SETFUN32
+							FIXSIGN32
+							SETFOV32
+					Sub_32x32_FP
+						Add_32x32_FP
+							NRM4032
+								RES032
+								SETFUN32
+								FIXSIGN32
+								SETFOV32
+							NRM3232
+								RES032
+								SETFUN32
+								FIXSIGN32
+							SETFOV32
+				Sub_32x32_FP
+					Add_32x32_FP
+						NRM4032
+							RES032
+							SETFUN32
+							FIXSIGN32
+							SETFOV32
+						NRM3232
+							RES032
+							SETFUN32
+							FIXSIGN32
+						SETFOV32
+				eval_poly
+					____DoICP
+					Mul_32x32_FP
+						RES032
+						SETFOV32
+						SETFUN32
+					Add_32x32_FP
+						NRM4032
+							RES032
+							SETFUN32
+							FIXSIGN32
+							SETFOV32
+						NRM3232
+							RES032
+							SETFUN32
+							FIXSIGN32
+						SETFOV32
+				Div_32x32_FP
+					SETFDZ32
+					RES032
+					SETFOV32
+					SETFUN32
+			Add_32x32_FP
+				NRM4032
+					RES032
+					SETFUN32
+					FIXSIGN32
+					SETFOV32
+				NRM3232
+					RES032
+					SETFUN32
+					FIXSIGN32
+				SETFOV32
+		Mul_32x32_FP
+			RES032
+			SETFOV32
+			SETFUN32
+		Int2Double
+			NRM3232
+				RES032
+				SETFUN32
+				FIXSIGN32
+		Add_32x32_FP
+			NRM4032
+				RES032
+				SETFUN32
+				FIXSIGN32
+				SETFOV32
+			NRM3232
+				RES032
+				SETFUN32
+				FIXSIGN32
+			SETFOV32
+		Double2Int
+			SETIOV3224
+		sin
+			Compare_Double
+			Mul_32x32_FP
+				RES032
+				SETFOV32
+				SETFUN32
+			floor
+				Compare_Double
+				Double2Longint
+					SETIOV3224
+				Longint2Double
+					NRM4032
+						RES032
+						SETFUN32
+						FIXSIGN32
+						SETFOV32
+				Sub_32x32_FP
+					Add_32x32_FP
+						NRM4032
+							RES032
+							SETFUN32
+							FIXSIGN32
+							SETFOV32
+						NRM3232
+							RES032
+							SETFUN32
+							FIXSIGN32
+						SETFOV32
+			Sub_32x32_FP
+				Add_32x32_FP
+					NRM4032
+						RES032
+						SETFUN32
+						FIXSIGN32
+						SETFOV32
+					NRM3232
+						RES032
+						SETFUN32
+						FIXSIGN32
+					SETFOV32
+			eval_poly
+				____DoICP
+				Mul_32x32_FP
+					RES032
+					SETFOV32
+					SETFUN32
+				Add_32x32_FP
+					NRM4032
+						RES032
+						SETFUN32
+						FIXSIGN32
+						SETFOV32
+					NRM3232
+						RES032
+						SETFUN32
+						FIXSIGN32
+					SETFOV32
+			Div_32x32_FP
+				SETFDZ32
+				RES032
+				SETFOV32
+				SETFUN32
 		S_Left
 			Motor_Init
 				PWM1_Init
@@ -166,6 +337,43 @@ main
 						SETFOV32
 				Double2Int
 					SETIOV3224
+			isSafeX
+				Adc_Rd
+				Int2Double
+					NRM3232
+						RES032
+						SETFUN32
+						FIXSIGN32
+				Div_32x32_FP
+					SETFDZ32
+					RES032
+					SETFOV32
+					SETFUN32
+				Sub_32x32_FP
+					Add_32x32_FP
+						NRM4032
+							RES032
+							SETFUN32
+							FIXSIGN32
+							SETFOV32
+						NRM3232
+							RES032
+							SETFUN32
+							FIXSIGN32
+						SETFOV32
+				Double2Int
+					SETIOV3224
+			getParam
+				strConstCpy
+					____DoICP
+				IntToStr
+					WordToStr
+						Div_16x16_U
+				stradd
+				UART1_Write_Text
+					UART1_Write
+				UART1_Data_Ready
+				UART1_Read
 			Motor_Init
 				PWM1_Init
 				PWM2_Init
@@ -247,32 +455,6 @@ main
 							Mul_16x16_U
 					PWM1_Stop
 					PWM2_Stop
-			isSafeX
-				Adc_Rd
-				Int2Double
-					NRM3232
-						RES032
-						SETFUN32
-						FIXSIGN32
-				Div_32x32_FP
-					SETFDZ32
-					RES032
-					SETFOV32
-					SETFUN32
-				Sub_32x32_FP
-					Add_32x32_FP
-						NRM4032
-							RES032
-							SETFUN32
-							FIXSIGN32
-							SETFOV32
-						NRM3232
-							RES032
-							SETFUN32
-							FIXSIGN32
-						SETFOV32
-				Double2Int
-					SETIOV3224
 			S_Right
 				Motor_Init
 					PWM1_Init
@@ -303,17 +485,6 @@ main
 				PWM1_Start
 			Motor_B_BWD
 				PWM2_Start
-			getParam
-				strConstCpy
-					____DoICP
-				IntToStr
-					WordToStr
-						Div_16x16_U
-				stradd
-				UART1_Write_Text
-					UART1_Write
-				UART1_Data_Ready
-				UART1_Read
 			isMetall
 				Adc_Rd
 			setParam

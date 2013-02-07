@@ -21,32 +21,36 @@ sbit LCD_D4_Direction at TRISD4_bit;
  Lcd_cmd(_LCD_CURSOR_OFF);
  Lcd_Cmd(_LCD_CLEAR);
  Lcd_out(1,1,text);
- 
 }
 
 void main() 
 {
+int temp=0;
+        int temp1=0;
      UART1_Init(9600);
-     while(getParam("start",1,1)!=13) // ждем сигнала старта
+     while(getParam("start ",1,1)!=13) // ждем сигнала старта
      Delay_ms(100);
      
      cdirection=DOWN; // начальное направление - вниз
      cX=isSafeX()/2;  // получаем текущие координаты
      cY=isSafeY()/2;
-     getParam("Hint",cX,cY);
+     getParam("Hint  ",cX,cY);
      SRotare(cdirection,UP);
      maxX=cX+isSafeX()/2;
      maxY=cY+isSafeY()/2;
-     setParam("max",maxX,maxY,1);
-     getParam("Hint",cX,cY);
-     getParam("Hinyt",cX,cY);
      
-while(getParam("jobisdone?",1,1)!=13)
+     temp1=isSafeY();
+        temp=isSafeX();
+        getParam("isSafe",temp,temp1);
+     setParam("max   ",maxX,maxY,1);
+     getParam("Hint  ",cX,cY);
+     
+while(getParam("jbsdne",1,1)!=13)
 {
 
   enum direction nd;
   
-  if(cX<=maxX/2)
+  /*if(cX<=maxX/2)
   {
         if(cY<=maxY/2)
             nd=DOWN;
@@ -61,7 +65,7 @@ while(getParam("jobisdone?",1,1)!=13)
             nd=UP;
   }
 
- SRotare(cdirection,nd);
+ SRotare(cdirection,nd); */
 
 A_search();
 }
