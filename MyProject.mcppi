@@ -37,14 +37,15 @@ Count=0
 [OTHER_FILES]
 Count=0
 [SEARCH_PATH]
-Count=7
-Path0=C:\Users\Public\Documents\Mikroelektronika\mikroC PRO for PIC\defs\
-Path1=C:\Users\Public\Documents\Mikroelektronika\mikroC PRO for PIC\Uses\P16\
-Path2=C:\Edward\
-Path3=C:\Program Files\Mikroelektronika\mikroC PRO for PIC\defs\
-Path4=C:\Program Files\Mikroelektronika\mikroC PRO for PIC\Uses\P16\
-Path5=Y:\Edward\
-Path6=C:\Копия Edward\
+Count=8
+Path0=C:\Program Files\Mikroelektronika\mikroC PRO for PIC\defs\
+Path1=C:\Program Files\Mikroelektronika\mikroC PRO for PIC\Uses\P16\
+Path2=G:\
+Path3=C:\Users\Public\Documents\Mikroelektronika\mikroC PRO for PIC\defs\
+Path4=C:\Users\Public\Documents\Mikroelektronika\mikroC PRO for PIC\Uses\P16\
+Path5=C:\Edward\
+Path6=Y:\Edward\
+Path7=C:\Копия Edward\
 [HEADER_PATH]
 Count=0
 [HEADERS]

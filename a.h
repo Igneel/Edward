@@ -38,14 +38,14 @@ short cxx=0,cyy=0; // сюда будет записываться прибавка к текущим координатам
 char string[29];
 char delimiter[16];
 
-char strint[5]={0};// пробел, максимум 3 цифры, завершающий символ
+char strint[6]={0};// пробел, максимум 3 цифры, завершающий символ
 //------------------------------------------------------------------------------
 //---------------Прототипы функций----------------------------------------------
 
  void SRotare(enum direction d,enum direction nd); // поворот
  short isMetall();               // возвращает 1 если предмет металлический
- short comp(short d1,short d2); // сравнение двух чисел
- short SMove(short nx,short ny); // перемещение
+ short comp(int d1,int d2); // сравнение двух чисел
+ short SMove(int nx,int ny); // перемещение
  void A_search();         // алгоритм поиска A*
  void Correct(void);     // коррекция движения
  
@@ -77,6 +77,17 @@ while (*source) *dest++ = *source++;
 // есть предложение сделать её односимвольной.
 int getParam(const char * p,int x,int y)
 {
+    /*
+    код команды - 6 символов
+    start 
+    параметр get три символа
+    start  g 
+    координаты идут по 6 символов и это кол-во лучше не уменьшать - функция преобразования так работает.
+start  g      1     1      0
+пока немного не ясно передаётся ли символ перехода на новую строку.
+итого 28 символов + по идее должен быть ещё \n
+
+    */
  char temp=0;
  strConstCpy(p,string); // копируем код команды
  IntToStr (x,strint);   
@@ -85,7 +96,7 @@ int getParam(const char * p,int x,int y)
  IntToStr (y,strint);
  stradd(strint,string); // копируем вторую координату
  stradd(" ",string);
- stradd("    0 ",string); // добавляем третий фиктивный параметр
+ stradd("     0\n",string); // добавляем третий фиктивный параметр
  UART1_Write_Text(string);
  while(1) if(UART1_Data_Ready()) // ждем ответ
  {
@@ -96,6 +107,7 @@ int getParam(const char * p,int x,int y)
 // установка параметра
  void setParam(const char * p,int x,int y,int value)
  {
+
      char temp=0;
      strConstCpy(p,string); // копируем код команды
      IntToStr (x,strint);
@@ -105,7 +117,7 @@ int getParam(const char * p,int x,int y)
      stradd(strint,string); // копируем вторую координату
      IntToStr (value,strint);
      stradd(strint,string);  // копируем значение
-     stradd(" ",string);    // дописываем символ пробела в конец строки
+     stradd("\n",string);    // дописываем символ конца строки
      UART1_Write_Text(string); // отправляем данные
      while(1) if(UART1_Data_Ready()) // ждем ответ
      {

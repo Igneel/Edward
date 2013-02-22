@@ -48,7 +48,7 @@ void main()
 while(getParam("jbsdne",1,1)!=13)
 {
 
-  enum direction nd;
+  //enum direction nd;
   
   /*if(cX<=maxX/2)
   {

@@ -1,6 +1,6 @@
-#line 1 "C:/Edward/MyProject.c"
-#line 1 "c:/edward/a.h"
-#line 1 "c:/edward/motor.h"
+#line 1 "G://MyProject.c"
+#line 1 "g://a.h"
+#line 1 "g://motor.h"
 
 
 
@@ -18,7 +18,7 @@ char motor_init_=0;
  void S_Right(char speed);
  void S_Left(char speed);
  void Motor_Stop();
-#line 32 "c:/edward/motor.h"
+#line 32 "g://motor.h"
 void Motor_Init()
 {
  if (motor_init_==0)
@@ -118,8 +118,11 @@ void Motor_Stop()
  motor_init_=0;
 
 }
-#line 1 "c:/edward/safedriving.h"
-#line 1 "c:/edward/adc.h"
+#line 1 "g://safedriving.h"
+#line 1 "g://adc.h"
+
+
+
 int Adc_Rd(char ch)
 {
  int dat=0;
@@ -137,7 +140,7 @@ int Adc_Rd(char ch)
  dat = (ADRESH*4)+(ADRESL/64);
  return dat;
 }
-#line 5 "c:/edward/safedriving.h"
+#line 5 "g://safedriving.h"
 const unsigned char channelY=2;
 const unsigned char channelX=3;
 
@@ -172,13 +175,13 @@ int isSafeX()
  return Distance;
 
 }
-#line 11 "c:/edward/a.h"
+#line 14 "g://a.h"
 const short DELAY_TIME_VR_10=64;
 const short DELAY_TIME_1sm=71;
 const short SPEED=255;
 const double Pi=3.14159;
 
-const short WorldSize=30;
+
 int maxX=0;
 int maxY=0;
 
@@ -200,17 +203,15 @@ short cxx=0,cyy=0;
 char string[29];
 char delimiter[16];
 
-char strint[5]={0};
+char strint[6]={0};
 
 
 
  void SRotare(enum direction d,enum direction nd);
  short isMetall();
- short comp(short d1,short d2);
- short SMove(short nx,short ny);
- int Cost();
+ short comp(int d1,int d2);
+ short SMove(int nx,int ny);
  void A_search();
- void Brain();
  void Correct(void);
 
 
@@ -218,6 +219,7 @@ char strint[5]={0};
  int getParam(const char * p,int x,int y);
  void setParam(const char * p,int x,int y,int value);
  void strConstCpy (const char *source, char *dest);
+ void stradd(char *source, char *dest);
 
 
 
@@ -225,6 +227,8 @@ void strConstCpy (const char *source, char *dest) {
  while (*source) *dest++ = *source++;
  *dest = 0;
 }
+
+
 void stradd(char *source, char *dest){
 while (*dest++);
 *dest--;
@@ -232,8 +236,13 @@ while (*source) *dest++ = *source++;
  *dest = 0;
 }
 
+
+
+
+
 int getParam(const char * p,int x,int y)
 {
+#line 91 "g://a.h"
  char temp=0;
  strConstCpy(p,string);
  IntToStr (x,strint);
@@ -242,7 +251,7 @@ int getParam(const char * p,int x,int y)
  IntToStr (y,strint);
  stradd(strint,string);
  stradd(" ",string);
- stradd("    0 ",string);
+ stradd("     0\n",string);
  UART1_Write_Text(string);
  while(1) if(UART1_Data_Ready())
  {
@@ -253,9 +262,9 @@ int getParam(const char * p,int x,int y)
 
  void setParam(const char * p,int x,int y,int value)
  {
+
  char temp=0;
  strConstCpy(p,string);
-
  IntToStr (x,strint);
  stradd(" s ",string);
  stradd(strint,string);
@@ -263,7 +272,7 @@ int getParam(const char * p,int x,int y)
  stradd(strint,string);
  IntToStr (value,strint);
  stradd(strint,string);
- stradd(" ",string);
+ stradd("\n",string);
  UART1_Write_Text(string);
  while(1) if(UART1_Data_Ready())
  {
@@ -274,30 +283,137 @@ int getParam(const char * p,int x,int y)
 
 
 
-short isMetall()
+
+
+void A_search()
 {
-short m;
-m=Adc_Rd(1);
-if(m>0 && m<50)
-return 1;
-else
-return 0;
+ int temp=0;
+ temp=getParam("Hint  ",cX,cY);
+ setParam("Hint  ",cX,cY,++temp);
+
+ cxx=getParam("Calc  ",cX,cY);
+ cyy=getParam("Calc2 ",cX,cY);
+
+ if(cdirection==UP) ;
+ if(cdirection==DOWN) cyy*=-1 ;
+ if(cdirection==LEFT)
+ {
+ temp=cxx;
+ cxx=cyy;
+ cyy=-temp;
+ }
+ if(cdirection==RIGHT)
+ {
+ temp=cxx;
+ cxx=cyy;
+ cyy=-temp;
+ }
+ if(SMove(cX+cxx,cY+cyy))
+ {
+ cX+=cxx;
+ cY+=cyy;
+ }
+ else
+ {
+ temp=getParam("Hint  ",cX+cxx,cY+cyy);
+ setParam("Hint  ",cX+cxx,cY+cyy,++temp);
+ }
 }
 
-short comp(int d1,int d2)
+
+
+void SRotare(enum direction d,enum direction nd)
 {
- if(d1==d2) return 0;
- if(d1>d2) return 1;
- else return -1;
+#line 178 "g://a.h"
+ int temp=0;
+ short r=0;
+ r=(d-nd);
+ if(r>4) r=8-r;
+ if(r>=0)
+ {
+ S_Right(SPEED);
+ for(;r>0;r--)
+ {
+ Delay_ms(DELAY_TIME_VR_10*45/10);
+ if(r%2==1) continue;
+ switch(cdirection)
+ {
+ case UP:
+ cX=cX+Radius*cos(dfi-Pi/2);
+ cY=cY+Radius*sin(dfi-Pi/2);
+ break;
+ case DOWN:
+ cX=cX+Radius*cos(dfi+Pi-Pi/2);
+ cY=cY+Radius*sin(dfi+Pi-Pi/2);
+ break;
+ case RIGHT:
+ cX=cX+Radius*cos(dfi-Pi/2-Pi/2);
+ cY=cY+Radius*sin(dfi-Pi/2-Pi/2);
+ break;
+ case LEFT:
+ cX=cX+Radius*cos(dfi+Pi/2-Pi/2);
+ cY=cY+Radius*sin(dfi+Pi/2-Pi/2);
+ break;
+ }
+ }
+ }
+ else
+ {
+ S_Left(SPEED);
+ for(;r<0;r++)
+ {
+ Delay_ms(DELAY_TIME_VR_10*45/10);
+ if((-r)%2==1) continue;
+ switch(cdirection)
+ {
+ case UP:
+ cX=cX+Radius*cos(dfi+Pi/2);
+ cY=cY+Radius*sin(dfi+Pi/2);
+ break;
+ case DOWN:
+ cX=cX+Radius*cos(dfi+Pi+Pi/2);
+ cY=cY+Radius*sin(dfi+Pi+Pi/2);
+ break;
+ case RIGHT:
+ cX=cX+Radius*cos(dfi-Pi/2+Pi/2);
+ cY=cY+Radius*sin(dfi-Pi/2+Pi/2);
+ break;
+ case LEFT:
+ cX=cX+Radius*cos(dfi+Pi/2+Pi/2);
+ cY=cY+Radius*sin(dfi+Pi/2+Pi/2);
+ break;
+ }
+ }
+ }
+ Motor_Stop();
+ cdirection=nd;
+}
+
+
+void Correct(void)
+{
+ short r=0,nr=0;
+ r=isSafeY();
+ S_Left(DELAY_TIME_VR_10);
+ nr=isSafeY();
+ if(r==nr)
+ S_Right(DELAY_TIME_VR_10);
+ if(r>nr)
+ return;
+ if(r<nr)
+ S_Right(2*DELAY_TIME_VR_10);
+ Motor_Stop();
 }
 
 
 short SMove(int nx,int ny)
 {
-
+#line 267 "g://a.h"
  enum direction nd=1;
- short ax=1;
- short ry=1;
+ int SafeX=0;
+ int SafeY=0;
+ short ax=0;
+ short ry=0;
  int temp=0;
  int temp1=0;
  short isMove=0;
@@ -324,16 +440,16 @@ short SMove(int nx,int ny)
  if(ax==1)
  nd=LEFT-ry;
 
- temp1=isSafeY();
- temp=isSafeX();
- getParam("isSafe",temp,temp1);
+
+ SafeY=isSafeY();
+ SafeX=isSafeX();
+ getParam("isSafe",SafeX,SafeY);
  switch (nd)
  {
  case 1:
  case UP:
- if(isSafeY()>2)
+ if(SafeY>2)
  {
-
  Motor_Init();
  Change_Duty(SPEED);
  Motor_A_FWD();
@@ -346,9 +462,9 @@ short SMove(int nx,int ny)
  break;
  case 2:
  case RUP:
- if(isSafeY()>2 && isSafeX()>2)
+ if(SafeY>2 && SafeX>2)
  {
- S_Right(255);
+ S_Right(SPEED);
  delay_ms(DELAY_TIME_VR_10*15/10);
  Motor_Init();
  Change_Duty(SPEED);
@@ -356,7 +472,7 @@ short SMove(int nx,int ny)
  Motor_B_FWD();
  delay_ms(2*DELAY_TIME_1sm);
  Motor_Stop();
- S_Left(255);
+ S_Left(SPEED);
  delay_ms(DELAY_TIME_VR_10*15/10);
  Correct();
  isMove=1;
@@ -364,7 +480,7 @@ short SMove(int nx,int ny)
  break;
  case 3:
  case RIGHT:
- if(isSafeX()>2)
+ if(SafeX>2)
  {
  Motor_Init();
  Change_Duty(SPEED);
@@ -372,7 +488,7 @@ short SMove(int nx,int ny)
  Motor_B_BWD();
  delay_ms(2*DELAY_TIME_1sm);
  Motor_Stop();
- S_Right(255);
+ S_Right(SPEED);
  delay_ms(DELAY_TIME_VR_10*15/10);
  Motor_Init();
  Change_Duty(SPEED);
@@ -380,7 +496,7 @@ short SMove(int nx,int ny)
  Motor_B_FWD();
  delay_ms(3*DELAY_TIME_1sm);
  Motor_Stop();
- S_Left(255);
+ S_Left(SPEED);
  delay_ms(DELAY_TIME_VR_10*15/10);
  Correct();
  isMove=1;
@@ -388,9 +504,9 @@ short SMove(int nx,int ny)
  break;
  case 4:
  case RDOWN:
- if(isSafeX()>2)
+ if(SafeX>2)
  {
- S_Left(255);
+ S_Left(SPEED);
  delay_ms(DELAY_TIME_VR_10*15/10);
  Motor_Init();
  Change_Duty(SPEED);
@@ -398,7 +514,7 @@ short SMove(int nx,int ny)
  Motor_B_BWD();
  delay_ms(2*DELAY_TIME_1sm);
  Motor_Stop();
- S_Right(255);
+ S_Right(SPEED);
  delay_ms(DELAY_TIME_VR_10*15/10);
  Correct();
  isMove=1;
@@ -418,7 +534,7 @@ short SMove(int nx,int ny)
  break;
  case 6:
  case LDOWN:
- S_Right(255);
+ S_Right(SPEED);
  delay_ms(DELAY_TIME_VR_10*15/10);
  Motor_Init();
  Change_Duty(SPEED);
@@ -426,7 +542,7 @@ short SMove(int nx,int ny)
  Motor_B_BWD();
  delay_ms(2*DELAY_TIME_1sm);
  Motor_Stop();
- S_Left(255);
+ S_Left(SPEED);
  delay_ms(DELAY_TIME_VR_10*15/10);
  Correct();
  isMove=1;
@@ -439,7 +555,7 @@ short SMove(int nx,int ny)
  Motor_B_BWD();
  delay_ms(2*DELAY_TIME_1sm);
  Motor_Stop();
- S_Left(255);
+ S_Left(SPEED);
  delay_ms(DELAY_TIME_VR_10*15/10);
  Motor_Init();
  Change_Duty(SPEED);
@@ -447,16 +563,16 @@ short SMove(int nx,int ny)
  Motor_B_FWD();
  delay_ms(3*DELAY_TIME_1sm);
  Motor_Stop();
- S_Right(255);
+ S_Right(SPEED);
  delay_ms(DELAY_TIME_VR_10*15/10);
  Correct();
  isMove=1;
  break;
  case 8:
  case LUP:
- if(isSafeY()>2)
+ if(SafeY>2)
  {
- S_Left(255);
+ S_Left(SPEED);
  delay_ms(DELAY_TIME_VR_10*15/10);
  Motor_Init();
  Change_Duty(SPEED);
@@ -464,7 +580,7 @@ short SMove(int nx,int ny)
  Motor_B_FWD();
  delay_ms(2*DELAY_TIME_1sm);
  Motor_Stop();
- S_Right(255);
+ S_Right(SPEED);
  delay_ms(DELAY_TIME_VR_10*15/10);
  Correct();
  isMove=1;
@@ -487,131 +603,23 @@ short SMove(int nx,int ny)
 
 }
 
-
-
-void SRotare(enum direction d,enum direction nd)
+short isMetall()
 {
-int xa=0;
-int ya=0;
-int temp=0;
-short r=0;
-
-
- r=(d-nd);
- if(r>4) r=8-r;
- if(r>=0)
- { ;
- S_Right(255);
- for(;r>0;r--)
- {
- Delay_ms(DELAY_TIME_VR_10*45/10);
- if(r%2==1) continue;
- switch(cdirection)
- {
- case UP:
- xa=cX+Radius*cos(dfi-Pi/2);
- ya=cY+Radius*sin(dfi-Pi/2);
- break;
- case DOWN:
- xa=cX+Radius*cos(dfi+Pi-Pi/2);
- ya=cY+Radius*sin(dfi+Pi-Pi/2);
- break;
- case RIGHT:
- xa=cX+Radius*cos(dfi-Pi/2-Pi/2);
- ya=cY+Radius*sin(dfi-Pi/2-Pi/2);
- break;
- case LEFT:
- xa=cX+Radius*cos(dfi+Pi/2-Pi/2);
- ya=cY+Radius*sin(dfi+Pi/2-Pi/2);
- break;
- }
- }
- }
+ short m=0;
+ m=Adc_Rd(1);
+ if(m>0 && m<50)
+ return 1;
  else
- {
- S_Left(255);
- for(;r<0;r++)
- {
- Delay_ms(DELAY_TIME_VR_10*45/10);
- if((-r)%2==1) continue;
- switch(cdirection)
- {
- case UP:
- xa=cX+Radius*cos(dfi+Pi/2);
- ya=cY+Radius*sin(dfi+Pi/2);
- break;
- case DOWN:
- xa=cX+Radius*cos(dfi+Pi+Pi/2);
- ya=cY+Radius*sin(dfi+Pi+Pi/2);
- break;
- case RIGHT:
- xa=cX+Radius*cos(dfi-Pi/2+Pi/2);
- ya=cY+Radius*sin(dfi-Pi/2+Pi/2);
- break;
- case LEFT:
- xa=cX+Radius*cos(dfi+Pi/2+Pi/2);
- ya=cY+Radius*sin(dfi+Pi/2+Pi/2);
- break;
- }
- }
- }
- Motor_Stop();
-cdirection=nd;
-cX=xa;
-cY=ya;
+ return 0;
 }
 
-
-void Correct(void)
+short comp(int d1,int d2)
 {
-short r,nr;
-r=isSafeY();
-S_Left(DELAY_TIME_VR_10);
-nr=isSafeY();
-if(r==nr)
-S_Right(DELAY_TIME_VR_10);
-if(r>nr)
-return;
-if(r<nr)
-S_Right(2*DELAY_TIME_VR_10);
-Motor_Stop();
+ if(d1==d2) return 0;
+ if(d1>d2) return 1;
+ else return -1;
 }
-
-
-
-
-void A_search()
-{
- int temp=0;
- temp=getParam("Hint  ",cX,cY);
- setParam("Hint  ",cX,cY,++temp);
-
- cxx=getParam("Calc  ",cX,cY);
- cyy=getParam("Calc2 ",cX,cY);
- if(cdirection==UP) ;
- if(cdirection==DOWN) cyy*=-1 ;
- if(cdirection==LEFT)
- {
- temp=cxx;
- cxx=cyy;
- cyy=-temp;
- }
- if(cdirection==RIGHT)
- {
- temp=cxx;
- cxx=cyy;
- cyy=-temp;
- }
- if(SMove(cX+cxx,cY+cyy))
- {
- cX+=cxx;
- cY+=cyy;
- }
-
-
-
-}
-#line 4 "C:/Edward/MyProject.c"
+#line 4 "G://MyProject.c"
 sbit LCD_RS at RD2_bit;
 sbit LCD_EN at RD3_bit;
 sbit LCD_D7 at RD7_bit;
@@ -632,12 +640,11 @@ sbit LCD_D4_Direction at TRISD4_bit;
  Lcd_cmd(_LCD_CURSOR_OFF);
  Lcd_Cmd(_LCD_CLEAR);
  Lcd_out(1,1,text);
-
 }
 
 void main()
 {
-int temp=0;
+ int temp=0;
  int temp1=0;
  UART1_Init(9600);
  while(getParam("start ",1,1)!=13)
@@ -659,9 +666,7 @@ int temp=0;
 
 while(getParam("jbsdne",1,1)!=13)
 {
-
- enum direction nd;
-#line 71 "C:/Edward/MyProject.c"
+#line 70 "G://MyProject.c"
 A_search();
 }
 }
