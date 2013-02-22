@@ -1,3 +1,6 @@
+#ifndef ADC_H_
+#define ADC_H_ 
+
 int Adc_Rd(char ch)                // читаются нижние 8 каналов АЦП
 {
      int dat=0;                    // сюда будут сохранятся данные
@@ -15,3 +18,5 @@ int Adc_Rd(char ch)                // читаются нижние 8 каналов АЦП
      dat = (ADRESH*4)+(ADRESL/64); // суммируются две части слова
      return dat;                   // возврат значения
 }
+
+#endif

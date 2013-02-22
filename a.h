@@ -1,3 +1,6 @@
+#ifndef A_H_
+#define A_H_ 
+
 // поиск А* в реальном времени с обучением
 // Н - текущая наилучшая оценка стоимости достижения цели
 // из каждого состояния, которое уже было посещено 
@@ -13,13 +16,13 @@ const short DELAY_TIME_1sm=71;  // задержка на 1 см
 const short SPEED=255; // скорость
 const double Pi=3.14159; // число пи, константа
 
-const short WorldSize=30; // размер мира
+//const short WorldSize=30; // размер мира
 int maxX=0; // максимальные размеры мира
 int maxY=0; // определяются во время начала работы робота
 
 const int dX=2; // смещение центра вращения робота относительно дальномера
 const int dY=4; // единицы измерения - клетки, 1 клетка = 2 см
-const double dfi=1.108;//63.48; // угол, между металлоискателем и горизонталью.
+const double dfi=1.108;//63.48; // угол, между металлоискателем и горизонталью в радианах.
 const double Radius=4.472; // расстояние от центра поворота, до металлоискателя
 
 // текущее положение робота определяют относительные координаты и вектор направления
@@ -35,7 +38,7 @@ short cxx=0,cyy=0; // сюда будет записываться прибавка к текущим координатам
 char string[29];
 char delimiter[16];
 
-char strint[5]={0};
+char strint[5]={0};// пробел, максимум 3 цифры, завершающий символ
 //------------------------------------------------------------------------------
 //---------------Прототипы функций----------------------------------------------
 
@@ -43,9 +46,7 @@ char strint[5]={0};
  short isMetall();               // возвращает 1 если предмет металлический
  short comp(short d1,short d2); // сравнение двух чисел
  short SMove(short nx,short ny); // перемещение
- int Cost();              // определение стоимости
  void A_search();         // алгоритм поиска A*
- void Brain();             // эвристика
  void Correct(void);     // коррекция движения
  
  
@@ -72,6 +73,8 @@ while (*source) *dest++ = *source++;
 // "Hint  " Для H и "hevr  " для эвристики
 // длина команды - 6 символов
 // ежели она короче - добавляются пробелы
+// известный баг - команда на старт не содержит третьей цифры.
+// есть предложение сделать её односимвольной.
 int getParam(const char * p,int x,int y)
 {
  char temp=0;
@@ -143,9 +146,11 @@ void A_search()
         cX+=cxx; // обновление текущих координат
         cY+=cyy;
     }
-    // если перемещения не произошло, то робот вряд ли выберет тот же путь
-    // так как его стоимость теперь увеличилась
-
+    else
+    { // если перемещения не произошло - увеличить стоимость неверного пути.
+        temp=getParam("Hint  ",cX+cxx,cY+cyy);
+        setParam("Hint  ",cX+cxx,cY+cyy,++temp);
+    }
 }
 
 // вращение, использует текущее направление и новое
@@ -153,7 +158,7 @@ void A_search()
 void SRotare(enum direction d,enum direction nd)
 {
 /*
-Робот вращается вокруг собственного центра, металлоискатель в это время движетися по окружности
+Робот вращается вокруг собственного центра, металлоискатель в это время движется по окружности
 с радиусом Radius, координаты металлоискателя изменяются согласно известным тригонометрическим
 выражениям.
 
@@ -161,10 +166,10 @@ void SRotare(enum direction d,enum direction nd)
     int temp=0;
     short r=0;
     r=(d-nd);
-    if(r>4) r=8-r; // если угол поворота больше 180 - будем поворачитьвася в другую сторону
+    if(r>4) r=8-r; // если угол поворота больше 180 - будем поворачиваться в другую сторону
     if(r>=0)
     {        
-        S_Right(255); // поворачиваемся по наименьшему пути
+        S_Right(SPEED); // поворачиваемся по наименьшему пути
         for(;r>0;r--)
         {
             Delay_ms(DELAY_TIME_VR_10*45/10);
@@ -192,7 +197,7 @@ void SRotare(enum direction d,enum direction nd)
     }
     else
     {
-        S_Left(255);
+        S_Left(SPEED);
         for(;r<0;r++)
         {
             Delay_ms(DELAY_TIME_VR_10*45/10);
@@ -218,30 +223,38 @@ void SRotare(enum direction d,enum direction nd)
             }
         }
     }
-Motor_Stop();
-cdirection=nd;
+    Motor_Stop();
+    cdirection=nd;
 }
 
 // пока работает весьма криво, если вообще работает)
 void Correct(void) // корректирует направление робота
 {
-short r=0,nr=0;
-r=isSafeY();                // проверить расстояние
-S_Left(DELAY_TIME_VR_10);  // повернуться
-nr=isSafeY();               // проверить расстояние
-if(r==nr)                   // сравнить их, если получаем правильное соотношение
-S_Right(DELAY_TIME_VR_10);  // то мы находимся в правильном положении
-if(r>nr)
-return;
-if(r<nr)
-S_Right(2*DELAY_TIME_VR_10);
-Motor_Stop();
+    short r=0,nr=0;
+    r=isSafeY();                // проверить расстояние
+    S_Left(DELAY_TIME_VR_10);  // повернуться
+    nr=isSafeY();               // проверить расстояние
+    if(r==nr)                   // сравнить их, если получаем правильное соотношение
+        S_Right(DELAY_TIME_VR_10);  // то мы находимся в правильном положении
+    if(r>nr)
+        return;
+    if(r<nr)
+        S_Right(2*DELAY_TIME_VR_10);
+    Motor_Stop();
 }
 // перемещение надо указать направление и новые координаты
 // направление - глобальная переменная
 short SMove(int nx,int ny)
 {
+    /*
+Как вариант есть предложение не использовать проверки условия в этой функции,
+т.к. они по сути должны учитываться эвристикой, а показатели дальномеров должны
+учитываться только при корректировке положения.
+Поправка - показания учитывать и там и тут, т.к. могут быть препятствия (хотя не дай Бог, сложно очень придется тогда).
+    */
     enum direction nd=1; // относительное направление движения
+    int SafeX=0; // сюда сохраним расстояния до стенок.
+    int SafeY=0;
     short ax=0; // сравнение по оси х
     short ry=0; // сравнение по оси у
     int temp=0;
@@ -270,14 +283,15 @@ short SMove(int nx,int ny)
     if(ax==1)   // если нам нужно налево
             nd=LEFT-ry;
     // мы определили новое направление, теперь нужно переместиться.
-    temp1=isSafeY();
-    temp=isSafeX();
-    getParam("isSafe",temp,temp1);
+    // получаем показания с дальномеров один раз, и далее используем эти результаты.
+    SafeY=isSafeY();
+    SafeX=isSafeX();
+    getParam("isSafe",SafeX,SafeY);
     switch (nd)
     {
     case 1:
     case UP:
-        if(isSafeY()>2)
+        if(SafeY>2)
         {
             Motor_Init();  // настраиваем моторы
             Change_Duty(SPEED); // задаем скорость
@@ -291,9 +305,9 @@ short SMove(int nx,int ny)
         break;
     case 2:
     case RUP:
-        if(isSafeY()>2 && isSafeX()>2)
+        if(SafeY>2 && SafeX>2)
         {
-            S_Right(255);
+            S_Right(SPEED);
             delay_ms(DELAY_TIME_VR_10*15/10);
             Motor_Init();  // настраиваем моторы
             Change_Duty(SPEED); // задаем скорость
@@ -301,7 +315,7 @@ short SMove(int nx,int ny)
             Motor_B_FWD();
             delay_ms(2*DELAY_TIME_1sm); // ждем пока приедем
             Motor_Stop();
-            S_Left(255);
+            S_Left(SPEED);
             delay_ms(DELAY_TIME_VR_10*15/10);
             Correct();
             isMove=1;
@@ -309,7 +323,7 @@ short SMove(int nx,int ny)
         break;
     case 3:
     case RIGHT:
-        if(isSafeX()>2)
+        if(SafeX>2)
         {
             Motor_Init();  // настраиваем моторы
             Change_Duty(SPEED); // задаем скорость
@@ -317,7 +331,7 @@ short SMove(int nx,int ny)
             Motor_B_BWD();
             delay_ms(2*DELAY_TIME_1sm); // ждем пока приедем
             Motor_Stop();
-            S_Right(255);
+            S_Right(SPEED);
             delay_ms(DELAY_TIME_VR_10*15/10);
             Motor_Init();  // настраиваем моторы
             Change_Duty(SPEED); // задаем скорость
@@ -325,7 +339,7 @@ short SMove(int nx,int ny)
             Motor_B_FWD();
             delay_ms(3*DELAY_TIME_1sm); // ждем пока приедем  -------------------------------------------------------------------------------------------------
             Motor_Stop();
-            S_Left(255);
+            S_Left(SPEED);
             delay_ms(DELAY_TIME_VR_10*15/10);
             Correct();
             isMove=1;
@@ -333,9 +347,9 @@ short SMove(int nx,int ny)
         break;
     case 4:
     case RDOWN:
-        if(isSafeX()>2)
+        if(SafeX>2)
         {
-            S_Left(255);
+            S_Left(SPEED);
             delay_ms(DELAY_TIME_VR_10*15/10);
             Motor_Init();  // настраиваем моторы
             Change_Duty(SPEED); // задаем скорость
@@ -343,7 +357,7 @@ short SMove(int nx,int ny)
             Motor_B_BWD();
             delay_ms(2*DELAY_TIME_1sm); // ждем пока приедем
             Motor_Stop();
-            S_Right(255);
+            S_Right(SPEED);
             delay_ms(DELAY_TIME_VR_10*15/10);
             Correct();
             isMove=1;
@@ -363,7 +377,7 @@ short SMove(int nx,int ny)
         break;
     case 6:
     case LDOWN:
-        S_Right(255);
+        S_Right(SPEED);
         delay_ms(DELAY_TIME_VR_10*15/10);
         Motor_Init();  // настраиваем моторы
         Change_Duty(SPEED); // задаем скорость
@@ -371,7 +385,7 @@ short SMove(int nx,int ny)
         Motor_B_BWD();
         delay_ms(2*DELAY_TIME_1sm); // ждем пока приедем
         Motor_Stop();
-        S_Left(255);
+        S_Left(SPEED);
         delay_ms(DELAY_TIME_VR_10*15/10);
         Correct();
         isMove=1;
@@ -384,7 +398,7 @@ short SMove(int nx,int ny)
         Motor_B_BWD();
         delay_ms(2*DELAY_TIME_1sm); // ждем пока приедем
         Motor_Stop();
-        S_Left(255);
+        S_Left(SPEED);
         delay_ms(DELAY_TIME_VR_10*15/10);
         Motor_Init();  // настраиваем моторы
         Change_Duty(SPEED); // задаем скорость
@@ -392,16 +406,16 @@ short SMove(int nx,int ny)
         Motor_B_FWD();
         delay_ms(3*DELAY_TIME_1sm); // ждем пока приедем ----------------------------------------------------------------------------------------------
         Motor_Stop();
-        S_Right(255);
+        S_Right(SPEED);
         delay_ms(DELAY_TIME_VR_10*15/10);
         Correct();
         isMove=1;
         break;
     case 8:
     case LUP:
-        if(isSafeY()>2)
+        if(SafeY>2)
         {
-            S_Left(255);
+            S_Left(SPEED);
             delay_ms(DELAY_TIME_VR_10*15/10);
             Motor_Init();  // настраиваем моторы
             Change_Duty(SPEED); // задаем скорость
@@ -409,14 +423,14 @@ short SMove(int nx,int ny)
             Motor_B_FWD();
             delay_ms(2*DELAY_TIME_1sm); // ждем пока приедем
             Motor_Stop();
-            S_Right(255);
+            S_Right(SPEED);
             delay_ms(DELAY_TIME_VR_10*15/10);
             Correct();
             isMove=1;
         }
         break;
     case 9:
-    case ZEROD:
+    case ZEROD: // при нештатной ситуации - сообщаем о ней базе.
         getParam("zerod ",1,1);
         break;
     }
@@ -434,7 +448,7 @@ short SMove(int nx,int ny)
 
 short isMetall()
 {
-    short m;
+    short m=0;
     m=Adc_Rd(1);
     if(m>0 && m<50)
         return 1;    // если объект металлический возвращаем единицу
@@ -448,3 +462,4 @@ short comp(int d1,int d2)
     if(d1>d2) return 1; // первый больше второго
     else return -1; // первый меньше второго
 }
+#endif
