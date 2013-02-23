@@ -45,28 +45,37 @@ void main()
     setParam("max   ",maxX,maxY,1);
     getParam("Hint  ",cX,cY);
      
-while(getParam("jbsdne",1,1)!=13)
-{
-
-  //enum direction nd;
-  
-  /*if(cX<=maxX/2)
+  while(getParam("jbsdne",1,1)!=13)
   {
-        if(cY<=maxY/2)
-            nd=DOWN;
-        else
-            nd=LEFT;
-  }
-  else
-  {
-        if(cY<=maxY/2)
-            nd=RIGHT;
-        else
-            nd=UP;
-  }
 
- SRotare(cdirection,nd); */
+    enum direction nd;
+    
+    shitch(cdirection)
+    {
+      case UP:
+        r=cY-2dY;
+        nd=DOWN;
+        break;
+      case DOWN:
+        r=cY+2dY;
+        nd=UP;
+        break;
+      case LEFT:
+        r=cX+2dY;
+        nd=RIGHT;
+        break;
+      case RIGHT:
+        r=cX-2dY;
+        nd=LEFT;
+        break;
+    } 
+    if(r<2) 
+    {
+      SRotare(cdirection,nd);
+      SForward(255);
+      delay_ms(DELAY_TIME_1sm*2*2*dY);
+    }
 
-A_search();
-}
+  A_search();
+  }
 }
