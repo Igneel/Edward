@@ -1,13 +1,13 @@
 
 #include "a.h"
-//  настройка выводов Lcd
+//  РЅР°СЃС‚СЂРѕР№РєР° РІС‹РІРѕРґРѕРІ Lcd
 sbit LCD_RS at RD2_bit;
 sbit LCD_EN at RD3_bit;
 sbit LCD_D7 at RD7_bit;
 sbit LCD_D6 at RD6_bit;
 sbit LCD_D5 at RD5_bit;
 sbit LCD_D4 at RD4_bit;
-// настройка направлений
+// РЅР°СЃС‚СЂРѕР№РєР° РЅР°РїСЂР°РІР»РµРЅРёР№
 sbit LCD_RS_Direction at TRISD2_bit;
 sbit LCD_EN_Direction at TRISD3_bit;
 sbit LCD_D7_Direction at TRISD7_bit;
@@ -28,11 +28,11 @@ void main()
     int temp=0;
     int temp1=0;
     UART1_Init(9600);
-    while(getParam("start ",1,1)!=13) // ждем сигнала старта
+    while(getParam("start ",1,1)!=13) // Р¶РґРµРј СЃРёРіРЅР°Р»Р° СЃС‚Р°СЂС‚Р°
     Delay_ms(100);
      
-    cdirection=DOWN; // начальное направление - вниз
-    cX=isSafeX()/2;  // получаем текущие координаты
+    cdirection=DOWN; // РЅР°С‡Р°Р»СЊРЅРѕРµ РЅР°РїСЂР°РІР»РµРЅРёРµ - РІРЅРёР·
+    cX=isSafeX()/2;  // РїРѕР»СѓС‡Р°РµРј С‚РµРєСѓС‰РёРµ РєРѕРѕСЂРґРёРЅР°С‚С‹
     cY=isSafeY()/2;
     getParam("Hint  ",cX,cY);
     SRotare(cdirection,UP);
@@ -72,7 +72,7 @@ void main()
     if(r<2) 
     {
       SRotare(cdirection,nd);
-      SForward(255);
+      Backward(SPEED);
       delay_ms(DELAY_TIME_1sm*2*2*dY);
     }
 
